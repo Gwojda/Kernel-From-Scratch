@@ -10,8 +10,8 @@
 ;   stack is properly aligned and failure to align the stack will result in
 ;   undefined behavior.
 
-.section .bss
-.align 16
+section .bss
+align 16
 stack_bottom:
 resb 16384 ; 16 KiB
 stack_top:
@@ -20,9 +20,9 @@ stack_top:
 ;   bootloader will jump to this position once the kernel has been loaded. It
 ;   doesn't make sense to return from this function as the bootloader is gone.
 
-.section .text
-.global _start
-.type _start, @function
+section .text
+extern kmain
+global _start
 _start:
 
 ;   The bootloader has loaded us into 32-bit protected mode on a x86
@@ -40,7 +40,7 @@ _start:
 ;   stack (as it grows downwards on x86 systems). This is necessarily done
 ;   in assembly as languages such as C cannot function without a stack.
 
-mov $stack_top, %esp
+	mov esp, stack_top
 
 ;   This is a good place to initialize crucial processor state before the
 ;   high-level kernel is entered. It's best to minimize the early
@@ -58,7 +58,7 @@ mov $stack_top, %esp
 ;   stack since (pushed 0 bytes so far) and the alignment is thus
 ;   preserved and the call is well defined.
 
- call kernel_main
+ call kmain
 
 ;   If the system has nothing more to do, put the computer into an
 ;   infinite loop. To do that:
@@ -71,11 +71,7 @@ mov $stack_top, %esp
 ;   3) Jump to the hlt instruction if it ever wakes up due to a
 ;   non-maskable interrupt occurring or due to system management mode.
 
-cli
-1:	hlt
-jmp 1b
+	cli
+	hlt
+	jmp 1b
 
-;   Set the size of the _start symbol to the current location '.' minus its start.
-;   This is useful when debugging or when you implement call tracing.
-
-.size _start, . - _start
