@@ -6,5 +6,5 @@ void kmain(void)
 	terminal_initialize();
 
 	/* Newline support is left as an exercise. */
-	terminal_writestring("Hello, kernel World!\n");
+	terminal_putstr("Hello, kernel World!\n");
 }

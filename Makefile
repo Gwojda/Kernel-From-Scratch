@@ -11,7 +11,7 @@ INCS =	-I inc/
 
 ## Flags
 CFLAGS =	-std=gnu99 -ffreestanding -O2 -Wall -Wextra -m32 $(INCS)
-LDFLAG =	-melf_i386 -static --entry=_start -o -T isofiles/boot/linker.ld
+LDFLAG =	-melf_i386 -static --entry=_start -T $(LINKER) 
 ASMFLAGS =	-f elf -o
 
 include ./boot/$(ARCH)/Makefile
