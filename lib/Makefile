@@ -1,0 +1,1 @@
+OBJS += lib/strlen.o

@@ -1,9 +1,56 @@
-all :
-	nasm -f elf isofiles/boot/multiboot_header.asm
-	nasm -f elf isofiles/boot/boot.asm
-	gcc -c isofiles/boot/kernel.c -o isofiles/boot/kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra -m32
-	ld -melf_i386 -static --entry=_start -o isofiles/boot/kernel.bin -T isofiles/boot/linker.ld isofiles/boot/multiboot_header.o isofiles/boot/boot.o isofiles/boot/kernel.o
-	sudo grub-mkrescue -o os.iso isofiles
+ARCH =		x86
+KERNEL =	KKERNEL
 
-run:
-	sudo qemu-system-x86_64 -cdrom os.iso -curses
+## Compilers
+CC =		gcc
+ASM =		nasm
+LD =		ld
+
+## Includes
+INCS =	-I inc/
+
+## Flags
+CFLAGS =	-std=gnu99 -ffreestanding -O2 -Wall -Wextra -m32
+LDFLAG =	-melf_i386 -static --entry=_start -o -T isofiles/boot/linker.ld
+ASMFLAGS =	-f elf -o
+
+include ./boot/$(ARCH)/Makefile
+include ./kernel/Makefile
+include ./lib/Makefile
+
+TOTAL=		$(shell echo $(OBJS) | sed 's/ /\n/g' | wc -l)
+CURRENT=	01
+
+all: $(KERNEL)
+
+$(KERNEL): $(OBJS)
+	@echo "Linking kernel to $@..."
+	@$(LD) $(LDFLAG) -o boot/$@ $^
+	@echo "Compilation done for $(KERNEL)"
+
+%.o: %.c
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "[$(shell printf "%02d" $(CURRENT))/$(TOTAL)]\tCompiling (C++) $@..."
+	$(eval CURRENT=$(shell echo $$(($(CURRENT)+1))))
+
+%.o: %.s
+	$(CC) $(CFLAGS) -c $< -o $@
+
+%.o: %.asm
+	@$(ASM) $(ASMFLAGS) -c $< -o $@
+	@echo "[$(shell printf "%02d" $(CURRENT))/$(TOTAL)]\tCompiling (ASM) $@..."
+	$(eval CURRENT=$(shell echo $$(($(CURRENT)+1))))
+
+install: $(KERNEL)
+	@echo "Installing kernel image..."
+	@sudo grub-mkrescue -o os.iso .
+	@echo "Launching KVM..."
+	@sudo qemu-system-x86_64 -cdrom os.iso -curses
+
+clean:
+	@rm -f $(OBJS)
+	@echo "Cleaning objects..."
+
+fclean: clean
+	@rm -f $(KERNEL)
+	@echo "Cleaning Kernel..."
