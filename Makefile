@@ -10,7 +10,7 @@ LD =		ld
 INCS =	-I inc/
 
 ## Flags
-CFLAGS =	-std=gnu99 -ffreestanding -O2 -Wall -Wextra -m32
+CFLAGS =	-std=gnu99 -ffreestanding -O2 -Wall -Wextra -m32 $(INCS)
 LDFLAG =	-melf_i386 -static --entry=_start -o -T isofiles/boot/linker.ld
 ASMFLAGS =	-f elf -o
 
@@ -29,7 +29,7 @@ $(KERNEL): $(OBJS)
 	@echo "Compilation done for $(KERNEL)"
 
 %.o: %.c
-	@$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 	@echo "[$(shell printf "%02d" $(CURRENT))/$(TOTAL)]\tCompiling (C++) $@..."
 	$(eval CURRENT=$(shell echo $$(($(CURRENT)+1))))
 
