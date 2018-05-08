@@ -1,8 +1,8 @@
 #include "terminal.h"
+#include "lib.h"
 
 void	terminal_scrollup(void)
 {
-	if (terminal_row + 1 != VGA_HEIGHT || terminal_column + 1 != VGA_WIDTH)
-		return ;
-	memmove(terminal_buffer, terminal_buffer + VGA_WIDTH, VGA_WIDTH * (VGA_HEIGHT - 1));
+	memcpy((void *)terminal_buffer, (const void *)terminal_buffer + VGA_WIDTH, VGA_WIDTH * (VGA_HEIGHT - 1));
+	bzero((void *)terminal_buffer + (VGA_WIDTH * (VGA_HEIGHT - 1)), VGA_WIDTH);
 }
