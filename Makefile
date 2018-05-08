@@ -11,7 +11,7 @@ INCS =	-I inc/
 
 ## Flags
 CFLAGS =	-std=gnu99 -ffreestanding -O2 -Wall -Wextra -m32 $(INCS)
-LDFLAG =	-melf_i386 -static --entry=_start -T $(LINKER) 
+LDFLAG =	-melf_i386 -static --entry=_start -T $(LINKER)
 ASMFLAGS =	-f elf -o
 
 include ./boot/$(ARCH)/Makefile
@@ -43,7 +43,10 @@ $(KERNEL): $(OBJS)
 
 install: $(KERNEL)
 	@echo "Installing kernel image..."
-	@sudo grub-mkrescue -o os.iso .
+	@mkdir tmp
+	@cp -R boot tmp/
+	@sudo grub-mkrescue -o os.iso tmp
+	rm -rf tmp
 	@echo "Launching KVM..."
 	@sudo qemu-system-x86_64 -cdrom os.iso -curses
 
