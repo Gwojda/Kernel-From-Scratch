@@ -5,6 +5,6 @@ echo "Generating new Makefile";
 echo "OBJS += \\" >> Makefile;
 for f in **/*;
 do
-	echo "$f \\" | rev | sed s/c/o/ | rev >> Makefile;
+	echo "kernel/$f \\" | rev | sed s/c/o/ | rev >> Makefile;
 done
 echo "new Makefile generated";
