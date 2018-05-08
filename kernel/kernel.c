@@ -7,4 +7,8 @@ void kmain(void)
 
 	/* Newline support is left as an exercise. */
 	terminal_putstr("Hello, kernel World!\n");
+	while (1)
+	{
+		terminal_putstr("blablabla\n");
+	}
 }
