@@ -1,4 +1,5 @@
 OBJS += \
+kernel/kernel.o \
 kernel/terminal/initialize_terminal.o \
 kernel/terminal/terminal_clear_screen.o \
 kernel/terminal/terminal_putchar.o \

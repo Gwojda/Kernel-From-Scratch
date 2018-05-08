@@ -1,5 +1,6 @@
 ARCH =		x86
 KERNEL =	KKERNEL
+ISO =		kkernel.iso
 
 ## Compilers
 CC =		gcc
@@ -30,7 +31,7 @@ $(KERNEL): $(OBJS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	@echo "[$(shell printf "%02d" $(CURRENT))/$(TOTAL)]\tCompiling (C++) $@..."
+	@echo "[$(shell printf "%02d" $(CURRENT))/$(TOTAL)]\tCompiling (C) $@..."
 	$(eval CURRENT=$(shell echo $$(($(CURRENT)+1))))
 
 %.o: %.s
@@ -42,13 +43,13 @@ $(KERNEL): $(OBJS)
 	$(eval CURRENT=$(shell echo $$(($(CURRENT)+1))))
 
 install: $(KERNEL)
-	@echo "Installing kernel image..."
-	@mkdir tmp
-	@cp -R boot tmp/
-	@sudo grub-mkrescue -o os.iso tmp
+	echo "Installing kernel image..."
+	mkdir -p tmp
+	cp -R boot tmp/
+	sudo grub-mkrescue -o $(ISO) tmp
 	rm -rf tmp
-	@echo "Launching KVM..."
-	@sudo qemu-system-x86_64 -cdrom os.iso -curses
+	echo "Launching KVM..."
+	sudo qemu-system-x86_64 -cdrom $(ISO) -curses
 
 clean:
 	@rm -f $(OBJS)
@@ -56,4 +57,5 @@ clean:
 
 fclean: clean
 	@rm -f $(KERNEL)
+	@rm -f $(ISO)
 	@echo "Cleaning Kernel..."

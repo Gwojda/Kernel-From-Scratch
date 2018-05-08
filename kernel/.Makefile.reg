@@ -1,0 +1,2 @@
+OBJS += \
+kernel/kernel.o \

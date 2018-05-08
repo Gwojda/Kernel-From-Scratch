@@ -2,6 +2,7 @@
 echo "old Makefile still alive : .Makefile.reg";
 mv Makefile .Makefile.reg
 echo "Generating new Makefile";
+echo "LINKER = boot/\$(ARCH)/linker.ld" >> Makefile
 echo "OBJS += \\" >> Makefile;
 for f in *.asm;
 do
