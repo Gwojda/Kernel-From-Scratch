@@ -3,6 +3,6 @@
 void	*memset(void *s, int c, size_t n)
 {
 	while (n--)
-		((t_uchar*)s)[n] = (t_uchar)c;
+		((unsigned char*)s)[n] = (unsigned char)c;
 	return (s);
 }

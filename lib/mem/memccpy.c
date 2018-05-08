@@ -5,13 +5,13 @@ void	*memccpy(void *dst, const void *src, int c, size_t len)
 	size_t i;
 
 	i = 0;
-	while (i < len && ((t_uchar*)src)[i] != (t_uchar)c)
+	while (i < len && ((unsigned char*)src)[i] != (unsigned char)c)
 	{
-		((t_uchar*)dst)[i] = ((t_uchar*)src)[i];
+		((unsigned char*)dst)[i] = ((unsigned char*)src)[i];
 		i++;
 	}
 	if (i == len)
 		return (NULL);
-	((t_uchar*)dst)[i] = ((t_uchar*)src)[i];
+	((unsigned char*)dst)[i] = ((unsigned char*)src)[i];
 	return (dst + i + 1);
 }

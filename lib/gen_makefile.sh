@@ -5,6 +5,6 @@ echo "Generating new Makefile";
 echo "OBJS += \\" >> Makefile;
 for f in **/*.c;
 do
-	echo "inc/$f \\" | rev | sed s/c/o/ | rev >> Makefile;
+	echo "lib/$f \\" | rev | sed s/c/o/ | rev >> Makefile;
 done
 echo "new Makefile generated";

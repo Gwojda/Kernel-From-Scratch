@@ -7,7 +7,7 @@ char	*strchr(const char *s, int c)
 	i = 0;
 	while (i == 0 || s[i - 1])
 	{
-		if (s[i] == (t_uchar)c)
+		if (s[i] == (unsigned char)c)
 			return ((char*)s + (char)i);
 		i++;
 	}

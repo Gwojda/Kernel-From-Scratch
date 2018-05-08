@@ -7,8 +7,8 @@ char	*strrchr(const char *s, int c)
 	i = strlen(s);
 	while (i >= 0)
 	{
-		if (s[i] == (t_uchar)c)
-			return ((char*)s + (t_uchar)i);
+		if (s[i] == (unsigned char)c)
+			return ((char*)s + (unsigned char)i);
 		i--;
 	}
 	return (NULL);

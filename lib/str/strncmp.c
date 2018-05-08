@@ -9,5 +9,5 @@ int		strncmp(const char *s1, const char *s2, size_t n)
 		++i;
 	if (i == n)
 		return (0);
-	return ((t_uchar)s1[i] - (t_uchar)s2[i]);
+	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
