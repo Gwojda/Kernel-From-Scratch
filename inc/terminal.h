@@ -28,6 +28,12 @@ enum vga_color {
 	VGA_COLOR_WHITE = 15,
 };
 
+typedef struct	s_terminal_cortab
+{
+	char	key;
+	void	(*f)(char c);
+}				t_terminal_cortab;
+
 extern const size_t VGA_WIDTH;
 extern const size_t VGA_HEIGHT;
 

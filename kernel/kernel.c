@@ -7,10 +7,21 @@ void kmain(void)
 	terminal_initialize();
 
 	/* Newline support is left as an exercise. */
-	terminal_putstr("Hello, kernel World!\n");
-	while (i < 100)
-	{
-		terminal_putstr("blablabla\n");
-		++i;
-	}
+	terminal_color = vga_entry_color(VGA_COLOR_RED, VGA_COLOR_BLACK);
+	terminal_putstr("\
+         ___---___\
+      .--         --.\
+    ./   ()      .-. \\.\
+   /   o    .   (   )  \\\
+  / .            '-'    \\\
+ | ()    .  O         .  |\
+|                         |\
+|    o           ()       |\
+|       .--.          O   |\
+ | .   |    |            |\
+ \\    `.__.'    o   .  /\
+  \\                   /\
+   `\\  o    ()      /'\
+      `--___   ___--'\
+            ---\n");
 }
