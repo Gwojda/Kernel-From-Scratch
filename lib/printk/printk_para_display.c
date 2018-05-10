@@ -35,8 +35,8 @@ int printk_para_display(struct printk_writer *writer, va_list ap, struct printk_
 		return ret;
 	else if (para->type == PRINTK_INT)
 	{
-		intmax_t nb;
-		char *nbr_buff[sizeof(intmax_t) * 8 + 1] = {0};
+		long int nb;
+		char *nbr_buff[sizeof(long int) * 8 + 1] = {0};
 
 		if (para->is_unsigned == 0)
 		{
@@ -48,10 +48,6 @@ int printk_para_display(struct printk_writer *writer, va_list ap, struct printk_
 				nb = va_arg(ap, int);
 			else if (para->size == sizeof(long))
 				nb = va_arg(ap, long);
-			else if (para->size == sizeof(long long))
-				nb = va_arg(ap, long long);
-			else if (para->size == sizeof(intmax_t))
-				nb = va_arg(ap, intmax_t);
 			else if (para->size == sizeof(ptrdiff_t))
 				nb = va_arg(ap, ptrdiff_t);
 			else
@@ -67,10 +63,6 @@ int printk_para_display(struct printk_writer *writer, va_list ap, struct printk_
 				nb = va_arg(ap, unsigned int);
 			else if (para->size == sizeof(unsigned long))
 				nb = va_arg(ap, unsigned long);
-			else if (para->size == sizeof(unsigned long long))
-				nb = va_arg(ap, unsigned long long);
-			else if (para->size == sizeof(uintmax_t))
-				nb = va_arg(ap, uintmax_t);
 			else if (para->size == sizeof(size_t))
 				nb = va_arg(ap, size_t);
 			else

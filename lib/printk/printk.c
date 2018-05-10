@@ -11,8 +11,6 @@
 /* ************************************************************************** */
 
 #include "printk.h"
-#include <unistd.h>
-#include <string.h>
 
 size_t write_str(struct printk_writer *writer, char *str)
 {

@@ -23,6 +23,7 @@ void kmain(void)
 "    `\\  o    ()      /'\n"
 "      `--___   ___--'\n"
 "            ---\n");
+	printk("coucou tout le monde ! %d \n", 4242);
 	while (1)
 		print_keyboard_entry();
 }

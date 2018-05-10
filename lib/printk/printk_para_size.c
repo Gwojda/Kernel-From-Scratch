@@ -19,8 +19,6 @@ static const struct {
 	{"hh", sizeof(char)},
 	{"h",  sizeof(char)},
 	{"l",  sizeof(long)},
-	{"ll", sizeof(long long)},
-	{"j",  sizeof(intmax_t)},
 	{"t",  sizeof(ptrdiff_t)},
 	{"z",  sizeof(size_t)},
 	{"",   0}

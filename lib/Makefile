@@ -19,7 +19,6 @@ lib/mem/memcpy.o \
 lib/mem/memmove.o \
 lib/mem/memset.o \
 lib/printk/itoa_stack_max.o \
-lib/printk/main.o \
 lib/printk/printk.o \
 lib/printk/printk_para_conv.o \
 lib/printk/printk_para_display.o \

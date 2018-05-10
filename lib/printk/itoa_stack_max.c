@@ -25,7 +25,7 @@ static size_t itoa_stack_max_len(const char *str)
 	return i;
 }
 
-static size_t itoa_stack_max_rec(char *nbr_buff, uintmax_t nb, const char *char_set, size_t char_set_nb)
+static size_t itoa_stack_max_rec(char *nbr_buff, unsigned long int nb, const char *char_set, size_t char_set_nb)
 {
 	size_t i;
 
@@ -36,7 +36,7 @@ static size_t itoa_stack_max_rec(char *nbr_buff, uintmax_t nb, const char *char_
 	return i + 1;
 }
 
-int itoa_stack_max(char *nbr_buff, int is_unsigned, intmax_t nb, const char *char_set)
+int itoa_stack_max(char *nbr_buff, int is_unsigned, long int nb, const char *char_set)
 {
 	size_t last_write;
 	const size_t len_charset = itoa_stack_max_len(char_set);
