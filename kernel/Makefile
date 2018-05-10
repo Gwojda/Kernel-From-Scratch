@@ -1,6 +1,8 @@
 OBJS += \
+kernel/io.o \
 kernel/kernel.o \
 kernel/terminal/initialize_terminal.o \
+kernel/terminal/print_keyboard_entry.o \
 kernel/terminal/terminal_clear_screen.o \
 kernel/terminal/terminal_putchar.o \
 kernel/terminal/terminal_putentryat.o \
