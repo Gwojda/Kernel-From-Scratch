@@ -1,6 +1,7 @@
 #include "terminal.h"
+#include "lib.h"
 
-static void	terminal_printchar(void)
+static void	terminal_printchar(char c)
 {
 	terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
 	if (++terminal_column == VGA_WIDTH)
@@ -30,7 +31,7 @@ static void	terminal_putretchariot(void)
 void	terminal_putchar(char c)
 {
 	if (isprint(c))
-		terminal_printchar();
+		terminal_printchar(c);
 	else if (c == '\n')
 		terminal_putendl();
 	else if (c == '\r')

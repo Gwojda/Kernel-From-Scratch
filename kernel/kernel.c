@@ -24,4 +24,6 @@ void kmain(void)
    `\\  o    ()      /'\
       `--___   ___--'\
             ---\n");
+	while (1)
+		print_keyboard_entry();
 }
