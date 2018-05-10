@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   printk.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ndombre <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: ndombre <ndombre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 15:03:10 by ndombre           #+#    #+#             */
-/*   Updated: 2018/05/10 13:56:53 by ndombre          ###   ########.fr       */
+/*   Updated: 2018/05/10 14:25:59 by gwojda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ size_t vprintk(const char *fmt, va_list ap)
 		if (*fmt == '%')
 		{
 			fmt++;
-			if ((tmp = printk_display(&writer, &fmt, ap)) == (size_t)-1)
+			if ((tmp = printk_display(&writer, &fmt, ap)) < 0)
 			{
 				writer.write_str(&writer, "BAD PRINTK FORMAT !");
 				return (-1);
