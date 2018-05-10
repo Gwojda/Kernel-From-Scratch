@@ -49,7 +49,7 @@ install: $(KERNEL)
 	sudo grub-mkrescue -o $(ISO) tmp
 	rm -rf tmp
 	echo "Launching KVM..."
-	sudo qemu-system-x86_64 -cdrom $(ISO) -curses
+	sudo qemu-system-i386 -s -cdrom $(ISO) -curses
 
 clean:
 	@rm -f $(OBJS)

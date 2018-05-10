@@ -1,4 +1,4 @@
-#include "keyboard.h"
+#include "terminal.h"
 #include "io.h"
 
 #define RELEASED 0
@@ -47,14 +47,13 @@ void	print_keyboard_entry(void)
 	static char shift_locked = FALSE;
 	unsigned int cr;
 
-	cr = inb(0x60);
+	cr = inb(0x64);
 	if (SHIFT_PRESSED(cr))
 		shift_locked = TRUE;
 	if (SHIFT_RELEASED(cr))
 		shift_locked = FALSE;
-
-	cr &= 0x7F;
-	new_key->keydata.key = cr;
+//	terminal_putstr(itoa(cr));
+//	cr &= 0x7F;
 	if (shift_locked)
 		terminal_putchar(value_table[cr]);
 	else

@@ -56,6 +56,8 @@ void	terminal_putentryat(char c, uint8_t color, size_t x, size_t y);
 void	terminal_setcolor(uint8_t color);
 void	terminal_scrollup(void);
 
+void 	print_kerboard_entry(void);
+
 uint16_t	vga_entry(unsigned char uc, uint8_t color);
 uint8_t		vga_entry_color(enum vga_color fg, enum vga_color bg);
 

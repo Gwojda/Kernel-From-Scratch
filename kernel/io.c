@@ -1,10 +1,12 @@
+#include "io.h"
+
 /*
 * output byte
 */
 
 void	outb(u32 ad, u8 v)
 {
-    asmv("outb %%al, %%dx" :: "d" (ad), "a" (v));;
+    asm("outb %%al, %%dx" :: "d" (ad), "a" (v));;
 }
 
 /*
@@ -13,7 +15,7 @@ void	outb(u32 ad, u8 v)
 
 void	outw(u32 ad, u16 v)
 {
-    asmv("outw %%ax, %%dx" :: "d" (ad), "a" (v));
+    asm("outw %%ax, %%dx" :: "d" (ad), "a" (v));
 }
 
 /*
@@ -22,7 +24,7 @@ void	outw(u32 ad, u16 v)
 
 void	outl(u32 ad, u32 v)
 {
-    asmv("outl %%eax, %%dx" : : "d" (ad), "a" (v));
+    asm("outl %%eax, %%dx" : : "d" (ad), "a" (v));
 }
 
 /*
@@ -32,7 +34,7 @@ void	outl(u32 ad, u32 v)
 u8		inb(u32 ad)
 {
     u8 _v;       \
-    asmv("inb %%dx, %%al" : "=a" (_v) : "d" (ad)); \
+    asm("inb %%dx, %%al" : "=a" (_v) : "d" (ad)); \
     return _v;
 }
 
@@ -43,7 +45,7 @@ u8		inb(u32 ad)
 u16		inw(u32 ad)
 {
     u16 _v;            \
-    asmv("inw %%dx, %%ax" : "=a" (_v) : "d" (ad));    \
+    asm("inw %%dx, %%ax" : "=a" (_v) : "d" (ad));    \
     return _v;
 }
 
@@ -54,6 +56,6 @@ u16		inw(u32 ad)
 u32		inl(u32 ad)
 {
     u32 _v;            \
-    asmv("inl %%dx, %%eax" : "=a" (_v) : "d" (ad));    \
+    asm("inl %%dx, %%eax" : "=a" (_v) : "d" (ad));    \
     return _v;
 }
