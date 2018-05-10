@@ -10,7 +10,10 @@ static void	terminal_printchar(char c)
 		if (terminal_row != VGA_HEIGHT)
 			++terminal_row;
 		if (terminal_row == VGA_HEIGHT)
+		{
 			terminal_scrollup();
+			--terminal_row;
+		}
 	}
 }
 
@@ -19,7 +22,10 @@ static void	terminal_putendl(void)
 	if (terminal_row != VGA_HEIGHT)
 		++terminal_row;
 	if (terminal_row == VGA_HEIGHT)
+	{
 		terminal_scrollup();
+		--terminal_row;
+	}
 	terminal_column = 0;
 }
 

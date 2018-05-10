@@ -23,6 +23,6 @@ void kmain(void)
 "    `\\  o    ()      /'\n"
 "      `--___   ___--'\n"
 "            ---\n");
-//	while (1)
+	while (1)
 		print_keyboard_entry();
 }

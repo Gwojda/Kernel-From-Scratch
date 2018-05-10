@@ -46,6 +46,7 @@ void	print_keyboard_entry(void)
 {
 	static char shift_locked = FALSE;
 	unsigned int cr;
+	unsigned int tmp;
 
 /*
 * Status Register - PS/2 Controller
@@ -62,15 +63,18 @@ void	print_keyboard_entry(void)
 	if (inb(0x64) & 1)
 	{
 		cr = inb(0x60);
+		tmp = cr;
 		if (SHIFT_PRESSED(cr))
 			shift_locked = TRUE;
 		if (SHIFT_RELEASED(cr))
 			shift_locked = FALSE;
-	//	terminal_putstr(itoa(cr));
-	//	cr &= 0x7F;
-		if (shift_locked)
-			terminal_putchar(value_table[cr]);
-		else
-			terminal_putchar(value_table_shift[cr]);
+		cr &= 0x7F;
+		if (tmp == cr)
+		{
+			if (shift_locked)
+				terminal_putchar(value_table[cr]);
+			else
+				terminal_putchar(value_table_shift[cr]);
+		}
 	}
 }
