@@ -1,11 +1,8 @@
-#include "terminal.h"
+#include "vga.h"
 #include "io.h"
 
-#define RELEASED 0
-#define PRESSED 1
-#define FALSE 0
 #define TRUE 1
-#define HALF_KEY 91
+#define FALSE 1
 
 #define SHIFT_PRESSED(x) (x == 0x36 || x == 0x2A)
 #define SHIFT_RELEASED(x) (x == 0xB6 || x == 0xAA)
@@ -42,7 +39,11 @@ unsigned char value_table_shift[] = 	{
 	0, 0, 0, 0, 0
 };
 
-void	print_keyboard_entry(void)
+/*
+* dont have yet interrupt ! we'll use it until we've got a good IDT
+*/
+
+char	getc(void)
 {
 	static char shift_locked = FALSE;
 	unsigned int cr;
@@ -72,9 +73,10 @@ void	print_keyboard_entry(void)
 		if (tmp == cr)
 		{
 			if (shift_locked)
-				terminal_putchar(value_table[cr]);
+				return value_table[cr];
 			else
-				terminal_putchar(value_table_shift[cr]);
+				return value_table_shift[cr];
 		}
 	}
+	return 0;
 }

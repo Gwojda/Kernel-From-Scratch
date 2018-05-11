@@ -21,7 +21,7 @@
 size_t vprintk(const char *fmt, va_list ap);
 size_t printk(const char *fmt, ...);
 
-void terminal_putchar(char c);
+void vga_putchar(char c);
 
 enum printk_para_family
 {

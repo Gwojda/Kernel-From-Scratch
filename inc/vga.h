@@ -5,9 +5,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#if !defined(__i386__)
- #error "This tutorial needs to be compiled with a ix86-elf compiler"
-#endif
+#define VGA_WIDTH 80
+#define VGA_HEIGHT 25
 
 enum vga_color {
 	VGA_COLOR_BLACK = 0,
@@ -28,35 +27,21 @@ enum vga_color {
 	VGA_COLOR_WHITE = 15,
 };
 
-typedef struct	s_terminal_cortab
-{
-	char	key;
-	void	(*f)(char c);
-}				t_terminal_cortab;
-
-extern const size_t VGA_WIDTH;
-extern const size_t VGA_HEIGHT;
-
-size_t terminal_row;
-size_t terminal_column;
-uint8_t terminal_color;
-
-volatile uint16_t* terminal_buffer;
+volatile uint16_t*	vga_buffer;
 
 /*
 * Note the use of the volatile keyword to prevent the compiler from eliminating dead stores.
 */
 
-void	terminal_initialize(void);
-void	terminal_clear_screen(void);
-void	terminal_putchar(char c);
-void	terminal_putstr(const char* data);
-void	terminal_write(const char* data, size_t size);
-void	terminal_putentryat(char c, uint8_t color, size_t x, size_t y);
-void	terminal_setcolor(uint8_t color);
-void	terminal_scrollup(void);
+void		vga_putchar(char c);
+void		vga_putstr(const char* data);
+void		vga_write(const char* data, size_t size);
+void		vga_putentryat(char c, uint8_t color, size_t x, size_t y);
+void		vga_setcolor(uint8_t color);
+void		vga_scrollup(void);
+void		vga_render_tty(void);
 
-void 	print_kerboard_entry(void);
+void		vga_move_cursor(size_t x, size_t y);
 
 uint16_t	vga_entry(unsigned char uc, uint8_t color);
 uint8_t		vga_entry_color(enum vga_color fg, enum vga_color bg);

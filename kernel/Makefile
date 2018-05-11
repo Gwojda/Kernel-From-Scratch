@@ -1,13 +1,16 @@
 OBJS += \
-kernel/io.o \
 kernel/kernel.o \
-kernel/terminal/initialize_terminal.o \
-kernel/terminal/print_keyboard_entry.o \
-kernel/terminal/terminal_clear_screen.o \
-kernel/terminal/terminal_putchar.o \
-kernel/terminal/terminal_putentryat.o \
-kernel/terminal/terminal_putstr.o \
-kernel/terminal/terminal_scrollup.o \
-kernel/terminal/terminal_setcolor.o \
-kernel/terminal/terminal_write.o \
-kernel/terminal/vga_entry.o \
+kernel/io/getc.o \
+kernel/io/io.o \
+kernel/tty/init_tty.o \
+kernel/tty/switch_tty.o \
+kernel/tty/tty_clear_screen.o \
+kernel/vga/vga_entry.o \
+kernel/vga/vga_move_cursor.o \
+kernel/vga/vga_putchar.o \
+kernel/vga/vga_putentryat.o \
+kernel/vga/vga_putstr.o \
+kernel/vga/vga_render_tty.o \
+kernel/vga/vga_scrollup.o \
+kernel/vga/vga_setcolor.o \
+kernel/vga/vga_write.o \

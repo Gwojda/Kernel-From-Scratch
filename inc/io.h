@@ -12,4 +12,6 @@ u8		inb(u32 ad);
 u16		inw(u32 ad);
 u32		inl(u32 ad);
 
+char	getc(void);
+
 #endif

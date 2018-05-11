@@ -6,7 +6,7 @@
 /*   By: ndombre <ndombre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/09 15:03:10 by ndombre           #+#    #+#             */
-/*   Updated: 2018/05/10 14:25:59 by gwojda           ###   ########.fr       */
+/*   Updated: 2018/05/11 11:18:34 by gwojda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ size_t write_str(struct printk_writer *writer, char *str)
 size_t write_char(struct printk_writer *writer, int c)
 {
 	(void)writer;
-	terminal_putchar(c);
+	vga_putchar(c);
 	return 1;
 }
 
@@ -54,8 +54,8 @@ static int printk_display(struct printk_writer *writer, const char **fmt, va_lis
 
 size_t vprintk(const char *fmt, va_list ap)
 {
-	size_t ret = 0;
-	size_t tmp;
+	size_t	ret = 0;
+	int		tmp;
 
 	while (*fmt)
 	{
