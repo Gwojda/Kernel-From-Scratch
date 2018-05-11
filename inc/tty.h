@@ -18,7 +18,8 @@ extern size_t	current_tty;
 t_tty			tty[MAX_TTY];
 
 void	init_tty(void);
-void	tty_clear_screen(size_t ind);
+void	tty_scrollup(void);
 void	switch_tty(size_t new_tty);
+void	tty_clear_screen(size_t ind);
 
 #endif

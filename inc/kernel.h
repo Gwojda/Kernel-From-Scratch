@@ -7,6 +7,7 @@
 
 # include "vga.h"
 # include "printk.h"
+# include "io.h"
 
 # if !defined(__i386__)
 #  error "This tutorial needs to be compiled with a ix86-elf compiler"

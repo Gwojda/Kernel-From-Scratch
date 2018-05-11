@@ -12,7 +12,8 @@ static void	vga_printchar(char c)
 			++tty[current_tty].tty_row;
 		if (tty[current_tty].tty_row == VGA_HEIGHT)
 		{
-			vga_scrollup();
+			tty_scrollup();
+			vga_render_tty();
 			--tty[current_tty].tty_row;
 		}
 	}
@@ -25,10 +26,12 @@ static void	vga_putendl(void)
 		++tty[current_tty].tty_row;
 	if (tty[current_tty].tty_row == VGA_HEIGHT)
 	{
-		vga_scrollup();
+		tty_scrollup();
+		vga_render_tty();
 		--tty[current_tty].tty_row;
 	}
 	tty[current_tty].tty_column = 0;
+	vga_move_cursor(tty[current_tty].tty_column, tty[current_tty].tty_row);
 }
 
 static void	vga_putretchariot(void)

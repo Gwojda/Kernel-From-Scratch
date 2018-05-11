@@ -33,12 +33,12 @@ volatile uint16_t*	vga_buffer;
 * Note the use of the volatile keyword to prevent the compiler from eliminating dead stores.
 */
 
+void		init_vga(void);
 void		vga_putchar(char c);
 void		vga_putstr(const char* data);
 void		vga_write(const char* data, size_t size);
 void		vga_putentryat(char c, uint8_t color, size_t x, size_t y);
 void		vga_setcolor(uint8_t color);
-void		vga_scrollup(void);
 void		vga_render_tty(void);
 
 void		vga_move_cursor(size_t x, size_t y);
