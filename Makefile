@@ -26,7 +26,7 @@ all: $(KERNEL)
 
 $(KERNEL): $(OBJS)
 	@echo "Linking kernel to $@..."
-	@$(LD) $(LDFLAG) -o ISO/$@ $^
+	@$(LD) $(LDFLAG) -o ISO/boot/$@ $^
 	@echo "Compilation done for $(KERNEL)"
 
 %.o: %.c
@@ -43,16 +43,16 @@ $(KERNEL): $(OBJS)
 	$(eval CURRENT=$(shell echo $$(($(CURRENT)+1))))
 
 install: $(KERNEL)
-	echo "Installing kernel image..."
-	sudo grub-mkrescue -o $(ISO) ISO/
-	echo "Launching KVM..."
-	sudo qemu-system-i386 -s -cdrom $(ISO) -curses
+	@echo "Installing kernel image..."
+	@sudo grub-mkrescue -o $(ISO) ISO/
+	@echo "Launching KVM..."
+	@sudo qemu-system-i386 -s -cdrom $(ISO) -curses
 
 clean:
 	@rm -f $(OBJS)
 	@echo "Cleaning objects..."
 
 fclean: clean
-	@rm -f ISO/$(KERNEL)
+	@rm -f ISO/boot/$(KERNEL)
 	@rm -f $(ISO)
 	@echo "Cleaning Kernel..."
