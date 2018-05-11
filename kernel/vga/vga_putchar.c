@@ -34,6 +34,17 @@ static void	vga_putendl(void)
 	vga_move_cursor(tty[current_tty].tty_column, tty[current_tty].tty_row);
 }
 
+static void	vga_backspace(void)
+{
+	if (--tty[current_tty].tty_column == 0)
+	{
+		tty[current_tty].tty_column = VGA_WIDTH - 1;
+		--tty[current_tty].tty_row;
+	}
+	vga_putentryat(' ', tty[current_tty].tty_color, tty[current_tty].tty_column, tty[current_tty].tty_row);
+	vga_move_cursor(tty[current_tty].tty_column, tty[current_tty].tty_row);
+}
+
 static void	vga_putretchariot(void)
 {
 	tty[current_tty].tty_column = 0;
@@ -47,4 +58,6 @@ void	vga_putchar(char c)
 		vga_putendl();
 	else if (c == '\r')
 		vga_putretchariot();
+	else if (c == '\b')
+		vga_backspace();
 }
