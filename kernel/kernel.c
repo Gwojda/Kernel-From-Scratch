@@ -31,6 +31,7 @@ void kmain(void)
 	while (i < MAX_TTY)
 	{
 		tty[i].tty_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK + i);
+		tty_clear_screen(i);
 		++i;
 	}
 
