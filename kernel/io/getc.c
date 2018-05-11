@@ -73,9 +73,9 @@ char	getc(void)
 		if (tmp == cr)
 		{
 			if (shift_locked)
-				return value_table[cr];
-			else
 				return value_table_shift[cr];
+			else
+				return value_table[cr];
 		}
 	}
 	return 0;
