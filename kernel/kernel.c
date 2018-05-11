@@ -2,6 +2,8 @@
 
 void kmain(void)
 {
+	init_vga();
+	init_tty();
 	vga_putstr("\n"
 "         ___---___\n"
 "      .--         --.\n"

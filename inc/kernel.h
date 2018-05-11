@@ -6,6 +6,7 @@
 # include <stdint.h>
 
 # include "vga.h"
+# include "tty.h"
 # include "printk.h"
 # include "io.h"
 
