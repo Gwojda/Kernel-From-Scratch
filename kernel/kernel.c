@@ -2,6 +2,8 @@
 
 void kmain(void)
 {
+	char	c;
+
 	init_vga();
 	init_tty();
 	vga_putstr("\n"
@@ -21,6 +23,26 @@ void kmain(void)
 "      `--___   ___--'\n"
 "            ---\n");
 	printk("Prink test ! %d \n", 4242);
+
+//		to prove we've got multiple tty :
+//	--------------------------------------
+	size_t	i = 0;
+
+	while (i < MAX_TTY)
+	{
+		tty[i].tty_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK + i);
+		++i;
+	}
+
+//	--------------------------------------
+
 	while (1)
-		vga_putchar(getc());
+	{
+		c = getc();
+//		to prove we've got multiple tty :
+		if (isdigit(c))
+			switch_tty(c - '0');
+		else
+			vga_putchar(c);
+	}
 }
