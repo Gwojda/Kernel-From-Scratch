@@ -2,22 +2,31 @@
 
 static void	print_stack(void)
 {
-	uintptr_t register framesp asm("esp");
-	uintptr_t register framebp asm("esp");
+	uintptr_t framesp;
+	uintptr_t framebp;
 	char	toto[] = "salut tout le monde !\n";
 
-	while (framesp <= framebp)
+	asm("movl %%ebp, %0" : "=r" (framesp));
+		printk("%p\n", framesp);
+	framebp = framesp;
+	asm("movl %%esp, %0" : "=r" (framebp));
+
+		printk("%p\n", framesp);
+		printk("%p\n", framebp);
+/*	while (framesp <= framebp)
 	{
-		printk("%x ", *(int *)framesp);
-		framesp -= 4;
-	}
+		printk("%p\n", framesp);
+		printk("%p\n", framebp);
+		printk("%c\n", *(char *)framesp);
+		++framesp;
+	}*/
 }
 
 void kmain(void)
 {
 	char	c;
 
-	init_gdt();
+//	init_gdt();
 	init_vga();
 	init_tty();
 	vga_putstr("\n"
@@ -51,6 +60,7 @@ void kmain(void)
 
 //	--------------------------------------
 
+	print_stack();
 	while (1)
 	{
 		c = getc();
