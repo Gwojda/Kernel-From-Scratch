@@ -1,4 +1,7 @@
 #include "GDT.h"
+struct gdtdesc 		kgdt[GDTSIZE];
+struct tss 		default_tss;
+struct gdtr 		kgdtr;
 
 void init_gdt_desc(u32 base, u32 limite, u8 acces, u8 other, struct gdtdesc *desc)
 {
@@ -14,10 +17,6 @@ void init_gdt_desc(u32 base, u32 limite, u8 acces, u8 other, struct gdtdesc *des
 
 void init_gdt(void)
 {
-	struct gdtdesc 		kgdt[GDTSIZE];
-	struct tss 			default_tss;
-	struct gdtr 		kgdtr;
-
     default_tss.debug_flag = 0x00;
     default_tss.io_map = 0x00;
     default_tss.esp0 = 0x1FFF0;

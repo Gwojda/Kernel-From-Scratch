@@ -5,6 +5,7 @@
 # include <stddef.h>
 # include <stdint.h>
 
+# include "GDT.h"
 # include "vga.h"
 # include "lib.h"
 # include "tty.h"

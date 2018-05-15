@@ -67,4 +67,7 @@ struct gdtdesc {
     u8 base24_31;
 } __attribute__ ((packed));
 
+
+void init_gdt(void);
+
 #endif

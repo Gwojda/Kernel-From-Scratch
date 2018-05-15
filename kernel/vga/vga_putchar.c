@@ -36,7 +36,7 @@ static void	vga_putendl(void)
 
 static void	vga_backspace(void)
 {
-	if (--tty[current_tty].tty_column == 0)
+	if (tty[current_tty].tty_column && --tty[current_tty].tty_column == 0 && tty[current_tty].tty_row)
 	{
 		tty[current_tty].tty_column = VGA_WIDTH - 1;
 		--tty[current_tty].tty_row;
