@@ -4,6 +4,7 @@ void kmain(void)
 {
 	char	c;
 
+	init_gdt();
 	init_vga();
 	init_tty();
 	vga_putstr("\n"
