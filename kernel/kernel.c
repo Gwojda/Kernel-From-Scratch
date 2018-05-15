@@ -1,5 +1,18 @@
 #include "kernel.h"
 
+static void	print_stack(void)
+{
+	uintptr_t register framesp asm("esp");
+	uintptr_t register framebp asm("esp");
+	char	toto[] = "salut tout le monde !\n";
+
+	while (framesp <= framebp)
+	{
+		printk("%x ", *(int *)framesp);
+		framesp -= 4;
+	}
+}
+
 void kmain(void)
 {
 	char	c;

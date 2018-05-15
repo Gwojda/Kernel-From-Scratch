@@ -8,9 +8,7 @@
 
 #define	PAGESIZE 			4096
 
-typedef unsigned char	u8;
-typedef unsigned short	u16;
-typedef unsigned int	u32;
+#include "typedef.h"
 
 struct tss {
 	u16 previous_task, __previous_task_unused;

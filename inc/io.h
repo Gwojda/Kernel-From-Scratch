@@ -1,9 +1,7 @@
 #ifndef IO_H
 # define IO_H
 
-typedef unsigned char	u8;
-typedef unsigned short	u16;
-typedef unsigned int	u32;
+#include "typedef.h"
 
 void	outb(u32 ad, u8 v);
 void	outw(u32 ad, u16 v);
