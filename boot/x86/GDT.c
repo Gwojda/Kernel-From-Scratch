@@ -48,13 +48,14 @@ void init_gdt(void)
 
     /* initiliaz the segments */
 	/* ; 0x10 is the offset in the GDT to our data segment */
-    asm("movw $0x10, %ax");
+	asm("movw $0x18, %ax");
+	asm("movw %ax, %ss");
+	asm("movw $0x10, %ax");
 	/* Load all data segment selectors */
 	asm("movw %ax, %ds");
+	asm("movw $0x08, %ax");
 	asm("movw %ax, %es");
-	asm("movw %ax, %fs");
-	asm("movw %ax, %gs");
 	/* 0x08 is the offset to our code segment: Far jump! */
-	asm("ljmp $0x08, $next");
-	asm("next:");
+//	asm("ljmp $0x08, $next");
+//	asm("next:");
 }

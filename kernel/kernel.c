@@ -1,32 +1,33 @@
 #include "kernel.h"
 
+void	*get_ebp(void);
+void	*get_esp(void);
+
 static void	print_stack(void)
 {
-	uintptr_t framesp;
-	uintptr_t framebp;
-	char	toto[] = "salut tout le monde !\n";
+	char t = 't';
+	char u = 'u';
+	char l = 'l';
+	char a = 'a';
+	char s = 's';
+	uintptr_t framesp = get_esp();
+	uintptr_t framebp = get_ebp();
+	
+	printk("%p\n", framesp);
+	printk("%p\n", framebp);
 
-	asm("movl %%ebp, %0" : "=r" (framesp));
-		printk("%p\n", framesp);
-	framebp = framesp;
-	asm("movl %%esp, %0" : "=r" (framebp));
-
-		printk("%p\n", framesp);
-		printk("%p\n", framebp);
-/*	while (framesp <= framebp)
+	while (framesp <= framebp)
 	{
-		printk("%p\n", framesp);
-		printk("%p\n", framebp);
 		printk("%c\n", *(char *)framesp);
 		++framesp;
-	}*/
+	}
 }
 
 void kmain(void)
 {
 	char	c;
 
-//	init_gdt();
+	init_gdt();
 	init_vga();
 	init_tty();
 	vga_putstr("\n"
