@@ -11,9 +11,10 @@ LD =		ld
 INCS =	-I inc/
 
 ## Flags
-CFLAGS =	-std=gnu99 -ffreestanding -O2 -Wall -Wextra -m32 $(INCS)
+CFLAGS =	-std=gnu99 -ffreestanding -O2 -Wall -Wextra -m32 $(INCS) \
+ 			-fno-builtin -fno-exception -fno-stack-protector -fno-rtti -nostdlib -nodefaultlibs
 LDFLAG =	-melf_i386 -static --entry=_start -T $(LINKER)
-ASMFLAGS =	-f elf -o
+ASMFLAGS =	-f elf -o 
 
 include ./boot/$(ARCH)/Makefile
 include ./kernel/Makefile
