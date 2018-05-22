@@ -1,4 +1,5 @@
 #include "GDT.h"
+
 struct gdtdesc 		kgdt[GDTSIZE];
 struct tss 		default_tss;
 struct gdtr 		kgdtr;

@@ -5,12 +5,13 @@ kernel/io/io.o \
 kernel/tty/init_tty.o \
 kernel/tty/switch_tty.o \
 kernel/tty/tty_clear_screen.o \
+kernel/tty/tty_scrollup.o \
+kernel/vga/init_vga.o \
 kernel/vga/vga_entry.o \
 kernel/vga/vga_move_cursor.o \
 kernel/vga/vga_putchar.o \
 kernel/vga/vga_putentryat.o \
 kernel/vga/vga_putstr.o \
 kernel/vga/vga_render_tty.o \
-kernel/vga/vga_scrollup.o \
 kernel/vga/vga_setcolor.o \
 kernel/vga/vga_write.o \
