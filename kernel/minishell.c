@@ -55,6 +55,8 @@ static void	exec_cmd(char cmd[SIZE_MAX_CMD])
 			correstab[i].f();
 		++i;
 	}
+	if (i == correstab_size)
+		printk("unknow command\n");
 }
 
 void	launchshell(void)
@@ -66,6 +68,7 @@ void	launchshell(void)
 	while (1)
 	{
 		c = getc();
+		vga_putchar(c);
 		if (c == '\n')
 		{
 			exec_cmd(cmd);
@@ -73,6 +76,5 @@ void	launchshell(void)
 		}
 		else
 			pushback_char(cmd, &cmd_ind, c);
-		vga_putchar(c);
 	}
 }

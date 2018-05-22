@@ -1,7 +1,6 @@
 OBJS += \
 kernel/kernel.o \
 kernel/minishell.o \
-kernel/cmd/halt.o \
 kernel/cmd/reboot.o \
 kernel/io/getc.o \
 kernel/io/io.o \
