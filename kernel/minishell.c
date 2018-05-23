@@ -27,7 +27,10 @@ static void	remove_last_char(void)
 {
 	cmd[cmd_ind] = '\0';
 	if (cmd_ind)
+	{
 		--cmd_ind;
+		vga_putchar('\b');
+	}
 }
 
 static void	pushback_char(char c)
@@ -38,6 +41,7 @@ static void	pushback_char(char c)
 		remove_last_char();
 	else
 	{
+		vga_putchar(c);
 		cmd[cmd_ind] = c;
 		++cmd_ind;
 		cmd[cmd_ind] = '\0';
@@ -64,7 +68,10 @@ static void	exec_cmd(void)
 	while (i < correstab_size)
 	{
 		if (!strncmp(correstab[i].match, (char *)cmd, strlen(correstab[i].match)))
+		{
 			correstab[i].f(cmd);
+			break ;
+		}
 		++i;
 	}
 	if (i == correstab_size)
@@ -80,12 +87,11 @@ void	launchshell(void)
 	{
 		while (!(c = getc()))
 			;
-		vga_putchar(c);
 		if (c == '\n')
 		{
 			exec_cmd();
 			clear_cmd();
-			printk("$> ");
+			printk("\n$> ");
 		}
 		else
 			pushback_char(c);

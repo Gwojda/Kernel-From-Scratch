@@ -2,6 +2,7 @@ OBJS += \
 kernel/kernel.o \
 kernel/minishell.o \
 kernel/cmd/reboot.o \
+kernel/cmd/switchtty.o \
 kernel/io/getc.o \
 kernel/io/io.o \
 kernel/tty/init_tty.o \

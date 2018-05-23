@@ -10,6 +10,7 @@ kernel/tty/switch_tty.o \
 kernel/tty/tty_clear_screen.o \
 kernel/tty/tty_scrollup.o \
 kernel/vga/init_vga.o \
+kernel/vga/print_initialize_status.o \
 kernel/vga/vga_entry.o \
 kernel/vga/vga_move_cursor.o \
 kernel/vga/vga_putchar.o \

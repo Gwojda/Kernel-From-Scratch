@@ -4,7 +4,7 @@
 #define SHIFT_PRESSED(x) (x == 0x36 || x == 0x2A)
 #define SHIFT_RELEASED(x) (x == 0xB6 || x == 0xAA)
 
-unsigned char value_table[] = 	{
+const unsigned char value_table_shift[] = 	{
 	0,
 	0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
 	0, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\n',
@@ -20,7 +20,7 @@ unsigned char value_table[] = 	{
 	0, 0, 0, 0, 0,
 };
 
-unsigned char value_table_shift[] = 	{
+const unsigned char value_table[] = 	{
 	0,
 	0, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\b',
 	0, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '{', '}', '\n',

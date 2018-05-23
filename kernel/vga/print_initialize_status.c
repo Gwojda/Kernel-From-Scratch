@@ -1,5 +1,6 @@
 #include "vga.h"
 #include "tty.h"
+#include "printk.h"
 
 void	print_initialize_status(char *init, char state)
 {
