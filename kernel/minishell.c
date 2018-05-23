@@ -65,7 +65,8 @@ void	launchshell(void)
 
 	while (1)
 	{
-		c = getc();
+		while (!(c = getc()))
+			;
 		vga_putchar(c);
 		if (c == '\n')
 		{

@@ -10,6 +10,8 @@
 
 #define SIZE_MAX_CMD	128
 
+void	launchshell(void);
+
 void	switchtty_cmd(void);
 void	reboot(void);
 void	halt(void);
