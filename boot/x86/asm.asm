@@ -13,5 +13,4 @@ get_ebp:
 
 halt:
 	hlt
-	jmp halt
 	ret
