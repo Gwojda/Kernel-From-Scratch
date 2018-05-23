@@ -2,8 +2,7 @@
 #include "printk.h"
 #include "lib.h"
 
-void	*get_ebp(void);
-void	*get_esp(void);
+size_t	cmd_ind = 0;
 
 static void	print_stack(void)
 {
@@ -24,35 +23,36 @@ static void	print_stack(void)
 	}
 }
 
-static void	pushback_char(char cmd[SIZE_MAX_CMD], size_t *cmd_ind, char c)
+static void	pushback_char(char c)
 {
-	if ((*cmd_ind) + 1 == SIZE_MAX_CMD)
+	if (cmd_ind + 1 == SIZE_MAX_CMD)
 		return ;
-	cmd[*cmd_ind] = c;
-	++(*cmd_ind);
-	cmd[*cmd_ind] = '\0';
+	cmd[cmd_ind] = c;
+	++cmd_ind;
+	cmd[cmd_ind] = '\0';
 }
 
-static void	clear_cmd(char cmd[SIZE_MAX_CMD], size_t *cmd_ind)
+static void	clear_cmd(void)
 {
-	*cmd_ind = 0;
-	cmd[*cmd_ind] = '\0';
+	cmd_ind = 0;
+	cmd[cmd_ind] = '\0';
 }
 
-static void	exec_cmd(char cmd[SIZE_MAX_CMD])
+static void	exec_cmd(void)
 {
-	static t_execmd	correstab[] =
+	const t_execmd	correstab[] =
 	{
-		{"reboot"	, reboot},
-		{"halt"		, halt},
+		{"reboot"		, reboot		},
+		{"halt"			, halt			},
+		{"switchtty"	, switchtty_cmd	}
 	};
-	size_t	correstab_size = sizeof(correstab) / sizeof(t_execmd);
-	size_t	i = 0;
+	const size_t	correstab_size = sizeof(correstab) / sizeof(t_execmd);
+	size_t			i = 0;
 
 	while (i < correstab_size)
 	{
-		if (!strcmp(correstab[i].match, (char *)cmd))
-			correstab[i].f();
+		if (!strncmp(correstab[i].match, (char *)cmd, strlen(correstab[i].match)))
+			correstab[i].f(cmd);
 		++i;
 	}
 	if (i == correstab_size)
@@ -61,9 +61,7 @@ static void	exec_cmd(char cmd[SIZE_MAX_CMD])
 
 void	launchshell(void)
 {
-	char	cmd[SIZE_MAX_CMD];
 	char	c;
-	size_t	cmd_ind = 0;
 
 	while (1)
 	{
@@ -71,10 +69,10 @@ void	launchshell(void)
 		vga_putchar(c);
 		if (c == '\n')
 		{
-			exec_cmd(cmd);
-			clear_cmd(cmd, &cmd_ind);
+			exec_cmd();
+			clear_cmd();
 		}
 		else
-			pushback_char(cmd, &cmd_ind, c);
+			pushback_char(c);
 	}
 }
