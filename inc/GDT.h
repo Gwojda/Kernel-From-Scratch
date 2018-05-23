@@ -2,6 +2,7 @@
 # define GDT_H
 
 # include "lib.h"
+# include "typedef.h"
 
 #define GDTSIZE		0xFF
 #define GDTBASE		0x00000800

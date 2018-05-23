@@ -1,9 +1,6 @@
 #include "vga.h"
 #include "io.h"
 
-#define TRUE 1
-#define FALSE 1
-
 #define SHIFT_PRESSED(x) (x == 0x36 || x == 0x2A)
 #define SHIFT_RELEASED(x) (x == 0xB6 || x == 0xAA)
 

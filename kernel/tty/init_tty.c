@@ -10,7 +10,7 @@ void	init_tty(void)
 	{
 		tty[i].tty_row = 0;
 		tty[i].tty_column = 0;
-		tty[i].tty_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
+		tty[i].tty_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK + i);
 		tty_clear_screen(i);
 		++i;
 	}

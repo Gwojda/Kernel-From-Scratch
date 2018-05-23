@@ -1,4 +1,5 @@
 #include "GDT.h"
+#include "tty.h"
 
 struct gdtdesc 		kgdt[GDTSIZE];
 struct tss 		default_tss;
@@ -13,7 +14,6 @@ void init_gdt_desc(u32 base, u32 limite, u8 acces, u8 other, struct gdtdesc *des
     desc->lim16_19 = (limite & 0xf0000) >> 16;
     desc->other = (other & 0xf);
     desc->base24_31 = (base & 0xff000000) >> 24;
-    return;
 }
 
 void init_gdt(void)
@@ -60,4 +60,6 @@ void init_gdt(void)
 	/* 0x08 is the offset in the GDT to our code segment */
 	asm("movw $0x08, %ax");
 	asm("movw %ax, %es");
+
+	print_initialize_status("GDT", TRUE);
 }

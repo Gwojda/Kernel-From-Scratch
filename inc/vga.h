@@ -46,4 +46,6 @@ void		vga_move_cursor(size_t x, size_t y);
 uint16_t	vga_entry(unsigned char uc, uint8_t color);
 uint8_t		vga_entry_color(enum vga_color fg, enum vga_color bg);
 
+void	print_initialize_status(char *init, char state);
+
 #endif

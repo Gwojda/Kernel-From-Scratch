@@ -23,13 +23,25 @@ static void	print_stack(void)
 	}
 }
 
+static void	remove_last_char(void)
+{
+	cmd[cmd_ind] = '\0';
+	if (cmd_ind)
+		--cmd_ind;
+}
+
 static void	pushback_char(char c)
 {
 	if (cmd_ind + 1 == SIZE_MAX_CMD)
 		return ;
-	cmd[cmd_ind] = c;
-	++cmd_ind;
-	cmd[cmd_ind] = '\0';
+	if (c == '\b')
+		remove_last_char();
+	else
+	{
+		cmd[cmd_ind] = c;
+		++cmd_ind;
+		cmd[cmd_ind] = '\0';
+	}
 }
 
 static void	clear_cmd(void)
@@ -63,6 +75,7 @@ void	launchshell(void)
 {
 	char	c;
 
+	printk("$> ");
 	while (1)
 	{
 		while (!(c = getc()))
@@ -72,6 +85,7 @@ void	launchshell(void)
 		{
 			exec_cmd();
 			clear_cmd();
+			printk("$> ");
 		}
 		else
 			pushback_char(c);
