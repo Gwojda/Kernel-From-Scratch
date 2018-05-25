@@ -40,10 +40,6 @@ _start:
 ;   stack (as it grows downwards on x86 systems). This is necessarily done
 ;   in assembly as languages such as C cannot function without a stack.
 
-	push 0
-	popf
-	push ebx
-	push eax
 	mov esp, stack_top
 
 ;   This is a good place to initialize crucial processor state before the
@@ -61,8 +57,12 @@ _start:
 ;   aligned above and we've since pushed a multiple of 16 bytes to the
 ;   stack since (pushed 0 bytes so far) and the alignment is thus
 ;   preserved and the call is well defined.
-
- call kmain
+	push 0
+	popf
+	push ebx
+	push eax
+	
+	call kmain
 
 ;   If the system has nothing more to do, put the computer into an
 ;   infinite loop. To do that:

@@ -52,7 +52,7 @@ static int printk_display(struct printk_writer *writer, const char **fmt, va_lis
 	return 0;
 }
 
-size_t vprintk(const char *fmt, va_list ap)
+size_t vprintk(const char *fmt, va_list *ap)
 {
 	size_t	ret = 0;
 	int		tmp;
@@ -85,7 +85,7 @@ size_t printk(const char *fmt, ...)
 
 	va_start(ap, fmt);
 
-	ret = vprintk(fmt, ap);
+	ret = vprintk(fmt, &ap);
 
 	va_end(ap);
 	return ret;

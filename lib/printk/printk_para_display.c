@@ -12,7 +12,7 @@
 
 #include "printk.h"
 
-int printk_para_display(struct printk_writer *writer, va_list ap, struct printk_para *para)
+int printk_para_display(struct printk_writer *writer, va_list *ap, struct printk_para *para)
 {
 	size_t ret = 0;
 
@@ -22,13 +22,13 @@ int printk_para_display(struct printk_writer *writer, va_list ap, struct printk_
 	{
 		if (para->size != sizeof(int))
 			return -1;
-		return writer->write_str(writer, va_arg(ap, char*)) + ret;
+		return writer->write_str(writer, va_arg(*ap, char*)) + ret;
 	}
 	else if (para->type == PRINTK_CHAR)
 	{
 		if (para->size != sizeof(int))
 			return -1;
-		writer->write_char(writer, va_arg(ap, int));
+		writer->write_char(writer, va_arg(*ap, int));
 		return 1 + ret;
 	}
 	else if (para->type == PRINTK_FULL_MACRO)
@@ -41,30 +41,30 @@ int printk_para_display(struct printk_writer *writer, va_list ap, struct printk_
 		if (para->is_unsigned == 0)
 		{
 			if (para->size == sizeof(char))
-				nb = va_arg(ap, int);
+				nb = va_arg(*ap, int);
 			else if (para->size == sizeof(short))
-				nb = va_arg(ap, int);
+				nb = va_arg(*ap, int);
 			else if (para->size == sizeof(int))
-				nb = va_arg(ap, int);
+				nb = va_arg(*ap, int);
 			else if (para->size == sizeof(long))
-				nb = va_arg(ap, long);
+				nb = va_arg(*ap, long);
 			else if (para->size == sizeof(ptrdiff_t))
-				nb = va_arg(ap, ptrdiff_t);
+				nb = va_arg(*ap, ptrdiff_t);
 			else
 				return -1;
 		}
 		else
 		{
 			if (para->size == sizeof(unsigned char))
-				nb = va_arg(ap, unsigned int);
+				nb = va_arg(*ap, unsigned int);
 			else if (para->size == sizeof(unsigned short))
-				nb = va_arg(ap, unsigned int);
+				nb = va_arg(*ap, unsigned int);
 			else if (para->size == sizeof(unsigned int))
-				nb = va_arg(ap, unsigned int);
+				nb = va_arg(*ap, unsigned int);
 			else if (para->size == sizeof(unsigned long))
-				nb = va_arg(ap, unsigned long);
+				nb = va_arg(*ap, unsigned long);
 			else if (para->size == sizeof(size_t))
-				nb = va_arg(ap, size_t);
+				nb = va_arg(*ap, size_t);
 			else
 				return -1;
 		}

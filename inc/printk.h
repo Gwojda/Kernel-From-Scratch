@@ -18,7 +18,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
-size_t vprintk(const char *fmt, va_list ap);
+size_t vprintk(const char *fmt, va_list *ap);
 size_t printk(const char *fmt, ...);
 
 void vga_putchar(char c);
@@ -50,7 +50,7 @@ struct printk_writer
 
 int itoa_stack_max(char *nbr_buff, int is_unsigned, long int nb, const char *char_set);
 int printk_para_conv(const char **fmt, struct printk_para *para);
-int printk_para_display(struct printk_writer *writer, va_list ap, struct printk_para *para);
+int printk_para_display(struct printk_writer *writer, va_list *ap, struct printk_para *para);
 int printk_para_size(const char **fmt, struct printk_para *para);
 
 #endif
