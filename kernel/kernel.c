@@ -1,4 +1,5 @@
 #include "kernel.h"
+#include "multiboot.h"
 
 static void	print_kernel_visu(void)
 {
@@ -25,8 +26,18 @@ static void	print_kernel_visu(void)
 
 }
 
-void kmain(void)
+void kmain(multiboot_info_t *mbd, unsigned int magic)
 {
+
+	multiboot_memory_map_t* mmap = mbt->mmap_addr;
+	while (mmap < mbt->mmap_addr + mbt->mmap_length)
+	{
+		printk("addr = %p\n", mmap->addr);
+		printk("size = %zu\n", mmap->size);
+		mmap = (multiboot_memory_map_t*) ( (unsigned int)mmap + mmap->size + sizeof(mmap->size) );
+	}
+
+
 	init_tty();
 	init_vga();
 	print_kernel_visu();
