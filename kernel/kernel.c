@@ -122,16 +122,16 @@ void kmain (unsigned long magic, unsigned long addr)
 								(unsigned) mmap->type);
 						if (mmap->type == 1)
 						{
-							tot_free_length += (unsigned) (mmap->addr >> 32);
-							tot_free_length += (unsigned) (mmap->addr & 0xffffffff);
+							tot_free_length += (unsigned) (mmap->len >> 32);
+							tot_free_length += (unsigned) (mmap->len & 0xffffffff);
 						}
 						if (mmap->type == 2)
 						{
-							tot_used_length += (unsigned) (mmap->addr >> 32);
-							tot_used_length += (unsigned) (mmap->addr & 0xffffffff);
+							tot_used_length += (unsigned) (mmap->len >> 32);
+							tot_used_length += (unsigned) (mmap->len & 0xffffffff);
 						}
-						tot_length += (unsigned) (mmap->addr >> 32);
-						tot_length += (unsigned) (mmap->addr & 0xffffffff);
+						tot_length += (unsigned) (mmap->len >> 32);
+						tot_length += (unsigned) (mmap->len & 0xffffffff);
 					}
 					printk("total : %x, total used : %x, total free : %x\n", tot_length, tot_used_length, tot_free_length);
 				}

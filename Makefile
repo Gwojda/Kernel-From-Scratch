@@ -47,7 +47,7 @@ install: $(KERNEL)
 	@echo "Installing kernel image..."
 	@sudo grub-mkrescue -o $(ISO) ISO/
 	@echo "Launching KVM..."
-	@sudo qemu-system-i386 -s -cdrom $(ISO) -curses
+	@sudo qemu-system-i386 -s -cdrom $(ISO) -m 512M,slots=3,maxmem=1G  -curses
 
 clean:
 	@rm -f $(OBJS)
