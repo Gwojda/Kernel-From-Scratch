@@ -16,14 +16,58 @@ stack_bottom:
 resb 16384 ; 16 KiB
 stack_top:
 
+align 4096
+page_directory:
+resb 4096
+align 4096
+kernel_page:
+resb 4096
+
+
 ;   The linker script specifies _start as the entry point to the kernel and the
 ;   bootloader will jump to this position once the kernel has been loaded. It
 ;   doesn't make sense to return from this function as the bootloader is gone.
 
+extern setup_pagin
+global _start
+section .boottext
+_start:
+
+	mov ecx, 1024
+	mov ebx, page_directory
+	pd_loop:
+		mov DWORD [ebx], 0x0
+		add ebx, 4
+	loop pd_loop
+	mov ecx, 1024
+
+	mov DWORD [page_directory + 4 * 0], 0x00000083
+	mov DWORD [page_directory + 4 * (0xC0000000 >> 22)], 0x00000083
+
+	mov ecx, page_directory
+	mov cr3, ecx
+
+	mov eax, cr4
+	or eax, 0x00000010
+	mov cr4, eax
+	mov eax, cr0
+	or eax, 0x80000001
+	mov cr0, eax
+;toto3:
+;	jmp toto3
+
+	lea ecx, [_starthightmemory] ; load the virtual address of the real entry point
+	jmp ecx
+
 section .text
 extern kmain
-global _start
-_start:
+_starthightmemory:
+toto2:
+	jmp toto2
+
+;infinite_loop2:
+;	hlt
+;	jmp infinite_loop2
 
 ;   The bootloader has loaded us into 32-bit protected mode on a x86
 ;   machine. Interrupts are disabled. Paging is disabled. The processor

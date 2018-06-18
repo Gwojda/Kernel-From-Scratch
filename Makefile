@@ -12,7 +12,7 @@ INCS =	-I inc/
 
 ## Flags
 CFLAGS =	-std=gnu99 -ffreestanding -Wall -Wextra -m32 $(INCS) \
- 			-fno-builtin -fno-stack-protector -nostdlib -nodefaultlibs
+ 			-fno-builtin -fno-stack-protector -nostdlib -nodefaultlibs -g
 LDFLAG =	-melf_i386 -static --entry=_start -T $(LINKER)
 ASMFLAGS =	-f elf -o 
 
@@ -27,7 +27,7 @@ all: $(KERNEL)
 
 $(KERNEL): $(OBJS)
 	@echo "Linking kernel to $@..."
-	@$(LD) $(LDFLAG) -o ISO/boot/$@ $^
+	$(LD) $(LDFLAG) -o ISO/boot/$@ $^
 	@echo "Compilation done for $(KERNEL)"
 
 %.o: %.c
@@ -45,9 +45,9 @@ $(KERNEL): $(OBJS)
 
 install: $(KERNEL)
 	@echo "Installing kernel image..."
-	@sudo grub-mkrescue -o $(ISO) ISO/
+	grub-mkrescue -o $(ISO) ISO/
 	@echo "Launching KVM..."
-	@sudo qemu-system-i386 -s -cdrom $(ISO) -m 512M,slots=3,maxmem=1G  -curses
+	qemu-system-i386 -cdrom $(ISO) -m 512M,slots=3,maxmem=1G  -curses # -s
 
 clean:
 	@rm -f $(OBJS)
