@@ -47,7 +47,7 @@ static int printk_display(struct printk_writer *writer, const char **fmt, va_lis
 		return -1;
 	if (printk_para_conv(fmt, &para) != 0)
 		return -1;
-	if (printk_para_display(writer, ap, &para) <= 0)
+	if (printk_para_display(writer, ap, &para) < 0)
 		return -1;
 	return 0;
 }
