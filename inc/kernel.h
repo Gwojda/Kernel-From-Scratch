@@ -5,6 +5,8 @@
 # include <stddef.h>
 # include <stdint.h>
 
+# include "position.h"
+
 # include "GDT.h"
 # include "vga.h"
 # include "lib.h"

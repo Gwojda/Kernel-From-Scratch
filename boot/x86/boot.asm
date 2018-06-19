@@ -1,3 +1,15 @@
+%define KERNEL_POS 0xC0000000
+%define PHISICAL_KERNEL_POS 0x00000000
+
+section .bss
+
+;   This early boot page directory
+;   It will probabli be overide realy sonne
+;   It's use for virtual map the kernel in hight memory
+
+align 4096
+page_directory:
+resb 4096
 
 ;   The multiboot standard does not define the value of the stack pointer register
 ;   (esp) and it is up to the kernel to provide a stack. This allocates room for a
@@ -10,19 +22,10 @@
 ;   stack is properly aligned and failure to align the stack will result in
 ;   undefined behavior.
 
-section .bss
 align 16
 stack_bottom:
 resb 16384 ; 16 KiB
 stack_top:
-
-align 4096
-page_directory:
-resb 4096
-align 4096
-kernel_page:
-resb 4096
-
 
 ;   The linker script specifies _start as the entry point to the kernel and the
 ;   bootloader will jump to this position once the kernel has been loaded. It
@@ -32,42 +35,54 @@ extern setup_pagin
 global _start
 section .boottext
 _start:
+	; If you call now the real entry point, we have a probleme
+	; the virtual addresse is not the currant addresse of the memory
+	; we need to setup an early boot page management for map the memory like what:
 
+	;	current				goal
+
+	;	Nothing		0xC0000000	Theorique addresse of code
+	;	The kernel code	0x00000000	Normaly nothing
+
+	; So we map 0x00000000 to 0x00000000
+	;       and 0xC0000000 to 0x00000000
+
+	; we need after what to disable the link zero to hight memory kernel
+
+	; We creat empty page
 	mov ecx, 1024
-	mov ebx, page_directory
+	mov esp, page_directory
 	pd_loop:
-		mov DWORD [ebx], 0x0
-		add ebx, 4
+		mov DWORD [esp], 0x0
+		add esp, 4
 	loop pd_loop
 	mov ecx, 1024
 
-	mov DWORD [page_directory + 4 * 0], 0x00000083
-	mov DWORD [page_directory + 4 * (0xC0000000 >> 22)], 0x00000083
+	; We setup the to link
+	mov DWORD [page_directory + 4 * 0], PHISICAL_KERNEL_POS + 0x83
+	mov DWORD [page_directory + 4 * (KERNEL_POS >> 22)], PHISICAL_KERNEL_POS + 0x83
 
+	; We insert the page in c3
 	mov ecx, page_directory
 	mov cr3, ecx
 
-	mov eax, cr4
-	or eax, 0x00000010
-	mov cr4, eax
-	mov eax, cr0
-	or eax, 0x80000001
-	mov cr0, eax
-;toto3:
-;	jmp toto3
+	; No page directory: 4M page
+	mov esp, cr4
+	or esp, 0x00000010
+	mov cr4, esp
+	; Let's go
+	mov esp, cr0
+	or esp, 0x80000001
+	mov cr0, esp
 
+	; We force a long jump
+	; becose this function is in hight memory
 	lea ecx, [_starthightmemory] ; load the virtual address of the real entry point
 	jmp ecx
 
 section .text
 extern kmain
 _starthightmemory:
-toto2:
-	jmp toto2
-
-;infinite_loop2:
-;	hlt
-;	jmp infinite_loop2
 
 ;   The bootloader has loaded us into 32-bit protected mode on a x86
 ;   machine. Interrupts are disabled. Paging is disabled. The processor
@@ -84,7 +99,7 @@ toto2:
 ;   stack (as it grows downwards on x86 systems). This is necessarily done
 ;   in assembly as languages such as C cannot function without a stack.
 
-	mov esp, stack_top
+	mov esp, stack_top + KERNEL_POS
 
 ;   This is a good place to initialize crucial processor state before the
 ;   high-level kernel is entered. It's best to minimize the early
@@ -105,7 +120,7 @@ toto2:
 	popf
 	push ebx
 	push eax
-	
+
 	call kmain
 
 ;   If the system has nothing more to do, put the computer into an

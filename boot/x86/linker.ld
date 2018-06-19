@@ -1,5 +1,11 @@
 ENTRY(start)
 
+/*
+ * The kernel is in half hight memory,
+ * the basse agresse is:
+ */
+KERNEL_POS = 0xC0000000;
+
 SECTIONS {
 	. = 0x100000;
 
@@ -12,14 +18,14 @@ SECTIONS {
 		*(.bss)
 	}
 
-	. += 0xC0000000;
+	. += KERNEL_POS;
 
-	.text ALIGN (4K) : AT(ADDR(.text) - 0xC0000000) {
+	.text ALIGN (4K) : AT(ADDR(.text) - KERNEL_POS) {
 		*(.text*)
 		*(.rodata*)
 	}
 
-	.data ALIGN (4K) : AT(ADDR(.data) - 0xC0000000) {
+	.data ALIGN (4K) : AT(ADDR(.data) - KERNEL_POS) {
 		*(.data*)
 	}
 }
