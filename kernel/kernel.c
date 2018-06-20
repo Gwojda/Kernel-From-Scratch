@@ -25,25 +25,6 @@ static void	print_kernel_visu(void)
 	vga_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK + current_tty));
 
 }
-/*
-void kmain(multiboot_info_t *mbt, unsigned int magic)
-{
-
-	multiboot_memory_map_t* mmap = mbt->mmap_addr;
-	while (mmap < mbt->mmap_addr + mbt->mmap_length)
-	{
-		printk("addr = %p\n", mmap->addr);
-		printk("size = %zu\n", mmap->size);
-		mmap = (multiboot_memory_map_t*) ( (unsigned int)mmap + mmap->size + sizeof(mmap->size) );
-	}
-
-
-	init_tty();
-	init_vga();
-	print_kernel_visu();
-	init_gdt();
-	launchshell();
-}*/
 
 void kmain (unsigned long magic, unsigned long addr)
 {
@@ -64,7 +45,7 @@ void kmain (unsigned long magic, unsigned long addr)
 		return;
 	}
 	size = *(unsigned *) addr;
-	printk ("Announced mbi size 0x%x\n", size);
+	printk ("Announced mbi size 0x%x 0x%x\n", size, addr);
 	for (tag = (struct multiboot_tag *) (addr + 8);
 			tag->type != MULTIBOOT_TAG_TYPE_END;
 			tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag
@@ -141,4 +122,16 @@ void kmain (unsigned long magic, unsigned long addr)
 	tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag
 			+ ((tag->size + 7) & ~7));
 	printk ("Total mbi size 0x%x\n", (unsigned) tag - addr);
+
+	printk("Kernel half destination %p\n", KERNEL_POS);
+	printk("Kernel virtual position %p %p\n", KERNEL_START, KERNEL_END);
+	printk("Kernel real position %p %p\n", KERNEL_REAL_START, KERNEL_REAL_END);
+	printk("Kernel size %p\n", KERNEL_SIZE);
+	printk("Kernel virtual bss position %p %p\n", KERNEL_BSS_START, KERNEL_BSS_END);
+	printk("Kernel real bss position %p %p\n", KERNEL_REAL_BSS_START, KERNEL_REAL_BSS_END);
+	printk("Kernel size %p\n", KERNEL_BSS_SIZE);
+	setup_pagin();
+	print_kernel_visu();
+	init_gdt();
+	launchshell();
 }

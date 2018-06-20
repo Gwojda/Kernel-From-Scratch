@@ -21,26 +21,26 @@ static const struct {
 	char prefix[3];
 	char display_prefix;
 } data_ptr[] = {
-	{'d', PRINTK_INT,        0, 0,            "0123456789",      "",   0},
-	{'b', PRINTK_INT,        1, 0,            "01",              "0b", 1},
-	{'i', PRINTK_INT,        0, 0,            "0123456789",      "",   0},
-	{'o', PRINTK_INT,        1, 0,            "01234567",        "0",  0},
-	{'u', PRINTK_INT,        1, 0,            "0123456789",      "",   0},
-	{'x', PRINTK_INT,        1, 0,            "0123456789abcdef", "0x", 0},
-	{'p', PRINTK_INT,        1, 0,            "0123456789abcdef", "0x", 1},
-	{'X', PRINTK_INT,        1, 0,            "0123456789ABCDEF", "0X", 0},
-	{'D', PRINTK_INT,        1, sizeof(long), "0123456789",      "",   0},
-	{'O', PRINTK_INT,        1, sizeof(long), "01234567",        "",   0},
+	{'d', PRINTK_INT,        0, 0,             "0123456789",       "",   0},
+	{'b', PRINTK_INT,        1, 0,             "01",               "0b", 1},
+	{'i', PRINTK_INT,        0, 0,             "0123456789",       "",   0},
+	{'o', PRINTK_INT,        1, 0,             "01234567",         "0",  0},
+	{'u', PRINTK_INT,        1, 0,             "0123456789",       "",   0},
+	{'x', PRINTK_INT,        1, 0,             "0123456789abcdef", "0x", 0},
+	{'p', PRINTK_INT,        1, sizeof(void*), "0123456789abcdef", "0x", 1},
+	{'X', PRINTK_INT,        1, 0,             "0123456789ABCDEF", "0X", 0},
+	{'D', PRINTK_INT,        1, sizeof(long),  "0123456789",       "",   0},
+	{'O', PRINTK_INT,        1, sizeof(long),  "01234567",         "",   0},
 
-	{'c', PRINTK_CHAR,       0, 0,            "",                "",   0},
-	{'C', PRINTK_CHAR,       0, sizeof(long), "",                "",   0},
+	{'c', PRINTK_CHAR,       0, 0,             "",                 "",   0},
+	{'C', PRINTK_CHAR,       0, sizeof(long),  "",                 "",   0},
 
-	{'%', PRINTK_FULL_MACRO, 0, 0,            "",                "%",  1},
+	{'%', PRINTK_FULL_MACRO, 0, 0,             "",                 "%",  1},
 
-	{'s', PRINTK_STRING,     0, 0,            "",                "",   0},
-	{'S', PRINTK_STRING,     0, sizeof(long), "",                "",   0},
+	{'s', PRINTK_STRING,     0, 0,             "",                 "",   0},
+	{'S', PRINTK_STRING,     0, sizeof(long),  "",                 "",   0},
 
-	{'\0', PRINTK_NONE,      0, 0,            "",                "",   0}
+	{'\0', PRINTK_NONE,      0, 0,             "",                 "",   0}
 };
 
 int printk_para_conv(const char **fmt, struct printk_para *para)

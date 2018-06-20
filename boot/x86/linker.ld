@@ -4,7 +4,7 @@ ENTRY(start)
  * The kernel is in half hight memory,
  * the basse agresse is:
  */
-KERNEL_POS = 0xC0000000;
+_kernel_pos = 0xC0000000;
 
 SECTIONS {
 	. = 0x100000;
@@ -14,18 +14,30 @@ SECTIONS {
 		*(.boottext)
 	}
 
-	.bss : {
-		*(.bss)
-	}
+	. += _kernel_pos;
 
-	. += KERNEL_POS;
-
-	.text ALIGN (4K) : AT(ADDR(.text) - KERNEL_POS) {
+	_kernel_start = .;
+	.text ALIGN (4K) : AT(ADDR(.text) - _kernel_pos) {
+		_kernel_text_start = .;
 		*(.text*)
+		_kernel_text_end = .;
+	}
+	.rodata ALIGN(4K) : AT(ADDR(.rodata) - _kernel_pos) {
+		_kernel_rodata_start = .;
 		*(.rodata*)
+		_kernel_rodata_end = .;
+	}
+	.data ALIGN (4K) : AT(ADDR(.data) - _kernel_pos) {
+		_kernel_data_start = .;
+		*(.data*)
+		_kernel_data_end = .;
 	}
 
-	.data ALIGN (4K) : AT(ADDR(.data) - KERNEL_POS) {
-		*(.data*)
+	.bss : AT(ADDR(.bss) - _kernel_pos){
+		_kernel_bss_start = .;
+		*(.bss)
+		_kernel_bss_end = .;
 	}
+
+	_kernel_end = .;
 }

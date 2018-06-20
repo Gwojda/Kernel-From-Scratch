@@ -5,7 +5,7 @@
 # include "typedef.h"
 
 #define GDTSIZE		0xFF
-#define GDTBASE		0x00000800
+#define GDTBASE		0xC0000800 // TODO can be compilation static
 
 #define	PAGESIZE 			4096
 

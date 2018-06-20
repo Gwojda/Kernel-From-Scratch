@@ -11,6 +11,8 @@ align 4096
 page_directory:
 resb 4096
 
+section .bss
+
 ;   The multiboot standard does not define the value of the stack pointer register
 ;   (esp) and it is up to the kernel to provide a stack. This allocates room for a
 ;   small stack by creating a symbol at the bottom of it, then allocating 16384
@@ -31,7 +33,6 @@ stack_top:
 ;   bootloader will jump to this position once the kernel has been loaded. It
 ;   doesn't make sense to return from this function as the bootloader is gone.
 
-extern setup_pagin
 global _start
 section .boottext
 _start:
@@ -52,21 +53,25 @@ _start:
 	; We creat empty page
 	mov ecx, 1024
 	mov esp, page_directory
+	sub esp, KERNEL_POS
 	pd_loop:
 		mov DWORD [esp], 0x0
 		add esp, 4
 	loop pd_loop
 	mov ecx, 1024
 
+	mov esp, page_directory
+	sub esp, KERNEL_POS
 	; We setup the to link
-	mov DWORD [page_directory + 4 * 0], PHISICAL_KERNEL_POS + 0x83
-	mov DWORD [page_directory + 4 * (KERNEL_POS >> 22)], PHISICAL_KERNEL_POS + 0x83
+	mov DWORD [esp + 4 * 0], PHISICAL_KERNEL_POS + 0x83
+	mov DWORD [esp + 4 * (KERNEL_POS >> 22)], PHISICAL_KERNEL_POS + 0x83
 
 	; We insert the page in c3
 	mov ecx, page_directory
+	sub ecx, KERNEL_POS
 	mov cr3, ecx
 
-	; No page directory: 4M page
+	; PSE to enable 4M page
 	mov esp, cr4
 	or esp, 0x00000010
 	mov cr4, esp
@@ -99,7 +104,7 @@ _starthightmemory:
 ;   stack (as it grows downwards on x86 systems). This is necessarily done
 ;   in assembly as languages such as C cannot function without a stack.
 
-	mov esp, stack_top + KERNEL_POS
+	mov esp, stack_top
 
 ;   This is a good place to initialize crucial processor state before the
 ;   high-level kernel is entered. It's best to minimize the early
