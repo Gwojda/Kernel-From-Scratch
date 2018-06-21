@@ -34,7 +34,7 @@ static struct printk_writer writer = {
 	.write_char = write_char
 };
 
-static int printk_display(struct printk_writer *writer, const char **fmt, va_list ap)
+static int printk_display(struct printk_writer *writer, const char **fmt, va_list *ap)
 {
 	struct printk_para para = {
 		.type = PRINTK_NONE,

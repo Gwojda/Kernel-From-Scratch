@@ -8,6 +8,7 @@ section .bss
 ;   It's use for virtual map the kernel in hight memory
 
 align 4096
+global page_directory
 page_directory:
 resb 4096
 

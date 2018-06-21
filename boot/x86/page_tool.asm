@@ -1,8 +1,8 @@
 section .text
-global change_root_pagin
-global get_currant_page_directory
+global page_directory_set
+global page_directory_get
 
-change_root_pagin:
+page_directory_set:
 	push ebp
 	mov ebp, esp
 	
@@ -13,7 +13,7 @@ change_root_pagin:
 	pop ebp
 	ret
 
-get_currant_page_directory:
+page_directory_get:
 	push ebp
 	mov ebp, esp
 
