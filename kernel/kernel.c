@@ -131,7 +131,7 @@ void kmain (unsigned long magic, unsigned long addr)
 	printk("Kernel real bss position %p %p\n", KERNEL_REAL_BSS_START, KERNEL_REAL_BSS_END);
 	printk("Kernel size %p\n", KERNEL_BSS_SIZE);
 	page_setup();
-	print_kernel_visu();
+	//print_kernel_visu();
 	init_gdt();
 	launchshell();
 }

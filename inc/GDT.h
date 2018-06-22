@@ -3,13 +3,12 @@
 
 # include "lib.h"
 # include "typedef.h"
+# include "position.h"
 
-#define GDTSIZE		0xFF
-#define GDTBASE		0xC0000800 // TODO can be compilation static
+# define GDTSIZE	0xFF
+# define GDTBASE	KERNEL_GET_VIRTUAL(0x00000800)
 
-#define	PAGESIZE 			4096
-
-#include "typedef.h"
+# define		PAGESIZE 			4096
 
 struct tss {
 	u16 previous_task, __previous_task_unused;

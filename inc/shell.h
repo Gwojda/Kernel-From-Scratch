@@ -16,7 +16,7 @@ void	switchtty_cmd(void);
 void	reboot(void);
 void	halt(void);
 
-char cmd[SIZE_MAX_CMD];
+extern char cmd[SIZE_MAX_CMD];
 extern size_t	cmd_ind;
 
 typedef struct	s_execmd
