@@ -15,9 +15,10 @@
 # include "io.h"
 # include "shell.h"
 # include "page.h"
+# include "memory.h"
 
 # if !defined(__i386__)
-#  error "This tutorial needs to be compiled with a ix86-elf compiler"
+#  error "This kernel needs to be compiled with a ix86-elf compiler"
 # endif
 
 size_t	strlen(const char* str);
