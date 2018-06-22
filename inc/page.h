@@ -16,6 +16,7 @@
 # define PAGE_NOTHING		0b000000000000
 
 extern uint32_t page_directory[1024];
+extern uint32_t page_swap[1024];
 
 void page_directory_set(uint32_t *ptr);
 uint32_t *page_directory_get(void);
