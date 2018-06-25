@@ -52,6 +52,8 @@ void page_setup_kernel_section(uint32_t *table)
 	 * The end in not aligned, so
 	 */
 	size_t kernel_end_page = KERNEL_REAL_END;
+
+//	je ne suis pas tres fan du >> 12 << 12, c'est plus propre un & 0xFFFFFFF000
 	if ((kernel_end_page >> 12) << 12 != kernel_end_page >> 12)
 		kernel_end_page = kernel_end_page + (1 << 12);
 	page_entry_set_range(table, KERNEL_REAL_START >> 12, kernel_end_page >> 12, PAGE_WRITE | PAGE_PRESENT);
