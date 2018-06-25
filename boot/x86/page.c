@@ -17,7 +17,7 @@ void page_entry_clear(uint32_t *table)
 void page_entry_set(uint32_t *table, unsigned int index, void *ptr, unsigned int flag)
 {
 	if ((size_t)ptr & PAGE_FLAG) {
-		printk("FATAL ERROR: page addr");
+		printk("FATAL ERROR: page addr %p", ptr);
 		while (1)
 			;
 	}
@@ -27,7 +27,7 @@ void page_entry_set(uint32_t *table, unsigned int index, void *ptr, unsigned int
 			;
 	}
 	if (index >= 1024) {
-		printk("FATAL ERROR: index too large");
+		printk("FATAL ERROR: index too large %d", index);
 		while (1)
 			;
 	}
@@ -43,7 +43,7 @@ void page_entry_set_range(uint32_t *table, unsigned int from, unsigned int to, u
 {
 	unsigned int i;
 	for (i = from; i < to; i++)
-		page_entry_set(kernel_page, i, 4096 * i, flag);
+		page_entry_set(table, i, 4096 * i, flag);
 }
 
 void page_setup_kernel_section(uint32_t *table)
@@ -69,6 +69,13 @@ void page_setup_kernel_section(uint32_t *table)
 	page_entry_set_range(table, KERNEL_REAL_TEXT_START >> 12, KERNEL_REAL_TEXT_END >> 12, PAGE_PRESENT);
 	page_entry_set_range(table, KERNEL_REAL_DATA_START >> 12, KERNEL_REAL_DATA_END >> 12, PAGE_WRITE | PAGE_PRESENT);
 	page_entry_set_range(table, KERNEL_REAL_RODATA_START >> 12, KERNEL_REAL_RODATA_END >> 12, PAGE_PRESENT);
+}
+
+uint32_t *access_table_with_physical(uint32_t *empty_static_page, uint32_t *physical)
+{
+	unsigned int i = KERNEL_GET_REAL(empty_static_page);
+	page_entry_set(kernel_page, i & 1024, i & 1024, PAGE_WRITE | PAGE_PRESENT);
+	return (empty_static_page);
 }
 
 /*uint32_t page_get_entry_with_virtual(void *addr)
@@ -101,5 +108,6 @@ void page_setup(void)
 	page_entry_set(page_directory, (0xC0000000 >> 22), KERNEL_GET_REAL(kernel_page), /*PAGE_WRITE |*/ PAGE_PRESENT);
 	// We have all the thing to stop use
 	page_directory_reset();
+	//access_table_with_physical(page_swap, kernel_page);
 	//printk("page %p\n", page_get_entry_with_virtual(kernel_page));
 }
