@@ -20,24 +20,26 @@ SECTIONS {
 	.text ALIGN (4K) : AT(ADDR(.text) - _kernel_pos) {
 		_kernel_text_start = .;
 		*(.text*)
+		. = ALIGN(4K);
 		_kernel_text_end = .;
 	}
 	.rodata ALIGN(4K) : AT(ADDR(.rodata) - _kernel_pos) {
 		_kernel_rodata_start = .;
 		*(.rodata*)
+		. = ALIGN(4K);
 		_kernel_rodata_end = .;
 	}
 	.data ALIGN (4K) : AT(ADDR(.data) - _kernel_pos) {
 		_kernel_data_start = .;
 		*(.data*)
+		. = ALIGN(4K);
 		_kernel_data_end = .;
 	}
-
 	.bss : AT(ADDR(.bss) - _kernel_pos){
 		_kernel_bss_start = .;
 		*(.bss)
+		. = ALIGN(4K);
 		_kernel_bss_end = .;
 	}
-
 	_kernel_end = .;
 }

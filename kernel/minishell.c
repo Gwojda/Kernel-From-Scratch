@@ -3,6 +3,7 @@
 #include "lib.h"
 
 size_t	cmd_ind = 0;
+char cmd[SIZE_MAX_CMD];
 
 static void	print_stack(void)
 {

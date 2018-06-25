@@ -40,10 +40,10 @@ void kmain (unsigned long magic, unsigned long addr)
 	printk("Kernel virtual bss position %p %p\n", KERNEL_BSS_START, KERNEL_BSS_END);
 	printk("Kernel real bss position %p %p\n", KERNEL_REAL_BSS_START, KERNEL_REAL_BSS_END);
 	printk("Kernel size %p\n", KERNEL_BSS_SIZE);
-
 // ------------------------
 
 //	print_kernel_visu();
+	page_setup();
 	init_gdt();
 	page_setup();
 //	launchshell();

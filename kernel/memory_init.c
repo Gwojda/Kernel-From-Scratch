@@ -1,5 +1,12 @@
 #include "memory.h"
 
+t_memory	mm_info = 
+{
+	0,
+	NULL,
+	0
+};
+
 void memory_init(unsigned long magic, unsigned long addr)
 {
 	struct multiboot_tag *tag;
@@ -8,11 +15,13 @@ void memory_init(unsigned long magic, unsigned long addr)
 	if (magic != MULTIBOOT2_BOOTLOADER_MAGIC)
 	{
 		printk ("Invalid magic number: 0x%x\n", (unsigned) magic);
-		return;
+		// need to kernel panic here
+		return ;
 	}
 	if (addr & 7)
 	{
 		printk ("Unaligned mbi: 0x%x\n", addr);
+		// kernel panic needed here ?
 		return;
 	}
 	for (tag = (struct multiboot_tag *) (addr + 8);
@@ -25,7 +34,8 @@ void memory_init(unsigned long magic, unsigned long addr)
 			case MULTIBOOT_TAG_TYPE_MMAP:
 				{
 					multiboot_memory_map_t *mmap;
-					size_t			tot_free_length = 0;
+					void			*current_addr = NULL;
+					size_t			current_len = 0;
 
 					for (mmap = ((struct multiboot_tag_mmap *) tag)->entries;
 							(multiboot_uint8_t *) mmap
@@ -34,17 +44,17 @@ void memory_init(unsigned long magic, unsigned long addr)
 							((unsigned long) mmap
 							 + ((struct multiboot_tag_mmap *) tag)->entry_size))
 					{
-						printk (" base_addr = 0x%x%x,"
-								" length = 0x%x%x, type = 0x%x\n",
-								(unsigned) (mmap->addr >> 32),
-								(unsigned) (mmap->addr & 0xffffffff),
-								(unsigned) (mmap->len >> 32),
-								(unsigned) (mmap->len & 0xffffffff),
-								(unsigned) mmap->type);
-						if (mmap->type == 1)
+
+						current_addr = (unsigned) (mmap->addr & 0xffffffff);
+						current_addr += (unsigned) (mmap->addr >> 32);
+						current_len = (unsigned) (mmap->len & 0xffffffff);
+						current_len += (unsigned) (mmap->len >> 32);
+						if (mmap->type == 1 && current_addr == NULL)
+							mm_info.lowMemorySize = current_len;
+						else if (mmap->type == 1 && current_addr == HIGH_MEMORY_BEGIN)
 						{
-							tot_free_length += (unsigned) (mmap->len >> 32);
-							tot_free_length += (unsigned) (mmap->len & 0xffffffff);
+							mm_info.highMemory = current_addr;
+							mm_info.highMemorySize = current_len;
 						}
 					}
 				break;
