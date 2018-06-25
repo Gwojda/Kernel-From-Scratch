@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef KPRINT_H
-# define KPRINT_H
+#ifndef PRINTK_H
+# define PRINTK_H
 
 #include <stdint.h>
 #include <stddef.h>

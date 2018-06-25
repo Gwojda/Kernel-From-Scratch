@@ -16,21 +16,12 @@ void page_entry_clear(uint32_t *table)
 
 void page_entry_set(uint32_t *table, unsigned int index, void *ptr, unsigned int flag)
 {
-	if ((size_t)ptr & PAGE_FLAG) {
-		printk("FATAL ERROR: page addr %p", ptr);
-		while (1)
-			;
-	}
-	if (flag & PAGE_ADDR) {
-		printk("FATAL ERROR: flag");
-		while (1)
-			;
-	}
-	if (index >= 1024) {
-		printk("FATAL ERROR: index too large %d", index);
-		while (1)
-			;
-	}
+	if ((size_t)ptr & PAGE_FLAG)
+		kern_panic("FATAL ERROR: page addr %p", ptr);
+	if (flag & PAGE_ADDR) 
+		kern_panic("FATAL ERROR: flag");
+	if (index >= 1024)
+		kern_panic("FATAL ERROR: index too large %d", index);
 	table[index] = ((size_t)ptr) | flag;
 }
 

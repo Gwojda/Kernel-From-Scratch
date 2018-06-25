@@ -1,5 +1,6 @@
 OBJS += \
 kernel/kernel.o \
+kernel/memory_init.o \
 kernel/minishell.o \
 kernel/cmd/reboot.o \
 kernel/cmd/switchtty.o \

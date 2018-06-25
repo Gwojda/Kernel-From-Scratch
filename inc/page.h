@@ -15,6 +15,8 @@
 # define PAGE_PRESENT		0b000000000001	// P
 # define PAGE_NOTHING		0b000000000000
 
+# include "panic.h"
+
 extern uint32_t page_directory[1024];
 extern uint32_t page_swap[1024];
 

@@ -14,8 +14,7 @@ void memory_init(unsigned long magic, unsigned long addr)
 	/* Am I booted by a Multiboot-compliant boot loader? */
 	if (magic != MULTIBOOT2_BOOTLOADER_MAGIC)
 	{
-		printk ("Invalid magic number: 0x%x\n", (unsigned) magic);
-		// need to kernel panic here
+		kern_panic("Invalid magic number: 0x%x\n", (unsigned) magic);
 		return ;
 	}
 	if (addr & 7)

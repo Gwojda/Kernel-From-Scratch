@@ -5,6 +5,7 @@
 # include "typedef.h"
 # include "printk.h"
 # include "list.h"
+# include "panic.h"
 
 # define MAX_RAM_PAGE 0x100000
 # define HIGH_MEMORY_BEGIN 0x100000
