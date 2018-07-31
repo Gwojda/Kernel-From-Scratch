@@ -12,15 +12,6 @@
 
 void memory_init(unsigned long magic, unsigned long addr);
 
-typedef struct	s_memory
-{
-	unsigned long	lowMemorySize;
-
-	void		*highMemory;
-	unsigned long	highMemorySize;
-
-}		t_memory;
-
-extern t_memory	mm_info;
+unsigned char	mm_bitmap[MAX_RAM_PAGE / 8];
 
 #endif

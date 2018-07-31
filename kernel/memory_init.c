@@ -1,13 +1,37 @@
 #include "memory.h"
 
-t_memory	mm_info = 
+static void	reset_mm_bitmap(void)
 {
-	0,
-	NULL,
-	0
-};
+	size_t i = 0;
 
-void memory_init(unsigned long magic, unsigned long addr)
+	while (i < MAX_RAM_PAGE / 8)
+	{
+		mm_bitmap[i] = -1;
+		++i;
+	}
+}
+
+static void	init_mm_bitmap(void *start, size_t len)
+{
+	size_t	page = (size_t)start >> 12;
+
+	len = len >> 12;
+	while (page % 8)
+	{
+		mm_bitmap[page & 0xFFFFFFF8] &= ~(1 << (page % 8));
+		++page;
+		--len;
+	}
+	while (len)
+	{
+		if (page % 8)
+			mm_bitmap[page & 0xFFFFFFF8] &= ~(1 << (page % 8));
+		++page;
+		--len;
+	}
+}
+
+void		memory_init(unsigned long magic, unsigned long addr)
 {
 	struct multiboot_tag *tag;
 
@@ -16,6 +40,7 @@ void memory_init(unsigned long magic, unsigned long addr)
 		kern_panic("Invalid magic number: 0x%x\n", (unsigned) magic);
 	if (addr & 7)
 		kern_panic("Unaligned mbi: 0x%x\n", addr);
+	reset_mm_bitmap();
 	for (tag = (struct multiboot_tag *) (addr + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
 		tag = (struct multiboot_tag *)((multiboot_uint8_t *)tag + ((tag->size + 7) & ~7)))
@@ -35,13 +60,8 @@ void memory_init(unsigned long magic, unsigned long addr)
 				current_addr += (unsigned) (mmap->addr >> 32);
 				current_len = (unsigned) (mmap->len & 0xffffffff);
 				current_len += (unsigned) (mmap->len >> 32);
-				if (mmap->type == 1 && current_addr == NULL)
-					mm_info.lowMemorySize = current_len;
-				else if (mmap->type == 1 && current_addr == HIGH_MEMORY_BEGIN)
-				{
-					mm_info.highMemory = current_addr;
-					mm_info.highMemorySize = current_len;
-				}
+				if (mmap->type == 1)
+					init_mm_bitmap(current_addr, current_len);
 			}
 			break;
 		}
