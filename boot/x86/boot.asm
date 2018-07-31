@@ -44,7 +44,7 @@ global _start
 section .boottext
 _start:
 	; If you call now the real entry point, we have a probleme
-	; the virtual addresse is not the currant addresse of the memory
+	; the virtual addresse is not the current address of the memory
 	; we need to setup an early boot page management for map the memory like what:
 
 	;	current				goal

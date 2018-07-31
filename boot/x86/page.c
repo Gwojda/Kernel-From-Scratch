@@ -47,21 +47,12 @@ void page_setup_kernel_section(uint32_t *table)
 	page_entry_set(table, 0x00000000 >> 12, 0x00000000, PAGE_WRITE | PAGE_PRESENT); // gdt
 	page_entry_set(table, 0x000B8000 >> 12, 0x000B8000, PAGE_WRITE | PAGE_PRESENT); // vga
 
-	/*
-	 * We map the all binary, becose of strange setion in binary
-	 * The end in not aligned, so
-	 */
-	size_t kernel_end_page = KERNEL_REAL_END;
-
-//	je ne suis pas tres fan du >> 12 << 12, c'est plus propre un & 0xFFFFFFF000
-	if ((kernel_end_page >> 12) << 12 != kernel_end_page >> 12)
-		kernel_end_page = kernel_end_page + (1 << 12);
-	page_entry_set_range(table, KERNEL_REAL_START >> 12, kernel_end_page >> 12, PAGE_WRITE | PAGE_PRESENT);
-
-	page_entry_set_range(table, KERNEL_REAL_BSS_START >> 12, KERNEL_REAL_BSS_END >> 12, PAGE_WRITE | PAGE_PRESENT);
-	page_entry_set_range(table, KERNEL_REAL_TEXT_START >> 12, KERNEL_REAL_TEXT_END >> 12, PAGE_PRESENT);
-	page_entry_set_range(table, KERNEL_REAL_DATA_START >> 12, KERNEL_REAL_DATA_END >> 12, PAGE_WRITE | PAGE_PRESENT);
-	page_entry_set_range(table, KERNEL_REAL_RODATA_START >> 12, KERNEL_REAL_RODATA_END >> 12, PAGE_PRESENT);
+	page_entry_set_range(table, KERNEL_REAL_START >> 12, PAGE_ALIGN(KERNEL_REAL_END) >> 12, PAGE_WRITE | PAGE_PRESENT);
+	
+	page_entry_set_range(table, KERNEL_REAL_TEXT_START >> 12, PAGE_ALIGN(KERNEL_REAL_TEXT_END) >> 12, PAGE_PRESENT);
+	page_entry_set_range(table, KERNEL_REAL_RODATA_START >> 12, PAGE_ALIGN(KERNEL_REAL_RODATA_END) >> 12, PAGE_PRESENT);
+	page_entry_set_range(table, KERNEL_REAL_DATA_START >> 12, PAGE_ALIGN(KERNEL_REAL_DATA_END) >> 12, PAGE_WRITE | PAGE_PRESENT);
+	page_entry_set_range(table, KERNEL_REAL_BSS_START >> 12, PAGE_ALIGN(KERNEL_REAL_BSS_END) >> 12, PAGE_WRITE | PAGE_PRESENT);
 }
 
 uint32_t *access_table_with_physical(uint32_t *empty_static_page, uint32_t *physical)
@@ -94,13 +85,12 @@ void page_setup(void)
 {
 	// We remove the old identity page mapping
 	page_entry_remove(page_directory, 0x00000000 >> 22);
-
-	// We don't want a sigle 4M section for map the kernel, so we buil the page
+	// We don't want a sigle 4M section for map the kernel, so we build the page
 	page_setup_kernel_section(kernel_page);
 	// We inject the page
 	page_entry_set(page_directory, (0xC0000000 >> 22), KERNEL_GET_REAL(kernel_page), /*PAGE_WRITE |*/ PAGE_PRESENT);
 	// We have all the thing to stop use
-	page_directory_reset();
+	page_directory_reset(); // pourquoi ? Remettres la meme valeur dans cr3 a-t-il un sens caché ?
 	//access_table_with_physical(page_swap, kernel_page);
 	//printk("page %p\n", page_get_entry_with_virtual(kernel_page));
 }

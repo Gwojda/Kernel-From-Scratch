@@ -2,8 +2,9 @@ ENTRY(start)
 
 /*
  * The kernel is in half hight memory,
- * the basse agresse is:
+ * the base address is:
  */
+
 _kernel_pos = 0xC0000000;
 
 SECTIONS {
@@ -17,7 +18,7 @@ SECTIONS {
 	. += _kernel_pos;
 
 	_kernel_start = .;
-	.text ALIGN (4K) : AT(ADDR(.text) - _kernel_pos) {
+	.text ALIGN(4K) : AT(ADDR(.text) - _kernel_pos) {
 		_kernel_text_start = .;
 		*(.text*)
 		. = ALIGN(4K);
@@ -29,13 +30,13 @@ SECTIONS {
 		. = ALIGN(4K);
 		_kernel_rodata_end = .;
 	}
-	.data ALIGN (4K) : AT(ADDR(.data) - _kernel_pos) {
+	.data ALIGN(4K) : AT(ADDR(.data) - _kernel_pos) {
 		_kernel_data_start = .;
 		*(.data*)
 		. = ALIGN(4K);
 		_kernel_data_end = .;
 	}
-	.bss : AT(ADDR(.bss) - _kernel_pos){
+	.bss ALIGN(4K) : AT(ADDR(.bss) - _kernel_pos) {
 		_kernel_bss_start = .;
 		*(.bss)
 		. = ALIGN(4K);

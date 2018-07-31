@@ -15,6 +15,8 @@
 # define PAGE_PRESENT		0b000000000001	// P
 # define PAGE_NOTHING		0b000000000000
 
+# define PAGE_ALIGN(P) ((P % 4096) ? P + 4096 : P)
+
 # include "panic.h"
 
 extern uint32_t page_directory[1024];

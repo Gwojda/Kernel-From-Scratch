@@ -13,20 +13,12 @@ void memory_init(unsigned long magic, unsigned long addr)
 
 	/* Am I booted by a Multiboot-compliant boot loader? */
 	if (magic != MULTIBOOT2_BOOTLOADER_MAGIC)
-	{
 		kern_panic("Invalid magic number: 0x%x\n", (unsigned) magic);
-		return ;
-	}
 	if (addr & 7)
-	{
-		printk ("Unaligned mbi: 0x%x\n", addr);
-		// kernel panic needed here ?
-		return;
-	}
+		kern_panic("Unaligned mbi: 0x%x\n", addr);
 	for (tag = (struct multiboot_tag *) (addr + 8);
-			tag->type != MULTIBOOT_TAG_TYPE_END;
-			tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag
-				+ ((tag->size + 7) & ~7)))
+		tag->type != MULTIBOOT_TAG_TYPE_END;
+		tag = (struct multiboot_tag *)((multiboot_uint8_t *)tag + ((tag->size + 7) & ~7)))
 	{
 		if (tag->type ==  MULTIBOOT_TAG_TYPE_MMAP)
 		{
@@ -35,13 +27,10 @@ void memory_init(unsigned long magic, unsigned long addr)
 			size_t			current_len = 0;
 
 			for (mmap = ((struct multiboot_tag_mmap *) tag)->entries;
-					(multiboot_uint8_t *) mmap
-					< (multiboot_uint8_t *) tag + tag->size;
-					mmap = (multiboot_memory_map_t *)
-					((unsigned long) mmap
-					 + ((struct multiboot_tag_mmap *) tag)->entry_size))
+				(multiboot_uint8_t *) mmap < (multiboot_uint8_t *) tag + tag->size;
+				mmap = (multiboot_memory_map_t *)((unsigned long) mmap
+				+ ((struct multiboot_tag_mmap *)tag)->entry_size))
 			{
-
 				current_addr = (unsigned) (mmap->addr & 0xffffffff);
 				current_addr += (unsigned) (mmap->addr >> 32);
 				current_len = (unsigned) (mmap->len & 0xffffffff);
@@ -57,6 +46,4 @@ void memory_init(unsigned long magic, unsigned long addr)
 			break;
 		}
 	}
-	tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag
-			+ ((tag->size + 7) & ~7));
 }

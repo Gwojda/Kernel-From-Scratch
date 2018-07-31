@@ -54,6 +54,8 @@ extern void *_kernel_text_end;
 # define KERNEL_REAL_TEXT_START (KERNEL_GET_REAL(KERNEL_TEXT_START))
 # define KERNEL_REAL_TEXT_END (KERNEL_GET_REAL(KERNEL_TEXT_END))
 
+# define KERNEL_TEXT_SIZE (KERNEL_TEXT_END - KERNEL_TEXT_START)
+
 extern void *_kernel_rodata_start;
 extern void *_kernel_rodata_end;
 
@@ -63,6 +65,8 @@ extern void *_kernel_rodata_end;
 # define KERNEL_REAL_RODATA_START (KERNEL_GET_REAL(KERNEL_RODATA_START))
 # define KERNEL_REAL_RODATA_END (KERNEL_GET_REAL(KERNEL_RODATA_END))
 
+# define KERNEL_RODATA_SIZE (KERNEL_RODATA_END - KERNEL_RODATA_START)
+
 extern void *_kernel_data_start;
 extern void *_kernel_data_end;
 
@@ -71,5 +75,7 @@ extern void *_kernel_data_end;
 
 # define KERNEL_REAL_DATA_START (KERNEL_GET_REAL(KERNEL_DATA_START))
 # define KERNEL_REAL_DATA_END (KERNEL_GET_REAL(KERNEL_DATA_END))
+
+# define KERNEL_DATA_SIZE (KERNEL_DATA_END - KERNEL_DATA_START)
 
 #endif
