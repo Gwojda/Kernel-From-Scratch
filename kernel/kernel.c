@@ -25,8 +25,10 @@ static void	print_kernel_visu(void)
 
 }
 
-void kmain (unsigned long magic, unsigned long addr)
+void kmain (unsigned long volatile magic, unsigned long addr)
 {
+	void*	esp;
+
 	init_tty();
 	init_vga();
 	memory_init(magic, addr);
@@ -42,6 +44,12 @@ void kmain (unsigned long magic, unsigned long addr)
 
 //	print_kernel_visu();
 	page_setup();
+	stack_setup();
+
+	__asm__ volatile ("movl %%esp, %[r]" :  [r] "=r" (esp));
+	esp = STACK_END - ((void*)&stack_top - esp);
+	__asm__ volatile ("movl %[r], %%esp" : : [r] "r" (esp));
+
 	init_gdt();
 	launchshell();
 }

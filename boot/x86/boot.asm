@@ -31,10 +31,13 @@ section .bss
 ;   stack is properly aligned and failure to align the stack will result in
 ;   undefined behavior.
 
-align 16
+align 4096
 stack_bottom:
 resb 16384 ; 16 KiB
+align 4096
 stack_top:
+global stack_top
+global stack_bottom
 
 ;   The linker script specifies _start as the entry point to the kernel and the
 ;   bootloader will jump to this position once the kernel has been loaded. It

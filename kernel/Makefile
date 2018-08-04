@@ -4,6 +4,7 @@ kernel/memory_init.o \
 kernel/minishell.o \
 kernel/panic.o \
 kernel/phys_mem_management.o \
+kernel/stack_setup.o \
 kernel/virt_mem_management.o \
 kernel/cmd/reboot.o \
 kernel/cmd/switchtty.o \

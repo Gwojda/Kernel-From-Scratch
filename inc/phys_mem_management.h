@@ -12,7 +12,6 @@
 
 # define LOW_MEMORY_SIZE	(0x9FC00)
 
-# define PAGE_ALIGN(P) ((P % 4096) ? P - (P % 4096) + 4096: P)
 # define ACCESS_BITMAP_BY_ADDR(x) ((size_t)x >> 15)
 
 

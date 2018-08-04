@@ -1,6 +1,8 @@
 #ifndef POSITION_H
 # define POSITION_H
 
+# define PAGE_ALIGN(P) ((P % 4096) ? P - (P % 4096) + 4096: P)
+
 /*
  * This file give you information about the current load of the kernel
  */
@@ -8,6 +10,7 @@
 /*
  * The start of virtual memory of kernel
  */
+
 
 extern void *_kernel_pos;
 
@@ -78,8 +81,16 @@ extern void *_kernel_data_end;
 
 # define KERNEL_DATA_SIZE (KERNEL_DATA_END - KERNEL_DATA_START)
 
-# define HEAP_SIZE	(0x1000000)			// 16 777 216 bytes in decimal
-# define HEAP_START	(0x400000 + KERNEL_START)	// virt addr is on the next page entry
+# define HEAP_SIZE	(0x10000)
+# define HEAP_START	(0x400000 + PAGE_ALIGN(KERNEL_END))
 # define HEAP_END	(HEAP_START + HEAP_SIZE)
+
+extern void *stack_bottom;
+extern void *stack_top;
+
+# define STACK_SIZE	(0x10000)
+# define STACK_START	(0x400000 + PAGE_ALIGN(HEAP_END))
+# define STACK_END	(STACK_START + STACK_SIZE)
+
 
 #endif

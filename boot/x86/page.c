@@ -216,18 +216,4 @@ void	page_setup(void)
 //	heap_setup();
 //	to test page_get_entry_with_virtual
 	//page_get_entry_with_virtual(page_directory);
-
-	uint32_t *tt = get_phys_block(1);
-	int *ptr = 0xF0000000;
-	printk("tt %p\n", tt);
-	printk("ptr %p\n", tt);
-	printk("res %d\n", page_map(tt, ptr, PAGE_WRITE | PAGE_PRESENT));
-	printk("res %d\n", ptr[0]);
-	//ptr[0] = 42;
-	printk("res %d\n", ptr[0]);
-	page_info(ptr);
-	printk("res %d\n", page_unmap(ptr));
-
-	//access_table_with_physical(page_swap, kernel_page);
-	//printk("page %p\n", page_get_entry_with_virtual(kernel_page));
 }
