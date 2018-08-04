@@ -1,4 +1,5 @@
 #include "page.h"
+#include "position.h"
 
 static void	reset_mm_bitmap(void)
 {
@@ -31,7 +32,7 @@ static void	init_mm_bitmap(void *start, size_t len)
 	}
 }
 
-void		memory_init(unsigned long magic, unsigned long addr)
+void		memory_init_grub(unsigned long magic, unsigned long addr)
 {
 	struct multiboot_tag *tag;
 
@@ -56,14 +57,28 @@ void		memory_init(unsigned long magic, unsigned long addr)
 				mmap = (multiboot_memory_map_t *)((unsigned long) mmap
 				+ ((struct multiboot_tag_mmap *)tag)->entry_size))
 			{
-				current_addr = (unsigned) (mmap->addr & 0xffffffff);
-				current_addr += (unsigned) (mmap->addr >> 32);
-				current_len = (unsigned) (mmap->len & 0xffffffff);
-				current_len += (unsigned) (mmap->len >> 32);
+				current_addr = (void*)((size_t)mmap->addr & 0xffffffff);
+				current_addr += (size_t)(mmap->addr >> 32);
+				current_len = (size_t)(mmap->len & 0xffffffff);
+				current_len += (size_t)(mmap->len >> 32);
 				if (mmap->type == 1)
 					init_mm_bitmap(current_addr, current_len);
 			}
 			break;
 		}
 	}
+}
+
+static void	memory_init_reserv_kernel(void)
+{
+	unsigned i;
+
+	for (i = (size_t)KERNEL_REAL_START >> 12; i < (size_t)PAGE_ALIGN(KERNEL_REAL_END) >> 12; i++)
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR(i << 12)] &= ~(1 << ((i << 12) % 8));
+}
+
+void		memory_init(unsigned long magic, unsigned long addr)
+{
+	memory_init_grub(magic, addr);
+	memory_init_reserv_kernel();
 }

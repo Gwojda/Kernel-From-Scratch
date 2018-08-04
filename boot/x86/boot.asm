@@ -12,12 +12,6 @@ global page_directory
 page_directory:
 resb 4096
 
-align 4096
-global page_swap
-page_swap:
-resb 4096
-
-
 section .bss
 
 ;   The multiboot standard does not define the value of the stack pointer register

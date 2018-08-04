@@ -9,7 +9,7 @@ LD =		ld
 
 ## Includes
 INCS =	-I inc/
-include ./inc/Makefile
+# include ./inc/Makefile
 
 ## Flags
 CFLAGS =	-std=gnu99 -ffreestanding -Wall -Wextra -m32 $(INCS) \

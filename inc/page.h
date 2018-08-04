@@ -15,7 +15,9 @@
 # define PAGE_PRESENT		0b000000000001	// P
 # define PAGE_NOTHING		0b000000000000
 
-# define TABLE_ENTRY(P) (((P) & 0x003FF000) >> 12)
+# define PAGE_GET_ADDR(P) (void*)((uint32_t)(P) & PAGE_ADDR)
+
+# define TABLE_ENTRY(P) (((size_t)(P) & 0x003FF000) >> 12)
 
 # include "multiboot2.h"
 # include "typedef.h"
@@ -27,12 +29,25 @@
 extern uint32_t page_directory[1024];
 extern uint32_t page_swap[1024];
 
-void page_directory_set(uint32_t *ptr);
-uint32_t *page_directory_get(void);
+int page_map(void *physical_addr, void *virtual_addr, unsigned flags);
+int page_unmap(void *virt_addr);
 
-void page_entry_clear(uint32_t *table);
-void page_entry_set(uint32_t *table, unsigned int index, void *ptr, unsigned int flag);
-void page_entry_remove(uint32_t *table, unsigned int index);
+struct page_info_data
+{
+	void		*target;
+	int		error;
+
+	void		*page_directory;
+	uint32_t	page_directory_entry;
+
+	int		have_page_entry;
+	void		*page_table;
+	uint32_t	page_table_entry;
+};
+
+int page_info(void *virt_addr, struct page_info_data *ret);
+int page_info_data_display(struct page_info_data *ret);
+int page_info_display(void *virt_addr);
 
 void page_setup(void);
 

@@ -51,5 +51,6 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	__asm__ volatile ("movl %[r], %%esp" : : [r] "r" (esp));
 
 	init_gdt();
+	page_info_display(0xC00B8000);
 	launchshell();
 }
