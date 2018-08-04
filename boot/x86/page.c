@@ -36,7 +36,7 @@ void page_entry_set_range(uint32_t *table, unsigned int from, unsigned int to, u
 	for (i = from; i < to; i++)
 	{
 		page_entry_set(table, i, i << 12, flag);
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR((i << 12))] |= 1 << (KERNEL_GET_VIRTUAL(i << 12) % 8);
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR((i << 12))] &= ~(1 << (KERNEL_GET_VIRTUAL(i << 12) % 8));
 	}
 }
 
@@ -48,9 +48,9 @@ void page_setup_kernel_section(uint32_t *table)
 	 * Some page use in kernel code
 	 */
 	page_entry_set(table, TABLE_ENTRY(0x00000000), 0x00000000, PAGE_WRITE | PAGE_PRESENT); // gdt
-	mm_bitmap[ACCESS_BITMAP_BY_ADDR(0x00000000)] |= 1 << (KERNEL_GET_VIRTUAL(0x00000000) % 8);
+	mm_bitmap[ACCESS_BITMAP_BY_ADDR(0x00000000)] &= ~(1 << (0x00000000 % 8));
 	page_entry_set(table, TABLE_ENTRY(0x000B8000), 0x000B8000, PAGE_WRITE | PAGE_PRESENT); // vga
-	mm_bitmap[ACCESS_BITMAP_BY_ADDR(0x000B8000)] |= 1 << (KERNEL_GET_VIRTUAL(0x000B8000) % 8);
+	mm_bitmap[ACCESS_BITMAP_BY_ADDR(0x000B8000)] &= ~(1 << (0x000B8000 % 8));
 	// we'll need to map here idt
 	/*
 	 * here we go, let's map the kernel !
@@ -94,6 +94,36 @@ void	init_free_vm(void)
 	INIT_LIST_HEAD(&free_vm.list);
 }
 
+void	alloc_phys_memory(void *start_phys_addr, size_t pages_nb)
+{
+	while (pages_nb / 8)
+	{
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] = -1;
+		start_phys_addr += 8 * 4096;
+		pages_nb -= 8;
+	}
+	while (pages_nb)
+	{
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] &= ~(1 << (pages_nb % 8));
+		--pages_nb;
+	}
+}
+
+void	free_phys_memory(void *start_phys_addr, size_t pages_nb)
+{
+	while (pages_nb / 8)
+	{
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] = 0;
+		start_phys_addr += 8 * 4096;
+		pages_nb -= 8;
+	}
+	while (pages_nb)
+	{
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] |= 1 << (pages_nb % 8);
+		--pages_nb;
+	}
+}
+
 void	*get_phys_block(size_t nb_pages)
 {
 	size_t	i = LOW_MEMORY_SIZE >> 12;
@@ -106,7 +136,10 @@ void	*get_phys_block(size_t nb_pages)
 		while (j < 8)
 		{
 			if (following_bits == nb_pages)
+			{
+				alloc_phys_memory((((i - (following_bits / 8)) << 3) + (following_bits % 8)) << 12, following_bits);
 				return ((((i - (following_bits / 8)) << 3) + (following_bits % 8)) << 12);
+			}
 			if (mm_bitmap[i] & (1 << j))
 				++following_bits;
 			else

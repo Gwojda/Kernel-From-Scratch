@@ -19,7 +19,7 @@
 
 # define TABLE_ENTRY(P) (((P) & 0x003FF000) >> 12)
 # define PAGE_ALIGN(P) ((P % 4096) ? P - (P % 4096) + 4096: P)
-# define ACCESS_BITMAP_BY_ADDR(x) (x >> 3)
+# define ACCESS_BITMAP_BY_ADDR(x) ((size_t)x >> 15)
 
 # define MAX_RAM_PAGE 0x100000
 # define HIGH_MEMORY_BEGIN 0x100000
