@@ -8,11 +8,9 @@ inc/list.h \
 inc/multiboot2.h \
 inc/page.h \
 inc/panic.h \
-inc/phys_mem_management.h \
 inc/position.h \
 inc/printk.h \
 inc/shell.h \
 inc/tty.h \
 inc/typedef.h \
 inc/vga.h \
-inc/virt_mem_management.h \

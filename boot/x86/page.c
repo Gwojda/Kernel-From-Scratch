@@ -72,70 +72,6 @@ uint32_t *access_table_with_physical(void *empty_static_page, uint32_t *physical
 	return (empty_static_page);
 }
 
-void	init_free_vm(void)
-{
-	free_vm.vm_start = 0x00000000;
-	free_vm.vm_end = 0xFFFFFFFF;
-	INIT_LIST_HEAD(&free_vm.list);
-}
-
-void	alloc_phys_memory(void *start_phys_addr, size_t pages_nb)
-{
-	while (pages_nb / 8)
-	{
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] = -1;
-		start_phys_addr += 8 * 4096;
-		pages_nb -= 8;
-	}
-	while (pages_nb)
-	{
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] &= ~(1 << (pages_nb % 8));
-		--pages_nb;
-	}
-}
-
-void	free_phys_memory(void *start_phys_addr, size_t pages_nb)
-{
-	while (pages_nb / 8)
-	{
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] = 0;
-		start_phys_addr += 8 * 4096;
-		pages_nb -= 8;
-	}
-	while (pages_nb)
-	{
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] |= 1 << (pages_nb % 8);
-		--pages_nb;
-	}
-}
-
-void	*get_phys_block(size_t nb_pages)
-{
-	size_t	i = LOW_MEMORY_SIZE >> 12;
-	size_t	following_bits = 0;
-	size_t	j;
-
-	while (i < MAX_RAM_PAGE / 8)
-	{
-		j = 0;
-		while (j < 8)
-		{
-			if (following_bits == nb_pages)
-			{
-				alloc_phys_memory((((i - (following_bits / 8)) << 3) + (following_bits % 8)) << 12, following_bits);
-				return ((((i - (following_bits / 8)) << 3) + (following_bits % 8)) << 12);
-			}
-			if (mm_bitmap[i] & (1 << j))
-				++following_bits;
-			else
-				following_bits = 0;
-			++j;
-		}
-		++i;
-	}
-	return (NULL);
-}
-
 int page_map(void *phy_addr, void *virt_addr, unsigned int flag)
 {
 	if ((uint32_t)virt_addr & PAGE_FLAG)
@@ -202,9 +138,9 @@ int page_unmap(void *virt_addr)
 		i++;
 	}
 
-	//*directory_entry &= ~PAGE_PRESENT;
-	//remove_phys_block(*directory_entry & PAGE_ADDR);
-	//*directory_entry = PAGE_NOTHING;
+	*directory_entry &= ~PAGE_PRESENT;
+	free_phys_block(*directory_entry & PAGE_ADDR, 1);
+	*directory_entry = PAGE_NOTHING;
 
 	page_directory_reset(); // page update
 

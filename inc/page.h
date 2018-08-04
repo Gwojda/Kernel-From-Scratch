@@ -15,33 +15,17 @@
 # define PAGE_PRESENT		0b000000000001	// P
 # define PAGE_NOTHING		0b000000000000
 
-# define LOW_MEMORY_SIZE	(0x9FC00)
-
 # define TABLE_ENTRY(P) (((P) & 0x003FF000) >> 12)
-# define PAGE_ALIGN(P) ((P % 4096) ? P - (P % 4096) + 4096: P)
-# define ACCESS_BITMAP_BY_ADDR(x) ((size_t)x >> 15)
-
-# define MAX_RAM_PAGE 0x100000
-# define HIGH_MEMORY_BEGIN 0x100000
 
 # include "multiboot2.h"
 # include "typedef.h"
 # include "printk.h"
-# include "list.h"
 # include "panic.h"
+# include "phys_mem_management.h"
+# include "virt_mem_management.h"
 
 extern uint32_t page_directory[1024];
 extern uint32_t page_swap[1024];
-
-struct vm_area
-{
-	uint32_t		vm_start;
-	uint32_t		vm_end;
-	struct list_head	list;
-};
-
-struct vm_area	free_vm;
-unsigned char	mm_bitmap[MAX_RAM_PAGE / 8];
 
 void page_directory_set(uint32_t *ptr);
 uint32_t *page_directory_get(void);
