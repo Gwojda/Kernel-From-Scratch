@@ -105,9 +105,13 @@ void	*get_phys_block(size_t nb_pages)
 
 int page_map(void *phy_addr, void *virt_addr, unsigned int flag)
 {
+	if ((uint32_t)virt_addr & PAGE_FLAG)
+		return 0;
 	if ((uint32_t)phy_addr & PAGE_FLAG)
 		return 0;
 	if (flag & PAGE_ADDR)
+		return 0;
+	if (!(flag & PAGE_PRESENT))
 		return 0;
 
 	unsigned int page_directory_index = (size_t)virt_addr >> 22;
@@ -118,21 +122,94 @@ int page_map(void *phy_addr, void *virt_addr, unsigned int flag)
 
 	if (*directory_entry & PAGE_SIZE)
 		return 0;
-	if (*directory_entry & PAGE_PRESENT)
-		return 0;
-	if (*directory_entry & PAGE_ADDR)
+	if (!(*directory_entry & PAGE_PRESENT))
 	{
 		if (!(*directory_entry = get_phys_block(1)))
 			return 0;
+		*directory_entry |= PAGE_PRESENT | PAGE_WRITE;
 		page_directory_reset(); // page update
 	}
 
 	uint32_t *page_table = access_table_with_physical(page_swap, *directory_entry & PAGE_ADDR);
 	page_directory_reset(); // page update
 	page_entry_set(page_table, page_table_index, phy_addr, flag);
+	page_directory_reset(); // page update
 
 	return 1;
 }
+
+int page_unmap(void *virt_addr)
+{
+	if ((uint32_t)virt_addr & PAGE_FLAG)
+		return 0;
+
+	unsigned int page_directory_index = (size_t)virt_addr >> 22;
+	unsigned int page_table_index = ((size_t)virt_addr >> 12) & 0x03FF;
+
+	uint32_t *page_directory = KERNEL_GET_VIRTUAL(page_directory_get());//
+	uint32_t *directory_entry = &(page_directory[page_directory_index]);
+
+	if (*directory_entry & PAGE_SIZE)
+		return 0;
+	if (!(*directory_entry & PAGE_PRESENT))
+		return 0;
+
+	uint32_t *page_table = access_table_with_physical(page_swap, *directory_entry & PAGE_ADDR);
+	page_directory_reset(); // page update
+	page_entry_set(page_table, page_table_index, NULL, PAGE_NOTHING);
+
+	unsigned i = 0;
+	while (i < 1024)
+	{
+		if (page_table[i] & PAGE_PRESENT)
+		{
+			page_directory_reset(); // page update
+			return 1;
+		}
+		i++;
+	}
+
+	//*directory_entry &= ~PAGE_PRESENT;
+	//remove_phys_block(*directory_entry & PAGE_ADDR);
+	//*directory_entry = PAGE_NOTHING;
+
+	page_directory_reset(); // page update
+
+	return 1;
+}
+
+int page_info(void *virt_addr)
+{
+	printk("page_info %p\n", virt_addr);
+
+	if ((uint32_t)virt_addr & PAGE_FLAG)
+	{
+		printk("  page not allign\n");
+		return 0;
+	}
+
+	unsigned int page_directory_index = (size_t)virt_addr >> 22;
+	unsigned int page_table_index = ((size_t)virt_addr >> 12) & 0x03FF;
+
+	uint32_t *page_directory = KERNEL_GET_VIRTUAL(page_directory_get());//
+	uint32_t *directory_entry = &(page_directory[page_directory_index]);
+
+	printk("  ---GSDACWRP\n");
+	printk("  page directory %p\n", page_directory);
+	printk("  D %b\n", *directory_entry & PAGE_FLAG);
+	printk("  - %p\n", *directory_entry & PAGE_ADDR);
+	if (!(*directory_entry & PAGE_PRESENT) || *directory_entry & PAGE_SIZE)
+		return 1;
+
+	uint32_t *page_table = access_table_with_physical(page_swap, *directory_entry & PAGE_ADDR);
+	page_directory_reset(); // page update
+	printk("  page table %p\n", page_table);
+	printk("  E %b\n", page_table[page_table_index] & PAGE_FLAG);
+	printk("  - %p\n", page_table[page_table_index] & PAGE_ADDR);
+
+	return 1;
+}
+
 
 /*void	heap_setup(void)
 {
@@ -169,10 +246,18 @@ void	page_setup(void)
 
 //	heap_setup();
 //	to test page_get_entry_with_virtual
-	page_get_entry_with_virtual(page_directory);
+	//page_get_entry_with_virtual(page_directory);
 
-	uint32_t *tt;
-	page_map();
+	uint32_t *tt = get_phys_block(1);
+	int *ptr = 0xF0000000;
+	printk("tt %p\n", tt);
+	printk("ptr %p\n", tt);
+	printk("res %d\n", page_map(tt, ptr, PAGE_WRITE | PAGE_PRESENT));
+	printk("res %d\n", ptr[0]);
+	//ptr[0] = 42;
+	printk("res %d\n", ptr[0]);
+	page_info(ptr);
+	printk("res %d\n", page_unmap(ptr));
 
 	//access_table_with_physical(page_swap, kernel_page);
 	//printk("page %p\n", page_get_entry_with_virtual(kernel_page));
