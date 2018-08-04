@@ -78,4 +78,8 @@ extern void *_kernel_data_end;
 
 # define KERNEL_DATA_SIZE (KERNEL_DATA_END - KERNEL_DATA_START)
 
+# define HEAP_SIZE	(0x1000000)			// 16 777 216 bytes in decimal
+# define HEAP_START	(0x400000 + KERNEL_START)	// virt addr is on the next page entry
+# define HEAP_END	(HEAP_START + HEAP_SIZE)
+
 #endif

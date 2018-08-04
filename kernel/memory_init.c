@@ -1,4 +1,4 @@
-#include "memory.h"
+#include "page.h"
 
 static void	reset_mm_bitmap(void)
 {
@@ -18,14 +18,14 @@ static void	init_mm_bitmap(void *start, size_t len)
 	len = len >> 12;
 	while (page % 8)
 	{
-		mm_bitmap[page & 0xFFFFFFF8] &= ~(1 << (page % 8));
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR(page)] &= ~(1 << (page % 8));
 		++page;
 		--len;
 	}
 	while (len)
 	{
 		if (page % 8)
-			mm_bitmap[page & 0xFFFFFFF8] &= ~(1 << (page % 8));
+			mm_bitmap[ACCESS_BITMAP_BY_ADDR(page)] &= ~(1 << (page % 8));
 		++page;
 		--len;
 	}
