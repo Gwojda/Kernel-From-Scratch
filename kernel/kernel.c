@@ -42,15 +42,13 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	printk("Kernel DATA size %p\n", KERNEL_DATA_SIZE);
 // ------------------------
 
-//	print_kernel_visu();
 	page_setup();
 	stack_setup();
 
 	__asm__ volatile ("movl %%esp, %[r]" :  [r] "=r" (esp));
-	esp = STACK_END - ((void*)&stack_top - esp);
+	esp = STACK_END - 1 - ((void*)&stack_top - esp);
 	__asm__ volatile ("movl %[r], %%esp" : : [r] "r" (esp));
 
 	init_gdt();
-	page_info_display(0xC00B8000);
 	launchshell();
 }

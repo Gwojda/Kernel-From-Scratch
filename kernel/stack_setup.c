@@ -3,8 +3,8 @@
 
 void	stack_setup(void)
 {
-	size_t	stack_btmp = &stack_top;
-	size_t	virt_stack_ptr = STACK_END;
+	void*	stack_btmp = &stack_top;
+	void*	virt_stack_ptr = STACK_END - 4096;
 	void	*phys_addr;
 	
 	while (stack_btmp != &stack_bottom/* && virt_stack_ptr > STACK_START*/)
