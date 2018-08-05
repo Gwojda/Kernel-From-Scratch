@@ -8,6 +8,11 @@ void page_directory_reset(void)
 	page_directory_set(page_directory_get());
 }
 
+static inline void invlpg(void* m)
+{
+	asm volatile("invlpg (%0)" : : "b"(m) : "memory");
+}
+
 void page_entry_clear(uint32_t *table)
 {
 	unsigned int i;
@@ -65,6 +70,7 @@ uint32_t *access_table_with_physical(void *empty_static_page, void *physical)
 {
 	void *i = KERNEL_GET_REAL(empty_static_page);
 	page_entry_set(kernel_page, (size_t)i >> 12, physical, PAGE_WRITE | PAGE_PRESENT);
+	invlpg(empty_static_page);
 	return (empty_static_page);
 }
 
@@ -85,17 +91,14 @@ int page_unmap(void *virt_addr)
 		return 0;
 
 	uint32_t *page_table = access_table_with_physical(page_swap, PAGE_GET_ADDR(*directory_entry));
-	page_directory_reset(); // page update
 	page_entry_set(page_table, page_table_index, NULL, PAGE_NOTHING);
+	invlpg(virt_addr);
 
 	unsigned i = 0;
 	while (i < 1024)
 	{
 		if (page_table[i] & PAGE_PRESENT)
-		{
-			page_directory_reset(); // page update
 			return 1;
-		}
 		i++;
 	}
 
@@ -136,9 +139,8 @@ int page_map(void *phy_addr, void *virt_addr, unsigned int flag)
 	}
 
 	uint32_t *page_table = access_table_with_physical(page_swap, PAGE_GET_ADDR(*directory_entry));
-	page_directory_reset(); // page update
 	page_entry_set(page_table, page_table_index, phy_addr, flag);
-	page_directory_reset(); // page update
+	invlpg(virt_addr);
 
 	return 1;
 }
@@ -186,7 +188,6 @@ int page_info(void *virt_addr, struct page_info_data *ret)
 		return 1;
 
 	uint32_t *page_table = access_table_with_physical(page_swap, PAGE_GET_ADDR(*directory_entry));
-	page_directory_reset(); // page update
 
 	ret->have_page_entry = 1;
 	ret->page_table = page_table;
