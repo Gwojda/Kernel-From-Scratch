@@ -52,5 +52,18 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	__asm__ volatile ("movl %[r], %%esp" : : [r] "r" (esp));
 
 	init_gdt();
-	launchshell();
+//	launchshell();
+	heap_setup();
+	short	*ptr = kmalloc(16);
+	printk("ptr = %p\n", ptr);
+	*ptr = 12;
+	printk("*ptr = %d\n", *ptr);
+	short	*ptr2 = kmalloc(16);
+	printk("ptr2 = %p\n", ptr2);
+	*ptr2 = 12;
+	printk("*ptr2 = %d\n", *ptr2);
+	short	*ptr3 = kmalloc(16);
+	printk("ptr3 = %p\n", ptr3);
+	*ptr3 = 12;
+	printk("*ptr3 = %d\n", *ptr3);
 }

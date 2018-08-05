@@ -2,6 +2,7 @@
 # define POSITION_H
 
 # define PAGE_ALIGN(P) (void*)(((size_t)(P) % 4096) ? (size_t)(P) - ((size_t)(P) % 4096) + 4096: (size_t)(P))
+# define ACCESS_BITMAP_BY_ADDR(x) ((size_t)x >> 15)
 
 /*
  * This file give you information about the current load of the kernel
