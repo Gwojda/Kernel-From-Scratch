@@ -59,9 +59,10 @@ static void	exec_cmd(void)
 {
 	const t_execmd	correstab[] =
 	{
-		{"reboot"		, reboot		},
-		{"halt"			, halt			},
-		{"switchtty"	, switchtty_cmd	}
+		{"reboot",		reboot},
+		{"halt",		halt},
+		{"switchtty",		switchtty_cmd},
+		{"memdebug", 		mem_debug}
 	};
 	const size_t	correstab_size = sizeof(correstab) / sizeof(t_execmd);
 	size_t			i = 0;

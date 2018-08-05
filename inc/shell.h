@@ -15,6 +15,7 @@ void	launchshell(void);
 void	switchtty_cmd(void);
 void	reboot(void);
 void	halt(void);
+void	mem_debug(void);
 
 extern char cmd[SIZE_MAX_CMD];
 extern size_t	cmd_ind;
