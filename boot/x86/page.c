@@ -248,6 +248,38 @@ int page_info_display(void *virt_addr)
 	return page_info_data_display(&info_data);
 }
 
+int page_info_display_tab(void)
+{
+	int i, j;
+	struct page_info_data info_data;
+
+	printk("memory dump");
+	for (i = 0; i < 1024; i++)
+	{
+		for (j = 0; j < 1024; j++)
+		{
+			page_info((i << 22) + (j << 12), &info_data);
+			if (!info_data.have_page_entry)
+				break;
+			if (j == 0)
+				printk("\n%x ->", i << 10);
+			if (info_data.page_table_entry & PAGE_PRESENT)
+			{
+				printk("  %x", j);
+				if (info_data.page_table_entry & PAGE_WRITE)
+					printk("w");
+				else
+					printk(" ");
+				if (info_data.page_table_entry & PAGE_USER_SUPERVISOR)
+					printk("u");
+				else
+					printk(" ");
+			}
+		}
+	}
+	printk("\n");
+}
+
 /*void	heap_setup(void)
 {
 	void	*table_phys_addr = get_phys_block(4096);
