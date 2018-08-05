@@ -35,6 +35,8 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 
 // ------------------------
 
+	print_kernel_visu();
+
 	printk("Kernel size %p\n", KERNEL_SIZE);
 	printk("Kernel TEXT size %p\n", KERNEL_TEXT_SIZE);
 	printk("Kernel BSS size %p\n", KERNEL_BSS_SIZE);
