@@ -30,7 +30,7 @@ extern uint32_t page_directory[1024];
 extern uint32_t page_swap[1024];
 
 int page_map(void *physical_addr, void *virtual_addr, unsigned flags);
-int page_unmap(void *virt_addr);
+int page_unmap(void *virt_addr, unsigned flag);
 
 struct page_info_data
 {

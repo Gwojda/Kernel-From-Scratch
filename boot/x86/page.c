@@ -74,7 +74,7 @@ uint32_t *access_table_with_physical(void *empty_static_page, void *physical)
 	return (empty_static_page);
 }
 
-int page_unmap(void *virt_addr)
+int page_unmap(void *virt_addr, unsigned flag)
 {
 	if ((uint32_t)virt_addr & PAGE_FLAG)
 		return 0;
@@ -104,7 +104,7 @@ int page_unmap(void *virt_addr)
 
 	*directory_entry &= ~PAGE_PRESENT;
 	free_phys_block(PAGE_GET_ADDR(*directory_entry), 1);
-	*directory_entry = PAGE_NOTHING;
+	*directory_entry = flag;
 
 	page_directory_reset(); // page update
 
@@ -120,7 +120,7 @@ int page_map(void *phy_addr, void *virt_addr, unsigned int flag)
 	if (flag & PAGE_ADDR)
 		return 0;
 	if (!(flag & PAGE_PRESENT))
-		return page_unmap(virt_addr);
+		return page_unmap(virt_addr, flag);
 
 	unsigned int page_directory_index = (size_t)virt_addr >> 22;
 	unsigned int page_table_index = ((size_t)virt_addr >> 12) & 0x03FF;
