@@ -164,15 +164,14 @@ error:
 int page_info(void *virt_addr, struct page_info_data *ret)
 {
 	ret->target = virt_addr;
+	virt_addr = ((size_t)virt_addr >> 12) << 12;
+	ret->target_page = virt_addr;
 	ret->error = 1;
 	ret->page_directory = 0;
 	ret->page_directory_entry = 0;
 	ret->have_page_entry = 0;
 	ret->page_table = 0;
 	ret->page_table_entry = 0;
-
-	if ((uint32_t)virt_addr & PAGE_FLAG)
-		return 0;
 
 	unsigned int page_directory_index = (size_t)virt_addr >> 22;
 	unsigned int page_table_index = ((size_t)virt_addr >> 12) & 0x03FF;
@@ -204,12 +203,12 @@ int page_info_data_display(struct page_info_data *ret)
 	} flags_info [] = {
 		{"P", "Page present"},
 		{"R/W", "Write permition"},
-		{"U/S", "user / super user"},
+		{"U/S", "user can accesse to the page"},
 		{"PWT", "Page write through"},
 		{"PCD", "Page cache disable"},
-		{"A", "Page accesed"},
-		{"D", "Dirty bit"},
-		{"PS", "Page size"},
+		{"A", "Page have been read"},
+		{"D", "Page have been writed"},
+		{"PS", "Page size (4MiB)"},
 		{"G", "Page global"},
 		{"AV1", "AVAILABLE"},
 		{"AV2", "AVAILABLE"},
@@ -218,6 +217,7 @@ int page_info_data_display(struct page_info_data *ret)
 	int i;
 
 	printk("Memory information: %p\n", ret->target);
+	printk("  real page %p\n", ret->target_page);
 	printk("  page_directory %p\n", ret->page_directory);
 	printk("  page_directory_entry %p\n", ret->page_directory_entry);
 	printk("   addr %p\n", PAGE_GET_ADDR(ret->page_directory_entry));

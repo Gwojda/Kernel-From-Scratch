@@ -35,6 +35,7 @@ int page_unmap(void *virt_addr);
 struct page_info_data
 {
 	void		*target;
+	void		*target_page;
 	int		error;
 
 	void		*page_directory;
