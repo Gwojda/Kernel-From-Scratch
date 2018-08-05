@@ -145,20 +145,64 @@ int page_map(void *phy_addr, void *virt_addr, unsigned int flag)
 	return 1;
 }
 
-int page_map_range(void *phy_addr, void *virt_addr, unsigned flags, size_t size)
+static int page_map_range(void *phy_addr, void *virt_addr, unsigned flags, size_t size)
 {
 	size_t i;
 
-	i = 0;
-	while (i < size)
+	for (i = 0; i < size; i++)
 		if (page_map(phy_addr + (i << 12), virt_addr + (i << 12), flags) == 0)
 			goto error;
 	return 1;
 error:
-	i = 0;
-	while (i < size)
-		if (page_unmap(virt_addr + (i << 12)) == 0)
+	for (; i > 0; i--)
+		if (page_unmap(virt_addr + (i << 12), PAGE_NOTHING) == 0)
+			continue;
+	return 0;
+}
+
+int page_map_at(void *virt_addr, unsigned flags, size_t nb_page)
+{
+	void *new_page;
+
+	if (!(flags & PAGE_PRESENT))
+		return 0;
+	if (!(new_page = get_phys_block(nb_page)))
+		return 0;
+	if (page_map_range(new_page, virt_addr, flags, nb_page) == 0)
+	{
+		free_phys_block(new_page, nb_page);
+		return 0;
+	}
+	return 1;
+}
+
+int page_unmap_at(void *virt_addr, unsigned flags, size_t nb_page)
+{
+	if (flags & PAGE_PRESENT)
+		return 0;
+	if (flags & PAGE_ADDR)
+		return 0;
+
+	size_t i;
+	struct page_info_data info;
+
+	for (i = nb_page; i < nb_page; i++)
+	{
+		page_info(virt_addr + (i << 12), &info);
+		if (!(info.page_table_entry & PAGE_PRESENT))
 			return 0;
+	}
+
+	for (i = nb_page; i < nb_page; i++)
+	{
+		page_info(virt_addr + (i << 12), &info);
+		free_phys_block(PAGE_GET_ADDR(info.page_table_entry), 1);
+	}
+
+	for (i = nb_page; i < nb_page; i++)
+		if (page_unmap(virt_addr + (i << 12), flags) == 0)
+			return 0;
+	return 1;
 }
 
 int page_info(void *virt_addr, struct page_info_data *ret)
