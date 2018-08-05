@@ -166,6 +166,11 @@ int page_map_at(void *virt_addr, unsigned flags, size_t nb_page)
 
 	if (!(flags & PAGE_PRESENT))
 		return 0;
+	if (flags & PAGE_ADDR)
+		return 0;
+	if ((size_t)virt_addr & PAGE_FLAG)
+		return 0;
+
 	if (!(new_page = get_phys_block(nb_page)))
 		return 0;
 	if (page_map_range(new_page, virt_addr, flags, nb_page) == 0)
@@ -181,6 +186,8 @@ int page_unmap_at(void *virt_addr, unsigned flags, size_t nb_page)
 	if (flags & PAGE_PRESENT)
 		return 0;
 	if (flags & PAGE_ADDR)
+		return 0;
+	if ((size_t)virt_addr & PAGE_FLAG)
 		return 0;
 
 	size_t i;
