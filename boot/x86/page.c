@@ -301,13 +301,13 @@ int page_info_display(void *virt_addr)
 
 void *page_get_phys(void *virt_addr)
 {
-	struct page_info_data info_data;
+	struct page_info_data info;
 
-	page_info(virt_addr, &info_data);
-	if (!info->have_page_directory)
+	page_info(virt_addr, &info);
+	if (!info.have_page_entry)
 		return NULL;
-	if (info->page_table_entry & PAGE_PRESENT)
-		return PAGE_GET_ADDR(info->page_table_entry);
+	if (info.page_table_entry & PAGE_PRESENT)
+		return PAGE_GET_ADDR(info.page_table_entry);
 	return NULL;
 }
 
