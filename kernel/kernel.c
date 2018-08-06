@@ -52,10 +52,10 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	__asm__ volatile ("movl %[r], %%esp" : : [r] "r" (esp));
 
 	init_gdt();
-//	launchshell();
+	//init_idt();
 	heap_setup();
 	short	*ptr;
-	for (size_t i = 0; i < 4096; i++)
+	for (size_t i = 0; i < 409; i++)
 	{
 		ptr = kmalloc(16);
 		printk("ptr = %p\n", ptr);
@@ -80,4 +80,5 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	for(size_t i = 0;i < 4000; ++i)
 		((char *)ptr4)[i] = 42;*/
 	printk("FINISH\n");
+//	launchshell();
 }

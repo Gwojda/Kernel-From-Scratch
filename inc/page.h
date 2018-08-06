@@ -51,6 +51,8 @@ int page_info_data_display(struct page_info_data *ret);
 int page_info_display(void *virt_addr);
 int page_info_display_tab(void);
 
+void *page_get_phys(void *virt_addr);
+
 void page_setup(void);
 
 void memory_init(unsigned long magic, unsigned long addr);
