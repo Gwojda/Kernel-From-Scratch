@@ -61,5 +61,14 @@ void init_gdt(void)
 	asm("movw $0x08, %ax");
 	asm("movw %ax, %es");
 
+	/* initiliaz the segments */
+	asm("   movw $0x10, %ax    \n \
+			movw %ax, %ds    \n \
+			movw %ax, %es    \n \
+			movw %ax, %fs    \n \
+			movw %ax, %gs    \n \
+			ljmp $0x08, $next    \n \
+			next:        \n");
+
 	print_initialize_status("GDT", TRUE);
 }

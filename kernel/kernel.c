@@ -52,7 +52,10 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	__asm__ volatile ("movl %[r], %%esp" : : [r] "r" (esp));
 
 	init_gdt();
-	//init_idt();
+	init_idt();
 	heap_setup();
+	asm volatile("sti");
+	while (1)
+		;
 	launchshell();
 }
