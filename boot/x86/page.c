@@ -299,6 +299,18 @@ int page_info_display(void *virt_addr)
 	return page_info_data_display(&info_data);
 }
 
+void *page_get_phys(void *virt_addr)
+{
+	struct page_info_data info_data;
+
+	page_info(virt_addr, &info_data);
+	if (!info->have_page_directory)
+		return NULL;
+	if (info->page_table_entry & PAGE_PRESENT)
+		return PAGE_GET_ADDR(info->page_table_entry);
+	return NULL;
+}
+
 int page_info_display_tab(void)
 {
 	int i, j;
