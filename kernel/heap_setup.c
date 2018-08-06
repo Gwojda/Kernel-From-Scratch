@@ -9,35 +9,23 @@ void heap_setup(void)
 		mm_virt_heap[i] = -1;
 }
 
-static void	alloc_virt_block(void *start_virt_addr, size_t pages_nb)
+static void	alloc_virt_block(void *start_virt_addr, size_t size)
 {
-	while (pages_nb / 8)
+	while (size)
 	{
-		mm_virt_heap[(start_virt_addr - HEAP_START) >> 8] = 0;
-		start_virt_addr += 8 * 4096;
-		pages_nb -= 8;
-	}
-	while (pages_nb)
-	{
-		mm_virt_heap[(start_virt_addr - HEAP_START) >> 8] &= ~(1 << (pages_nb - 1));
+		mm_virt_heap[(start_virt_addr - HEAP_START) >> 15] &= ~(1 << (((start_virt_addr - HEAP_START) >> 12) % 8));
 		start_virt_addr += 4096;
-		--pages_nb;
+		--size;
 	}
 }
 
-static void	free_virt_block(void *start_virt_addr, size_t pages_nb)
+static void	free_virt_block(void *start_virt_addr, size_t size)
 {
-	while (pages_nb / 8)
+	while (size)
 	{
-		mm_virt_heap[(start_virt_addr - HEAP_START) >> 8] = -1;
-		start_virt_addr += 8 * 4096;
-		pages_nb -= 8;
-	}
-	while (pages_nb)
-	{
-		mm_virt_heap[(start_virt_addr - HEAP_START) >> 8] |= 1 << pages_nb;
+		mm_virt_heap[(start_virt_addr - HEAP_START) >> 15] |= 1 << (((start_virt_addr - HEAP_START) >> 12) % 8);
 		start_virt_addr += 4096;
-		--pages_nb;
+		--size;
 	}
 }
 
@@ -87,9 +75,8 @@ void	*try_allocate(struct heap_list *heap_entry, size_t alloc_size)
 	alloc_size = (size_t)MALLOC_ALIGN(alloc_size);
 	while ((void *)head < (void *)heap_entry + heap_entry->page_size)
 	{
-		if (alloc_size < head->size)
+		if (alloc_size < head->size && head->free)
 		{
-			printk("alloc header = %d\n",sizeof(struct alloc_header));
 			if (head->size - (sizeof(struct alloc_header) + alloc_size) > sizeof(struct alloc_header) + 16)
 			{
 				struct alloc_header	*new_head = (void *)head + sizeof(struct alloc_header) + alloc_size;
@@ -115,13 +102,14 @@ void *kmalloc(size_t size)
 	list_for_each_entry(heap_entry, &heap_start.list, list)
 	{
 		if (!heap_entry->virtual && heap_entry->page_size && (ret = try_allocate(heap_entry, size)))
-				return ret;
+			return ret;
 	}
-	
 	if (!(new_virt_addr = find_free_virt_addr(size)))
 		goto err;	//no more virt addr available
+	printk("new_virt_addr = %p\n", new_virt_addr);
 	if (!(new_phys_addr = get_phys_block((size_t)PAGE_ALIGN(size) >> 12)))
 		goto err1;	//no more aligned phys addr
+	printk("new_phys_addr = %p\n", new_phys_addr);
 	if (!page_map(new_phys_addr, new_virt_addr, PAGE_WRITE | PAGE_PRESENT))
 		goto err2;
 	init_new_allocated_block(new_virt_addr, (size_t)PAGE_ALIGN(size), 0);
@@ -145,8 +133,8 @@ void *vmalloc(size_t size)
 
 	list_for_each_entry(heap_entry, &heap_start.list, list)
 	{
-		if (heap_entry->virtual && (ret = try_allocate(heap_entry, size)))
-				return ret;
+		if (heap_entry->virtual && heap_entry->page_size && (ret = try_allocate(heap_entry, size)))
+			return ret;
 	}
 	if (!(new_virt_addr = find_free_virt_addr(size)))
 		goto err;	//no more virt addr available
@@ -170,3 +158,58 @@ err1:
 err:
 	return (NULL);
 }
+
+static void defrag(struct heap_list *heap_entry)
+{
+	struct alloc_header	*head = (void *)heap_entry + sizeof(struct heap_list);
+	struct alloc_header	*tmp;
+
+	while ((void *)head < (void *)heap_entry + heap_entry->page_size)
+	{
+		if (head->free == 0)
+		{
+			head = (void *)head + sizeof(struct alloc_header) + head->size;
+			continue ;
+		}
+		tmp = head;
+		while ((void *)tmp < (void *)heap_entry + heap_entry->page_size && tmp->free)
+		{
+			head->size += tmp->size + sizeof(struct alloc_header);
+			tmp = (void *)tmp + sizeof(struct alloc_header) + tmp->size;
+		}
+		head = (void *)head + sizeof(struct alloc_header) + head->size;
+	}
+	struct alloc_header	*start = (void *)heap_entry + sizeof(struct heap_list);
+	if (heap_entry->page_size == start->size + sizeof(struct alloc_header) && start->free)
+	{
+		list_del(heap_entry);
+		free_virt_block(heap_entry, heap_entry->page_size);
+//		free_phys_block(PHYSICAL ADDRESS heap_entry, heap_entry->size);
+	}
+}
+
+void kfree (const void *ptr)
+{
+	struct heap_list	*heap_entry;
+
+	list_for_each_entry(heap_entry, &heap_start.list, list)
+	{
+		if ((size_t)ptr > (size_t)heap_entry)
+		{
+			struct alloc_header	*head = (void *)heap_entry + sizeof(struct heap_list);
+
+			while ((void *)head < (void *)heap_entry + heap_entry->page_size)
+			{
+				if ((size_t)ptr == (size_t)head + sizeof(struct alloc_header))
+				{
+					head->free = 1;
+					defrag(heap_entry);
+					return ;
+				}
+				head = (void *)head + sizeof(struct alloc_header) + head->size;
+			}
+
+		}
+	}
+}
+

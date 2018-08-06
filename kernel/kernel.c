@@ -54,16 +54,30 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	init_gdt();
 //	launchshell();
 	heap_setup();
-	short	*ptr = kmalloc(16);
-	printk("ptr = %p\n", ptr);
-	*ptr = 12;
-	printk("*ptr = %d\n", *ptr);
-	short	*ptr2 = kmalloc(16);
-	printk("ptr2 = %p\n", ptr2);
-	*ptr2 = 12;
-	printk("*ptr2 = %d\n", *ptr2);
-	short	*ptr3 = kmalloc(16);
-	printk("ptr3 = %p\n", ptr3);
-	*ptr3 = 12;
-	printk("*ptr3 = %d\n", *ptr3);
+	short	*ptr;
+	for (size_t i = 0; i < 4096; i++)
+	{
+		ptr = kmalloc(16);
+		printk("ptr = %p\n", ptr);
+		*ptr = 42;
+		kfree(ptr);
+	}
+/*	short	*ptr4 = kmalloc(4000);
+	printk("ptr4 = %p\n", ptr4);
+	for(size_t i = 0;i < 4000; ++i)
+		((char *)ptr4)[i] = 42;
+	for (size_t i = 0; i < 2048; i++)
+	{
+		ptr = kmalloc(16);
+		*ptr = 42;
+	}
+	ptr4 = kmalloc(4000);
+	printk("ptr4 = %p\n", ptr4);
+	for(size_t i = 0;i < 4000; ++i)
+		((char *)ptr4)[i] = 42;
+	ptr4 = kmalloc(4000);
+	printk("ptr4 = %p\n", ptr4);
+	for(size_t i = 0;i < 4000; ++i)
+		((char *)ptr4)[i] = 42;*/
+	printk("FINISH\n");
 }

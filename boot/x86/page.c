@@ -331,26 +331,6 @@ int page_info_display_tab(void)
 	printk("\n");
 }
 
-/*void	heap_setup(void)
-{
-	void	*table_phys_addr = get_phys_block(4096);
-	void	*heap_phys_addr = get_phys_block(HEAP_SIZE);
-	void	*table_virt_addr = PAGE_ALIGN(KERNEL_END);	// the new table entry for mapping the heap is declared after the kernel
-	//pager virtuellement les addresses de HEAP_START a HEAP_END sur ses addresses physiques puis les linker au page directory. notre heap est ok, maintenant faire un kmalloc pour ensuite allouer un nouveau block de vm_area et maj les plages disponibles. faire un brk ?
-//	printk(" TABLE_ENTRY((size_t)table_virt_addr) = %x\n", TABLE_ENTRY((size_t)table_virt_addr));
-	printk("table_phys_addr = %x\n", table_phys_addr);
-	printk("itable_virt_addr = %x\n", table_virt_addr);
-
-	page_entry_set(kernel_page, TABLE_ENTRY((size_t)table_virt_addr), table_phys_addr, PAGE_WRITE | PAGE_PRESENT);
-	for (unsigned int i = 0; i < 4096; ++i)
-	{
-		((char *)table_virt_addr)[i] = 0;
-//		printk("((size_t)HEAP_START + i) >> 12= %x i = %d\n", TABLE_ENTRY((size_t)HEAP_START + (i << 12)), i);
-//		page_entry_set(table_virt_addr, TABLE_ENTRY((size_t)HEAP_START + (i << 12)), (size_t)heap_phys_addr + (i << 12), PAGE_WRITE | PAGE_PRESENT);
-	}
-//	page_entry_set(page_directory, (size_t)HEAP_START >> 22, KERNEL_GET_REAL(kernel_page),PAGE_PRESENT);
-}*/
-
 void	page_setup(void)
 {
 	// We remove the old identity page mapping

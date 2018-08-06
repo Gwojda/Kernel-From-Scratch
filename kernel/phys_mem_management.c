@@ -1,34 +1,22 @@
 #include "phys_mem_management.h"
 
-static void	alloc_phys_block(void *start_phys_addr, size_t pages_nb)
+static void	alloc_phys_block(void *start_phys_addr, size_t size)
 {
-	while (pages_nb / 8)
+	while (size)
 	{
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] = 0;
-		start_phys_addr += 8 * 4096;
-		pages_nb -= 8;
-	}
-	while (pages_nb)
-	{
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] &= ~(1 << (pages_nb - 1));
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] &= ~(1 << (((size_t)start_phys_addr >> 12) % 8));
 		start_phys_addr += 4096;
-		--pages_nb;
+		--size;
 	}
 }
 
-void	free_phys_block(void *start_phys_addr, size_t pages_nb)
+void	free_phys_block(void *start_phys_addr, size_t size)
 {
-	while (pages_nb / 8)
+	while (size)
 	{
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] = -1;
-		start_phys_addr += 8 * 4096;
-		pages_nb -= 8;
-	}
-	while (pages_nb)
-	{
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] |= 1 << pages_nb;
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] |= 1 << (((size_t)start_phys_addr >> 12) % 8);
 		start_phys_addr += 4096;
-		--pages_nb;
+		--size;
 	}
 }
 
