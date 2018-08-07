@@ -44,6 +44,7 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	printk("Kernel DATA size %p\n", KERNEL_DATA_SIZE);
 // ------------------------
 
+	init_gdt();
 	page_setup();
 	stack_setup();
 
@@ -51,34 +52,7 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	esp = STACK_END - 1 - ((void*)&stack_top - esp);
 	__asm__ volatile ("movl %[r], %%esp" : : [r] "r" (esp));
 
-	init_gdt();
-	//init_idt();
 	heap_setup();
-	short	*ptr;
-	for (size_t i = 0; i < 409; i++)
-	{
-		ptr = kmalloc(16);
-		printk("ptr = %p\n", ptr);
-		*ptr = 42;
-		kfree(ptr);
-	}
-/*	short	*ptr4 = kmalloc(4000);
-	printk("ptr4 = %p\n", ptr4);
-	for(size_t i = 0;i < 4000; ++i)
-		((char *)ptr4)[i] = 42;
-	for (size_t i = 0; i < 2048; i++)
-	{
-		ptr = kmalloc(16);
-		*ptr = 42;
-	}
-	ptr4 = kmalloc(4000);
-	printk("ptr4 = %p\n", ptr4);
-	for(size_t i = 0;i < 4000; ++i)
-		((char *)ptr4)[i] = 42;
-	ptr4 = kmalloc(4000);
-	printk("ptr4 = %p\n", ptr4);
-	for(size_t i = 0;i < 4000; ++i)
-		((char *)ptr4)[i] = 42;*/
-	printk("FINISH\n");
-//	launchshell();
+	//init_idt();
+	launchshell();
 }

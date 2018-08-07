@@ -163,7 +163,37 @@ err:
 	return (NULL);
 }
 
-static void defrag(struct heap_list *heap_entry)
+static void vdefrag(struct heap_list *heap_entry)
+{
+	struct alloc_header	*head = (void *)heap_entry + sizeof(struct heap_list);
+	struct alloc_header	*tmp;
+
+	while ((void *)head < (void *)heap_entry + heap_entry->page_size)
+	{
+		if (head->free == 0)
+		{
+			head = (void *)head + sizeof(struct alloc_header) + head->size;
+			continue ;
+		}
+		tmp = (void *)head + sizeof(struct alloc_header) + head->size;
+		while ((void *)tmp < (void *)heap_entry + heap_entry->page_size && tmp->free)
+		{
+			head->size += tmp->size + sizeof(struct alloc_header);
+			tmp = (void *)tmp + sizeof(struct alloc_header) + tmp->size;
+		}
+		head = (void *)head + sizeof(struct alloc_header) + head->size;
+	}
+	struct alloc_header	*start = (void *)heap_entry + sizeof(struct heap_list);
+	if (heap_entry->page_size == start->size + sizeof(struct alloc_header) && start->free)
+	{
+		list_del(&heap_entry->list);
+		for (void *tmp_virt_addr = heap_entry ; tmp_virt_addr < heap_entry->page_size ; tmp_virt_addr += 4096)
+			free_phys_block(page_get_phys(tmp_virt_addr), 1);
+		free_virt_block(heap_entry, heap_entry->page_size);
+	}
+}
+
+static void kdefrag(struct heap_list *heap_entry)
 {
 	struct alloc_header	*head = (void *)heap_entry + sizeof(struct heap_list);
 	struct alloc_header	*tmp;
@@ -192,13 +222,13 @@ static void defrag(struct heap_list *heap_entry)
 	}
 }
 
-void kfree (const void *ptr)
+static void _free(const void *ptr, void (*defrag)(struct heap_list *))
 {
 	struct heap_list	*heap_entry;
 
 	list_for_each_entry(heap_entry, &heap_start.list, list)
 	{
-		if ((size_t)ptr > (size_t)heap_entry)
+		if ((size_t)ptr > (size_t)heap_entry && !heap_entry->virtual)
 		{
 			struct alloc_header	*head = (void *)heap_entry + sizeof(struct heap_list);
 
@@ -217,3 +247,39 @@ void kfree (const void *ptr)
 	}
 }
 
+void kfree(const void *ptr)
+{
+	_free(ptr, &kdefrag);
+}
+
+void vfree(const void *ptr)
+{
+	_free(ptr, &vdefrag);
+}
+
+size_t ksize(const void *ptr)
+{
+	struct heap_list	*heap_entry;
+
+	list_for_each_entry(heap_entry, &heap_start.list, list)
+	{
+		if ((size_t)ptr > (size_t)heap_entry)
+		{
+			struct alloc_header	*head = (void *)heap_entry + sizeof(struct heap_list);
+
+			while ((void *)head < (void *)heap_entry + heap_entry->page_size)
+			{
+				if ((size_t)ptr == (size_t)head + sizeof(struct alloc_header))
+					return (head->size);
+				head = (void *)head + sizeof(struct alloc_header) + head->size;
+			}
+
+		}
+	}
+	return (0);
+}
+
+size_t vsize(const void *ptr)
+{
+	return (ksize(ptr));
+}
