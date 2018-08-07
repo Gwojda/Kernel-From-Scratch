@@ -44,6 +44,7 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	printk("Kernel DATA size %p\n", KERNEL_DATA_SIZE);
 // ------------------------
 
+	init_gdt();
 	page_setup();
 	stack_setup();
 
@@ -52,8 +53,8 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	__asm__ volatile ("movl %[r], %%esp" : : [r] "r" (esp));
 
 	init_gdt();
-	init_idt();
 	heap_setup();
+	init_idt();
 	asm volatile("sti");
 	while (1)
 		;
