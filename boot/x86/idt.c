@@ -4,6 +4,9 @@
 struct idtr kidtr;
 struct idtdesc kidt[IDT_SIZE];
 
+struct idt_callback idt_callback[IDT_SIZE];
+struct idt_callback idt_callback_def;
+
 void init_idt_desc(u16 select, void (*offset)(void), u16 type, struct idtdesc *desc)
 {
 	desc->offset0_15 = ((size_t)offset & 0xffff);
@@ -14,26 +17,29 @@ void init_idt_desc(u16 select, void (*offset)(void), u16 type, struct idtdesc *d
 	return;
 }
 
-void isr_default_int(void)
+void irq_manager(struct interupt data)
 {
-	printk("*");
+	if (data.int_no == (u32)-1)
+	{
+		if (idt_callback_def.call)
+			idt_callback_def.call(&data);
+		return ;
+	}
+	if (idt_callback[data.int_no].call)
+		idt_callback[data.int_no].call(&data);
 }
 
-void isr_page_fault(void)
+int set_idt_callback(int number, void (*call)(struct interupt *data))
 {
-	int i;
-	printk("%p", &i);
-}
-
-void isr_clock_int(void)
-{
-	printk("-");
-}
-
-void isr_keybord_int(void)
-{
-	int status = inb(0x64);
-	int data = inb(0x60);
+	if (number == -1)
+	{
+		idt_callback_def.call = call;
+		return 0;
+	}
+	if (number < 0 || number >= IDT_SIZE)
+		return -1;
+	idt_callback[number].call = call;
+	return 0;
 }
 
 static void initialize_pic()
@@ -64,49 +70,64 @@ static void initialize_pic()
 	outb(0xA1 , 0xff);
 }
 
+void irq_clock(struct interupt *data)
+{
+	printk("-");
+}
+
 void init_idt(void)
 {
 	initialize_pic();
 	/* Init irq */
 	int i;
 	for (i = 0; i < IDT_SIZE; i++)
-		init_idt_desc(0x08, _asm_default_int, INT_GATE, &kidt[i]);
-//	init_idt_desc(0x08, _asm_default_int, INT_GATE, &kidt[0xd]);
+		init_idt_desc(0x08, _asm_irq_def, INT_GATE, &kidt[i]);
 
 	/* Vectors  0 -> 31 are for exceptions */
-//	init_idt_desc(0x08, _asm_exc_DE, INT_GATE, &kidt[0x00]);
-//	init_idt_desc(0x08, _asm_exc_DB, INT_GATE, &kidt[0x01]);
-//	init_idt_desc(0x08, _asm_exc_  , INT_GATE, &kidt[0x02]);
-//	init_idt_desc(0x08, _asm_exc_BP, INT_GATE, &kidt[0x03]);
-//	init_idt_desc(0x08, _asm_exc_OF, INT_GATE, &kidt[0x04]);
-//	init_idt_desc(0x08, _asm_exc_BR, INT_GATE, &kidt[0x05]);
-//	init_idt_desc(0x08, _asm_exc_UD, INT_GATE, &kidt[0x06]);
-//	init_idt_desc(0x08, _asm_exc_NM, INT_GATE, &kidt[0x07]);
-//	init_idt_desc(0x08, _asm_exc_DF, INT_GATE, &kidt[0x08]);
-//	init_idt_desc(0x08, _asm_exc_  , INT_GATE, &kidt[0x09]);
-//	init_idt_desc(0x08, _asm_exc_TS, INT_GATE, &kidt[0x0a]);
-//	init_idt_desc(0x08, _asm_exc_NP, INT_GATE, &kidt[0x0b]);
-//	init_idt_desc(0x08, _asm_exc_SS, INT_GATE, &kidt[0x0c]);
-	init_idt_desc(0x08, _asm_page_fault, INT_GATE, &kidt[0x0d]);
-//	init_idt_desc(0x08, _asm_page_fault, INT_GATE, &kidt[0x0e]);
-//	init_idt_desc(0x08, _asm_exc_  , INT_GATE, &kidt[0x0f]);
-//	init_idt_desc(0x08, _asm_exc_MF, INT_GATE, &kidt[0x10]);
-//	init_idt_desc(0x08, _asm_exc_AC, INT_GATE, &kidt[0x11]);
-//	init_idt_desc(0x08, _asm_exc_MC, INT_GATE, &kidt[0x12]);
-//	init_idt_desc(0x08, _asm_exc_XF, INT_GATE, &kidt[0x13]);
-
-//	init_idt_desc(0x08, _asm_irq_clock, INT_GATE, &kidt[32]);
-	init_idt_desc(0x08, _asm_irq_clock, INT_GATE, &kidt[32]);
-	init_idt_desc(0x08, _asm_irq_keybord, INT_GATE, &kidt[33]);
+	init_idt_desc(0x08, _asm_irq_0,  INT_GATE, &kidt[ 0]);
+	init_idt_desc(0x08, _asm_irq_1,  INT_GATE, &kidt[ 1]);
+	init_idt_desc(0x08, _asm_irq_2,  INT_GATE, &kidt[ 2]);
+	init_idt_desc(0x08, _asm_irq_3,  INT_GATE, &kidt[ 3]);
+	init_idt_desc(0x08, _asm_irq_4,  INT_GATE, &kidt[ 4]);
+	init_idt_desc(0x08, _asm_irq_5,  INT_GATE, &kidt[ 5]);
+	init_idt_desc(0x08, _asm_irq_6,  INT_GATE, &kidt[ 6]);
+	init_idt_desc(0x08, _asm_irq_7,  INT_GATE, &kidt[ 7]);
+	init_idt_desc(0x08, _asm_irq_8,  INT_GATE, &kidt[ 8]);
+	init_idt_desc(0x08, _asm_irq_9,  INT_GATE, &kidt[ 9]);
+	init_idt_desc(0x08, _asm_irq_10, INT_GATE, &kidt[10]);
+	init_idt_desc(0x08, _asm_irq_11, INT_GATE, &kidt[11]);
+	init_idt_desc(0x08, _asm_irq_12, INT_GATE, &kidt[12]);
+	init_idt_desc(0x08, _asm_irq_13, INT_GATE, &kidt[13]);
+	init_idt_desc(0x08, _asm_irq_14, INT_GATE, &kidt[14]);
+	init_idt_desc(0x08, _asm_irq_15, INT_GATE, &kidt[15]);
+	init_idt_desc(0x08, _asm_irq_16, INT_GATE, &kidt[16]);
+	init_idt_desc(0x08, _asm_irq_17, INT_GATE, &kidt[17]);
+	init_idt_desc(0x08, _asm_irq_18, INT_GATE, &kidt[18]);
+	init_idt_desc(0x08, _asm_irq_19, INT_GATE, &kidt[19]);
+	init_idt_desc(0x08, _asm_irq_20, INT_GATE, &kidt[20]);
+	init_idt_desc(0x08, _asm_irq_21, INT_GATE, &kidt[21]);
+	init_idt_desc(0x08, _asm_irq_22, INT_GATE, &kidt[22]);
+	init_idt_desc(0x08, _asm_irq_23, INT_GATE, &kidt[23]);
+	init_idt_desc(0x08, _asm_irq_24, INT_GATE, &kidt[24]);
+	init_idt_desc(0x08, _asm_irq_25, INT_GATE, &kidt[25]);
+	init_idt_desc(0x08, _asm_irq_26, INT_GATE, &kidt[26]);
+	init_idt_desc(0x08, _asm_irq_27, INT_GATE, &kidt[27]);
+	init_idt_desc(0x08, _asm_irq_28, INT_GATE, &kidt[28]);
+	init_idt_desc(0x08, _asm_irq_29, INT_GATE, &kidt[29]);
+	init_idt_desc(0x08, _asm_irq_30, INT_GATE, &kidt[30]);
+	init_idt_desc(0x08, _asm_irq_31, INT_GATE, &kidt[31]);
+	init_idt_desc(0x08, _asm_irq_32, INT_GATE, &kidt[32]);
+	init_idt_desc(0x08, _asm_irq_33, INT_GATE, &kidt[33]);
 
 //	init_idt_desc(0x08, _asm_syscalls, TRAP_GATE, &kidt[48]);
 //	init_idt_desc(0x08, _asm_syscalls, TRAP_GATE, &kidt[128]); //48
 
 	kidtr.limite = IDT_SIZE * sizeof(struct idtdesc) - 1;
 	kidtr.base = &kidt;
-	printk("idt %p %d\n", kidtr.base, kidtr.limite);
 
 	/* Load the IDTR registry */
 	asm("lidt (kidtr)");
-	outb(0x21 , 0xFc);
+	outb(0x21 , 0xFC);
+
+	set_idt_callback(32, irq_clock);
 }
