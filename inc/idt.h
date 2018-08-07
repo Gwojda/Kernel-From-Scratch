@@ -30,14 +30,7 @@ struct interupt
 	u32 eip, cs, eflags, useresp, ss;
 };
 
-struct idt_callback
-{
-	int (*call)(struct interupt *data);
-};
-
 extern struct idtdesc kidt[IDT_SIZE];
-
-void _asm_irq_def(void);
 
 void _asm_irq_0(void);
 void _asm_irq_1(void);

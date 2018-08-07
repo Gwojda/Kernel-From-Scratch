@@ -50,23 +50,14 @@ void init_gdt(void)
 	/* 0x38 is the offset in the GDT to our TSS */
 	asm("movw $0x38, %ax");
 	asm("ltr %ax");
-	/* initiliaz the segments (we are actualy the kernel, so we load kernel segment) */
-	/* 0x18 is the offset in the GDT to our stack segment */
-	asm("movw $0x18, %ax");
-	asm("movw %ax, %ss");
-	/* 0x10 is the offset in the GDT to our data segment */
-	asm("movw $0x10, %ax");
-	asm("movw %ax, %ds");
-	/* 0x08 is the offset in the GDT to our code segment */
-	asm("movw $0x08, %ax");
-	asm("movw %ax, %es");
-
 	/* initiliaz the segments */
 	asm("   movw $0x10, %ax    \n \
 			movw %ax, %ds    \n \
 			movw %ax, %es    \n \
 			movw %ax, %fs    \n \
 			movw %ax, %gs    \n \
+			movw $0x18, %ax    \n \
+			movw %ax, %ss    \n \
 			ljmp $0x08, $next    \n \
 			next:        \n");
 

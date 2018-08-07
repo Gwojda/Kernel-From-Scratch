@@ -4,9 +4,6 @@
 struct idtr kidtr;
 struct idtdesc kidt[IDT_SIZE];
 
-struct idt_callback idt_callback[IDT_SIZE];
-struct idt_callback idt_callback_def;
-
 void init_idt_desc(u16 select, void (*offset)(void), u16 type, struct idtdesc *desc)
 {
 	desc->offset0_15 = ((size_t)offset & 0xffff);
@@ -15,31 +12,6 @@ void init_idt_desc(u16 select, void (*offset)(void), u16 type, struct idtdesc *d
 	desc->type = type;
 	desc->offset16_31 = ((size_t)offset & 0xffff0000) >> 16;
 	return;
-}
-
-void irq_manager(struct interupt data)
-{
-	if (data.int_no == (u32)-1)
-	{
-		if (idt_callback_def.call)
-			idt_callback_def.call(&data);
-		return ;
-	}
-	if (idt_callback[data.int_no].call)
-		idt_callback[data.int_no].call(&data);
-}
-
-int set_idt_callback(int number, void (*call)(struct interupt *data))
-{
-	if (number == -1)
-	{
-		idt_callback_def.call = call;
-		return 0;
-	}
-	if (number < 0 || number >= IDT_SIZE)
-		return -1;
-	idt_callback[number].call = call;
-	return 0;
 }
 
 static void initialize_pic()
@@ -75,13 +47,17 @@ void irq_clock(struct interupt *data)
 	printk("-");
 }
 
+void usless_function(struct interupt *data)
+{
+}
+
 void init_idt(void)
 {
 	initialize_pic();
 	/* Init irq */
 	int i;
 	for (i = 0; i < IDT_SIZE; i++)
-		init_idt_desc(0x08, _asm_irq_def, INT_GATE, &kidt[i]);
+		init_idt_desc(0x08, usless_function, INT_GATE, &kidt[i]);
 
 	/* Vectors  0 -> 31 are for exceptions */
 	init_idt_desc(0x08, _asm_irq_0,  INT_GATE, &kidt[ 0]);
@@ -128,6 +104,5 @@ void init_idt(void)
 	/* Load the IDTR registry */
 	asm("lidt (kidtr)");
 	outb(0x21 , 0xFC);
-
-	set_idt_callback(32, irq_clock);
+	asm volatile("sti");
 }

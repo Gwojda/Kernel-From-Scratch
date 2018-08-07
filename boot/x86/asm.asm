@@ -4,6 +4,7 @@ section .text
 	global get_ebp
 	global set_ebp
 	global halt
+	global clear_register
 
 get_esp:
 	mov eax, esp
@@ -22,5 +23,17 @@ set_ebp:
 	ret
 
 halt:
+	cli
 	hlt
 	ret
+
+clear_register:
+	cli
+	mov ax, 0
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+;	mov cs, ax
+	ltr ax
