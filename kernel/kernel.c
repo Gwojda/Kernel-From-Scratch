@@ -25,6 +25,8 @@ static void	print_kernel_visu(void)
 
 }
 
+void	sys_restart(void);
+
 void kmain (unsigned long volatile magic, unsigned long addr)
 {
 	void*	esp;
@@ -47,6 +49,8 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 
 	heap_setup();
 	init_idt();
+	printk("addr2 = %p\n", sys_restart);
+	fake_syscall();
 //	kern_panic("kernel panic");
 	while (1)
 		;
