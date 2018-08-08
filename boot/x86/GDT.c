@@ -38,7 +38,7 @@ void init_gdt(void)
 	
 	/* initialize the gdtr structure */
 	kgdtr.limite = GDTSIZE * 8;
-	kgdtr.base = GDTBASE;
+	kgdtr.base = (u32)GDTBASE;
 	
 	/* copy the gdtr to its memory area */
 	memcpy((char *) kgdtr.base, (char *) kgdt, kgdtr.limite);

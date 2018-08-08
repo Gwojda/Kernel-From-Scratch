@@ -215,7 +215,7 @@ int page_unmap_at(void *virt_addr, unsigned flags, size_t nb_page)
 int page_info(void *virt_addr, struct page_info_data *ret)
 {
 	ret->target = virt_addr;
-	virt_addr = ((size_t)virt_addr >> 12) << 12;
+	virt_addr = (void *)(((size_t)virt_addr >> 12) << 12);
 	ret->target_page = virt_addr;
 	ret->error = 1;
 	ret->page_directory = 0;
@@ -311,7 +311,7 @@ void *page_get_phys(void *virt_addr)
 	return NULL;
 }
 
-int page_info_display_tab(void)
+void page_info_display_tab(void)
 {
 	int i, j;
 	struct page_info_data info_data;
@@ -321,7 +321,7 @@ int page_info_display_tab(void)
 	{
 		for (j = 0; j < 1024; j++)
 		{
-			page_info((i << 22) + (j << 12), &info_data);
+			page_info((void *)((i << 22) + (j << 12)), &info_data);
 			if (!info_data.have_page_entry)
 				break;
 			if (j == 0)
@@ -354,9 +354,5 @@ void	page_setup(void)
 	// We have all the thing to stop use
 	page_directory_reset();
 
-	init_free_vm();
-
-//	heap_setup();
-//	to test page_get_entry_with_virtual
-	//page_get_entry_with_virtual(page_directory);
+	heap_setup();
 }

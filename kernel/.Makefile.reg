@@ -1,4 +1,5 @@
 OBJS += \
+kernel/heap_setup.o \
 kernel/kernel.o \
 kernel/memory_init.o \
 kernel/minishell.o \

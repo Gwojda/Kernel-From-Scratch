@@ -2,6 +2,7 @@
 # define IDT_H
 
 # include "typedef.h"
+# include "io.h"
 
 # define IDT_BASE	0x00000000
 # define IDT_SIZE	0xFF
@@ -66,5 +67,7 @@ void _asm_irq_30(void);
 void _asm_irq_31(void);
 void _asm_irq_32(void);
 void _asm_irq_33(void);
+
+void init_idt(void);
 
 #endif

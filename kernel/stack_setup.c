@@ -5,7 +5,6 @@ void	stack_setup(void)
 {
 	void*	stack_btmp = &stack_top;
 	void*	virt_stack_ptr = STACK_END - 4096;
-	void	*phys_addr;
 	
 	while (stack_btmp != &stack_bottom && virt_stack_ptr >= STACK_START)
 	{

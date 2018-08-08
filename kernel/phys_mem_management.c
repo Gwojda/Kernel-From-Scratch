@@ -33,8 +33,8 @@ void	*get_phys_block(size_t nb_pages)
 		{
 			if (following_bits == nb_pages)
 			{
-				alloc_phys_block((i * 8 + j - following_bits) << 12, following_bits);
-				return ((i * 8 + j - following_bits) << 12);
+				alloc_phys_block((void *)((i * 8 + j - following_bits) << 12), following_bits);
+				return ((void *)((i * 8 + j - following_bits) << 12));
 			}
 			if (mm_bitmap[i] & (1 << j))
 				++following_bits;

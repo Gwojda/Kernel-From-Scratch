@@ -4,7 +4,7 @@
 struct idtr kidtr;
 struct idtdesc kidt[IDT_SIZE];
 
-void init_idt_desc(u16 select, void (*offset)(void), u16 type, struct idtdesc *desc)
+void init_idt_desc(u16 select, void (*offset)(), u16 type, struct idtdesc *desc)
 {
 	desc->offset0_15 = ((size_t)offset & 0xffff);
 	desc->select = select;
@@ -44,11 +44,13 @@ static void initialize_pic()
 
 void irq_clock(struct interupt *data)
 {
+	(void)data;
 	printk("-");
 }
 
 void usless_function(struct interupt *data)
 {
+	(void)data;
 }
 
 void init_idt(void)

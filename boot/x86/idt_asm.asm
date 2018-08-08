@@ -24,6 +24,8 @@ section .text
 		mov al, 0x20
 		out 0x20, al
 		popad
+		sub esp, 4
+		iretd
 %endmacro
 
 INT_NOERRCODE 0, usless_function ;division by 0 

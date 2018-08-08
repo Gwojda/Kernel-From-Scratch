@@ -5,24 +5,6 @@
 size_t	cmd_ind = 0;
 char cmd[SIZE_MAX_CMD];
 
-static void	print_stack(void)
-{
-	char	t = 't';
-	char	u = 'u';
-	char	l = 'l';
-	char	a = 'a';
-	char	s = 's';
-	void	*framesp = get_esp();
-	void	*framebp = get_ebp();
-
-	printk("%p\n", framesp);
-	printk("%p\n", framebp);
-	while (framesp <= framebp)
-	{
-		printk("%c\n", *(char *)framesp);
-		++framesp;
-	}
-}
 
 static void	remove_last_char(void)
 {
