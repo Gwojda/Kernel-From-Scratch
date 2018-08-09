@@ -1,5 +1,7 @@
 #include "idt.h"
 #include "printk.h"
+#include "panic.h"
+#include "page.h"
 
 struct idtr kidtr;
 struct idtdesc kidt[IDT_SIZE];
@@ -42,13 +44,56 @@ static void initialize_pic()
 	outb(0xA1 , 0xff);
 }
 
-void irq_clock(struct interupt *data)
+void irq_clock(struct interupt data)
 {
 	(void)data;
-	printk("-");
+	//printk("-");
+	outb(0x20, 0x20);
 }
 
-void usless_function(struct interupt *data)
+struct stream keybord_stream;
+
+void irq_keybord(struct interupt data)
+{
+	char get_key;
+
+	(void)data;
+	if (inb(0x64) & 1)
+	{
+		get_key = inb(0x60);
+		stream_write(&keybord_stream, &get_key, 1);
+	}
+	outb(0x20, 0x20);
+}
+
+void irq_pagefault(struct interupt data)
+{
+	const struct err_code_pagefault *err = (void*)&(data.err_code);
+	void *addr;
+
+	asm("mov %%cr2, %0" : "=r"(addr));
+	printk("Page fault %p: ", addr);
+	if (err->write)
+		printk("write ");
+	else
+		printk("read ");
+	if (err->protection)
+		printk("cause protection violation ");
+	else
+		printk("to not present page ");
+	if (err->user)
+		printk("in user mode\n");
+	else
+		printk("in supervisor mode\n");
+	if (err->reserve)
+		printk("  reserve byte set in page directory / entry\n");
+	if (err->execute)
+		printk("  execute not execute memory\n");
+	page_info_display(addr);
+	kern_panic("");
+}
+
+void usless_function(struct interupt data)
 {
 	(void)data;
 }

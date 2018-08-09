@@ -56,7 +56,5 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	heap_setup();
 	init_idt();
 //	kern_panic("kernel panic");
-	while (1)
-		;
 	launchshell();
 }

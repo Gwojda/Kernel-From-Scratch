@@ -27,8 +27,17 @@ struct interupt
 {
 	//u32int ds;
 	u32 edi, esi, ebp, esp, ebx, edx, ecx, eax;
-	u32 int_no, err_code;
+	u32 /*int_no, */err_code;
 	u32 eip, cs, eflags, useresp, ss;
+};
+
+struct err_code_pagefault
+{
+	u32 protection : 1;
+	u32 write : 1;
+	u32 user : 1;
+	u32 reserve : 1;
+	u32 execute : 1;
 };
 
 extern struct idtdesc kidt[IDT_SIZE];

@@ -1,17 +1,21 @@
 extern usless_function
 extern irq_clock
+extern irq_pagefault
+extern irq_keybord
 
 section .text
 
 %macro INT_NOERRCODE 2
 	global _asm_irq_%1
 	_asm_irq_%1:
+		push byte 0
 		pushad
 		cld
 		call %2
 		mov al, 0x20
 		out 0x20, al
 		popad
+		add esp, 4
 		iretd
 %endmacro
 
@@ -24,7 +28,7 @@ section .text
 		mov al, 0x20
 		out 0x20, al
 		popad
-		sub esp, 4
+		add esp, 4
 		iretd
 %endmacro
 
@@ -42,7 +46,7 @@ INT_ERRCODE 10, usless_function ;Invalid Task State Segment
 INT_ERRCODE 11, usless_function ;Segment not present
 INT_ERRCODE 12, usless_function ;Stack Fault
 INT_ERRCODE 13, usless_function ;General protection fault
-INT_ERRCODE 14, usless_function ;Page fault
+INT_ERRCODE 14, irq_pagefault ;Page fault
 INT_NOERRCODE 15, usless_function ;reserved
 INT_NOERRCODE 16, usless_function ;Math Fault
 INT_ERRCODE 17, usless_function ;Alignment Check
@@ -61,4 +65,4 @@ INT_NOERRCODE 29, usless_function ;reserved
 INT_ERRCODE 30, usless_function ;Security Exception
 INT_NOERRCODE 31, usless_function ;reserved
 INT_NOERRCODE 32, irq_clock ;Clock
-INT_NOERRCODE 33, usless_function ;Keyboard Interrupt
+INT_NOERRCODE 33, irq_keybord ;Keyboard Interrupt

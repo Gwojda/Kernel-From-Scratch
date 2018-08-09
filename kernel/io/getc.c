@@ -58,9 +58,9 @@ char	getc(void)
 * 6   Time-out error (0 = no error, 1 = time-out error)
 * 7   Parity error (0 = no error, 1 = parity error)
 */
-	if (inb(0x64) & 1)
+	cr = 0;
+	if (stream_read(&keybord_stream, (char*)&cr, 1) == 1)
 	{
-		cr = inb(0x60);
 		tmp = cr;
 		if (SHIFT_PRESSED(cr))
 			shift_locked = TRUE;
