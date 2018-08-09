@@ -2,6 +2,8 @@ extern usless_function
 extern irq_clock
 extern irq_pagefault
 extern irq_keybord
+extern irq_doublefault
+extern irq_divisionbyzero
 
 section .text
 
@@ -32,7 +34,7 @@ section .text
 		iretd
 %endmacro
 
-INT_NOERRCODE 0, usless_function ;division by 0 
+INT_NOERRCODE 0, irq_divisionbyzero ;division by 0
 INT_NOERRCODE 1, usless_function ;Single-step interrupt
 INT_NOERRCODE 2, usless_function ;NMI
 INT_NOERRCODE 3, usless_function ;Breakpoint (callable by the special 1-byte instruction 0xCC, used by debuggers)
@@ -40,7 +42,7 @@ INT_NOERRCODE 4, usless_function ;Overflow
 INT_NOERRCODE 5, usless_function ;Bounds
 INT_NOERRCODE 6, usless_function ;Invalid Opcode
 INT_NOERRCODE 7, usless_function ;Coprocessor not available
-INT_ERRCODE 8, usless_function ;Double fault
+INT_ERRCODE 8, irq_doublefault ;Double fault
 INT_NOERRCODE 9, usless_function ;Coprocessor Segment Overrun (386 or earlier only)
 INT_ERRCODE 10, usless_function ;Invalid Task State Segment
 INT_ERRCODE 11, usless_function ;Segment not present

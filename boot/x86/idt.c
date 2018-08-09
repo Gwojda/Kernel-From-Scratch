@@ -94,6 +94,18 @@ void irq_pagefault(struct interupt data)
 	kern_panic("");
 }
 
+void irq_divisionbyzero(struct interupt data)
+{
+	(void)data;
+	kern_panic("division by zero\n");
+}
+
+void irq_doublefault(struct interupt data)
+{
+	(void)data;
+	kern_panic("Double fault\n");
+}
+
 void usless_function(struct interupt data)
 {
 	(void)data;
