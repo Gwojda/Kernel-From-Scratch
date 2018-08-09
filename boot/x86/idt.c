@@ -2,6 +2,7 @@
 #include "printk.h"
 #include "panic.h"
 #include "page.h"
+#include "vga.h"
 
 struct idtr kidtr;
 struct idtdesc kidt[IDT_SIZE];
@@ -152,4 +153,5 @@ void init_idt(void)
 	asm("lidt (kidtr)");
 	outb(0x21 , 0xFC);
 	asm volatile("sti");
+	print_initialize_status("IDT", TRUE);
 }

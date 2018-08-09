@@ -12,6 +12,7 @@ kernel/cmd/switchtty.o \
 kernel/io/getc.o \
 kernel/io/io.o \
 kernel/io/stream.o \
+kernel/syscall/sys_restart.o \
 kernel/tty/init_tty.o \
 kernel/tty/switch_tty.o \
 kernel/tty/tty_clear_screen.o \
