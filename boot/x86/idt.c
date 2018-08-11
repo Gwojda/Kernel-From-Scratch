@@ -3,6 +3,7 @@
 #include "panic.h"
 #include "page.h"
 #include "vga.h"
+#include "backtrace.h"
 
 struct idtr kidtr;
 struct idtdesc kidt[IDT_SIZE];
@@ -91,6 +92,7 @@ void irq_pagefault(struct interupt data)
 	if (err->execute)
 		printk("  execute not execute memory\n");
 	page_info_display(addr);
+	backtrace((size_t*)data.ebp, 5);
 	kern_panic("");
 }
 
