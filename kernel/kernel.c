@@ -49,8 +49,5 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 
 	heap_setup();
 	init_idt();
-	printk("addr2 = %p\n", sys_restart);
-//	fake_syscall();
-//	kern_panic("kernel panic");
 	launchshell();
 }
