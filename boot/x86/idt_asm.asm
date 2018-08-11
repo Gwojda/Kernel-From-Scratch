@@ -4,6 +4,7 @@ extern irq_pagefault
 extern irq_keybord
 extern irq_doublefault
 extern irq_divisionbyzero
+extern syscall_handler
 
 section .text
 
@@ -68,3 +69,4 @@ INT_ERRCODE 30, usless_function ;Security Exception
 INT_NOERRCODE 31, usless_function ;reserved
 INT_NOERRCODE 32, irq_clock ;Clock
 INT_NOERRCODE 33, irq_keybord ;Keyboard Interrupt
+INT_NOERRCODE 128, syscall_handler ;Keyboard Interrupt

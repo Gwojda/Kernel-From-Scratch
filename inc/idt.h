@@ -76,6 +76,7 @@ void _asm_irq_30(void);
 void _asm_irq_31(void);
 void _asm_irq_32(void);
 void _asm_irq_33(void);
+void _asm_irq_128(void);
 
 void init_idt(void);
 

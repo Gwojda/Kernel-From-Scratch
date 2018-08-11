@@ -35,7 +35,7 @@ syscall_handler:
 	cld
 	cmp eax, 0
 	jl invalid_syscall
-	cmp eax, arraylen
+	cmp eax, arraylen ; ARRYLEN / 4 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	jge invalid_syscall
 	PUSH_ALL
 	call [syscall_function_array + eax]
@@ -48,6 +48,25 @@ invalid_syscall:
 	push eax
 	call printk
 	mov eax, -1
+	ret
+
+global syscall
+syscall:
+	push ebp
+	mov ebp, esp
+
+	PUSH_ALL
+	mov eax, [ebp + 8 + 4 * 0]
+	mov ebx, [ebp + 8 + 4 * 1]
+	mov ecx, [ebp + 8 + 4 * 2]
+	mov edx, [ebp + 8 + 4 * 3]
+	mov esi, [ebp + 8 + 4 * 4]
+	mov edi, [ebp + 8 + 4 * 5]
+	int 0x80
+	POP_ALL
+
+	mov esp, ebp
+	pop ebp
 	ret
 
 ;use for debug
