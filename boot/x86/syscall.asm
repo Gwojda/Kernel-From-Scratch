@@ -52,14 +52,22 @@ syscall:
 	push ebp
 	mov ebp, esp
 
+	push ebx
+	push edi
+	push esi
+
 	mov eax, [ebp + 8 + 4 * 0]
 	mov ebx, [ebp + 8 + 4 * 1]
 	mov ecx, [ebp + 8 + 4 * 2]
 	mov edx, [ebp + 8 + 4 * 3]
 	mov esi, [ebp + 8 + 4 * 4]
 	mov edi, [ebp + 8 + 4 * 5]
-	;int 0x80
-	call syscall_handler
+	int 0x80
+	;call syscall_handler
+
+	pop esi
+	pop edi
+	pop ebx
 
 	mov esp, ebp
 	pop ebp
