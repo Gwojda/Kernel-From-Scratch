@@ -75,4 +75,6 @@ struct gdtdesc {
 
 void init_gdt(void);
 
+extern struct tss 		default_tss;
+
 #endif
