@@ -128,7 +128,7 @@ void irq_clock(struct interupt data)
 		pros_switch(&data, NULL, current);
 		current = NULL;
 	}
-	printk("c");
+	//printk("c");
 	outb(0x20, 0x20);
 }
 
