@@ -83,15 +83,15 @@ extern void *_kernel_data_end;
 # define KERNEL_DATA_SIZE (size_t)(KERNEL_DATA_END - KERNEL_DATA_START)
 
 # define HEAP_SIZE	(0x10000)
-# define HEAP_START	(0x400000 + PAGE_ALIGN(KERNEL_END))
-# define HEAP_END	(HEAP_START + HEAP_SIZE)
+# define HEAP_START	((void*)(0x400000 + PAGE_ALIGN(KERNEL_END)))
+# define HEAP_END	((void*)(HEAP_START + HEAP_SIZE))
 
 extern void *stack_bottom;
 extern void *stack_top;
 
 # define STACK_SIZE	(0x10000)
-# define STACK_START	(0x400000 + PAGE_ALIGN(HEAP_END))
-# define STACK_END	(STACK_START + STACK_SIZE)
+# define STACK_START	((void*)(0x400000 + PAGE_ALIGN(HEAP_END)))
+# define STACK_END	((void*)(STACK_START + STACK_SIZE))
 
 
 #endif
