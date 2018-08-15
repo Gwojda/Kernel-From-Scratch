@@ -53,6 +53,7 @@ int page_info_display(void *virt_addr);
 void page_info_display_tab(void);
 
 void *page_get_phys(void *virt_addr);
+int page_is_present(void *virt_addr);
 
 void page_setup(void);
 

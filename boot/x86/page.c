@@ -134,7 +134,7 @@ int page_map(void *phy_addr, void *virt_addr, unsigned int flag)
 	{
 		if (!(*directory_entry = (uint32_t)get_phys_block(1)))
 			return 0;
-		*directory_entry |= PAGE_PRESENT | PAGE_WRITE;
+		*directory_entry |= PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR;
 		page_directory_reset(); // page update
 	}
 
@@ -309,6 +309,18 @@ void *page_get_phys(void *virt_addr)
 	if (info.page_table_entry & PAGE_PRESENT)
 		return PAGE_GET_ADDR(info.page_table_entry);
 	return NULL;
+}
+
+int page_is_present(void *virt_addr)
+{
+	struct page_info_data info;
+
+	page_info(virt_addr, &info);
+	if (!info.have_page_entry)
+		return 0;
+	if (info.page_table_entry & PAGE_PRESENT)
+		return 1;
+	return 0;
 }
 
 void page_info_display_tab(void)
