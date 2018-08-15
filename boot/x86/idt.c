@@ -108,6 +108,54 @@ void irq_doublefault(struct interupt data)
 	kern_panic("Double fault\n");
 }
 
+void irq_invalidopcode(struct interupt data)
+{
+	(void)data;
+	kern_panic("Invalid Opcode\n");
+}
+
+void irq_overflow(struct interupt data)
+{
+	(void)data;
+	kern_panic("Over flow\n");
+}
+
+void irq_invalidetaskstatesegment(struct interupt data)
+{
+	(void)data;
+	kern_panic("Invalide task state segment\n");
+}
+
+void irq_segmentnotpresent(struct interupt data)
+{
+	(void)data;
+	kern_panic("Segment not present\n");
+}
+
+void irq_stackfault(struct interupt data)
+{
+	(void)data;
+	kern_panic("Stack fault\n");
+}
+
+void irq_generalprotection(struct interupt data)
+{
+	(void)data;
+	kern_panic("General protection fault %p\n", data.err_code);
+}
+
+void irq_mathfault(struct interupt data)
+{
+	(void)data;
+	kern_panic("Math fault\n");
+}
+
+void irq_machinecheck(struct interupt data)
+{
+	(void)data;
+	kern_panic("Machine check\n");
+}
+
 void usless_function(struct interupt data)
 {
 	(void)data;
