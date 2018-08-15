@@ -20,7 +20,7 @@ void init_gdt(void)
 {
 	default_tss.debug_flag = 0x00;
 	default_tss.io_map = 0x00;
-	default_tss.esp0 = STACK_END;
+	default_tss.esp0 = (u32)STACK_END;
 	default_tss.ss0 = 0x18;
 	
 	/* initialize gdt segments */
