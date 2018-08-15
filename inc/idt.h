@@ -7,8 +7,20 @@
 # define IDT_BASE	0x00000000
 # define IDT_SIZE	0xFF
 
-# define INT_GATE	0x8e
-# define TRAP_GATE	0xef
+# define IDT_FLAGS_PRESENT	0b10000000
+# define IDT_FLAGS_RING0	0b00000000
+# define IDT_FLAGS_RING1	0b00100000
+# define IDT_FLAGS_RING2	0b01000000
+# define IDT_FLAGS_RING3	0b01100000
+# define IDT_FLAGS_TYPE_TASK16	0b00000101
+# define IDT_FLAGS_TYPE_INT16	0b00000110
+# define IDT_FLAGS_TYPE_TRAP16	0b00000111
+# define IDT_FLAGS_TYPE_INT32	0b00001110
+# define IDT_FLAGS_TYPE_TRAP32	0b00001111
+
+# define NOT_GATE	(0x0)
+# define INT_GATE	(IDT_FLAGS_PRESENT | IDT_FLAGS_TYPE_INT32)
+# define TRAP_GATE_R3	(IDT_FLAGS_PRESENT | IDT_FLAGS_TYPE_TRAP32 | IDT_FLAGS_RING3)
 
 struct idtr {
 	u16 limite;
@@ -25,7 +37,7 @@ struct idtdesc {
 
 struct interupt
 {
-	//u32int ds;
+	u32 ds, es, fs, gs;
 	u32 edi, esi, ebp, esp, ebx, edx, ecx, eax;
 	u32 /*int_no, */err_code;
 	u32 eip, cs, eflags, useresp, ss;

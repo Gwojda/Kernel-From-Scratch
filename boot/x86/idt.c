@@ -205,7 +205,7 @@ void init_idt(void)
 	init_idt_desc(0x08, _asm_irq_32, INT_GATE, &kidt[32]);
 	init_idt_desc(0x08, _asm_irq_33, INT_GATE, &kidt[33]);
 
-	init_idt_desc(0x08, _asm_irq_128, TRAP_GATE, &kidt[128]);
+	init_idt_desc(0x08, _asm_irq_128, TRAP_GATE_R3, &kidt[128]);
 
 	kidtr.limite = IDT_SIZE * sizeof(struct idtdesc) - 1;
 	kidtr.base = &kidt;
