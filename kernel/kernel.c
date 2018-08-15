@@ -20,12 +20,16 @@ static void	print_kernel_visu(void)
 			"                          `--___   ___--'\n"
 			"                         Moonlight Kernel\n"
 			"################################################################################\n"
-			);
+		  );
 	vga_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK + current_tty));
 
 }
 
 void	sys_restart(void);
+
+#include "prosses.h"
+void user1(void);
+void user2(void);
 
 void kmain (unsigned long volatile magic, unsigned long addr)
 {
@@ -49,5 +53,12 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 
 	heap_setup();
 	init_idt();
+	// current = prosses_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
+	// prosses_memory_switch(current, 0);
+	// current = prosses_ini_kern(user2, (void*)user2 + 0xC0000000, 1 << 12);
+	printk("init ok\n");
+	asm volatile("sti");
+	//while (1)
+	//	;
 	launchshell();
 }

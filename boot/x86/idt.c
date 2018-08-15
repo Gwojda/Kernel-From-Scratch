@@ -4,6 +4,7 @@
 #include "page.h"
 #include "vga.h"
 #include "backtrace.h"
+#include "GDT.h"
 
 struct idtr kidtr;
 struct idtdesc kidt[IDT_SIZE];
@@ -46,10 +47,88 @@ static void initialize_pic()
 	outb(0xA1 , 0xff);
 }
 
+#include "prosses.h"
+extern struct prosses *current;
+
+void pros_save(struct prosses* pros, struct interupt *data)
+{
+	pros->regs.ds = data->ds;
+	pros->regs.es = data->es;
+	pros->regs.fs = data->fs;
+	pros->regs.gs = data->gs;
+
+	pros->regs.edi = data->edi;
+	pros->regs.esi = data->esi;
+	pros->regs.ebp = data->ebp;
+	pros->regs.ebx = data->ebx;
+	pros->regs.edx = data->edx;
+	pros->regs.ecx = data->ecx;
+	pros->regs.eax = data->eax;
+
+	pros->regs.eip = data->eip;
+	pros->regs.cs = data->cs;
+	pros->regs.eflags = data->eflags;
+	if (data->cs != GDT_SEG_KCODE)
+	{
+		pros->regs.esp = data->useresp;
+		pros->regs.ss = data->ss;
+	}
+	else
+		pros->regs.esp = data->esp;
+}
+
+void pros_load(struct prosses* pros, struct interupt *data)
+{
+	data->ds = pros->regs.ds;
+	data->es = pros->regs.es;
+	data->fs = pros->regs.fs;
+	data->gs = pros->regs.gs;
+
+	data->edi = pros->regs.edi;
+	data->esi = pros->regs.esi;
+	data->ebp = pros->regs.ebp;
+	data->ebx = pros->regs.ebx;
+	data->edx = pros->regs.edx;
+	data->ecx = pros->regs.ecx;
+	data->eax = pros->regs.eax;
+
+	data->eip = pros->regs.eip;
+	data->cs = pros->regs.cs;
+	data->eflags = pros->regs.eflags | 0x200;
+	if (data->cs != GDT_SEG_KCODE) // USERLAND
+	{
+		data->useresp = pros->regs.esp;
+		data->ss = pros->regs.ss;
+	}
+	else
+		data->esp = pros->regs.esp;
+}
+
+int pros_switch(struct interupt *data, struct prosses *old, struct prosses *new)
+{
+	//TODO bad idee becose we can corrupt the stack with user esp and user ss
+	if (old != NULL)
+	{
+		pros_save(old, data);
+		if (prosses_memory_switch(old, 0) == 0)
+			return 1;
+	}
+	if (new == NULL)
+		kern_panic("No more prosses to run\n");
+	pros_load(new, data);
+	if (prosses_memory_switch(new, 1) == 0)
+		return 2;
+	return 0;
+}
+
 void irq_clock(struct interupt data)
 {
-	(void)data;
-	//printk("-");
+	if (current != NULL)
+	{
+		pros_switch(&data, NULL, current);
+		current = NULL;
+	}
+	printk("c");
 	outb(0x20, 0x20);
 }
 
@@ -213,6 +292,5 @@ void init_idt(void)
 	/* Load the IDTR registry */
 	asm("lidt (kidtr)");
 	outb(0x21 , 0xFC);
-	asm volatile("sti");
 	print_initialize_status("IDT", TRUE);
 }

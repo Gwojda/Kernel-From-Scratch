@@ -10,7 +10,7 @@ void	kern_panic(const char *fmt, ...)
 
 	va_end(ap);
 	printk("================================================================================\n");
-	clear_register();
+	//clear_register();
 	while (1)
 		;
 }
