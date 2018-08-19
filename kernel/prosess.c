@@ -5,6 +5,7 @@
 #include "printk.h"
 
 struct prosses *current = NULL;
+struct list_head prosses_list = LIST_HEAD_INIT(prosses_list);
 
 struct prosses *prosses_new()
 {
@@ -23,14 +24,12 @@ int		prosses_memory_switch(struct prosses *pros, int add)
 	struct list_head *l;
 	unsigned flags;
 
-	printk("Memory switch\n");
 	list_for_each(l, &pros->map_memory)
 	{
 		pm = list_entry(l, struct map_memory, plist);
 		flags = pm->flags;
 		if (add == 0)
 			flags &= ~PAGE_PRESENT;
-		printk(" %b %p -> %p\n", flags, pm->v_addr, pm->p_addr);
 		if (page_map(pm->p_addr, pm->v_addr, flags) == 0)
 			return 1;
 	}
@@ -50,7 +49,9 @@ int		prosses_memory_add(struct prosses *pros, void *v_addr, unsigned flags, int 
 	if ((pm = kmalloc(sizeof(*pm))) == NULL)
 		return 3;
 	pm->v_addr = v_addr;
-	pm->p_addr = get_phys_block(1);
+	if ((pm->p_addr = get_phys_block(1)) == NULL)
+		return 5;
+	// TODO bzero prosses memory
 	pm->flags = flags;
 	if (imediate)
 		if (page_map(pm->p_addr, v_addr, flags) == 0)
@@ -109,11 +110,14 @@ struct prosses	*prosses_ini_kern(u32 *v_addr, void* function, size_t size)
 	pros->regs.eip = (u32)v_addr;
 	pros->regs.eflags = 0;
 
-	pros->regs.cs = GDT_SEG_KCODE;
-	pros->regs.ss = GDT_SEG_KDATA;
-	pros->regs.ds = GDT_SEG_KSTACK;
-	pros->regs.es = 0;
-	pros->regs.fs = 0;
-	pros->regs.gs = 0;
+	pros->regs.cs = GDT_SEG_UCODE;
+	pros->regs.ss = GDT_SEG_USTACK;
+	pros->regs.ds = GDT_SEG_UDATA;
+	pros->regs.es = GDT_SEG_UDATA;
+	pros->regs.fs = GDT_SEG_UDATA;
+	pros->regs.gs = GDT_SEG_UDATA;
+	//printk("   %p %p %p %p\n", &prosses, &prosses.next, &(prosses.next)->next, &((prosses.next)->next)->next);
+	list_add(&pros->plist, &prosses_list);
+	//printk("init ok %p %p %p %p\n", &prosses, &prosses.next, &(prosses.next)->next, &((prosses.next)->next)->next);
 	return pros;
 }

@@ -48,7 +48,6 @@ static void initialize_pic()
 }
 
 #include "prosses.h"
-extern struct prosses *current;
 
 void pros_save(struct prosses* pros, struct interupt *data)
 {
@@ -77,6 +76,35 @@ void pros_save(struct prosses* pros, struct interupt *data)
 		pros->regs.esp = data->esp;
 }
 
+void pros_cmp(struct prosses* pros, struct interupt *data)
+{
+	printk("MEM\n");
+	printk("ds %p %p\n", pros->regs.ds, data->ds);
+	printk("es %p %p\n", pros->regs.es, data->es);
+	printk("fs %p %p\n", pros->regs.fs, data->fs);
+	printk("gs %p %p\n", pros->regs.gs, data->gs);
+
+	printk("edi %p %p\n", pros->regs.edi, data->edi);
+	printk("esi %p %p\n", pros->regs.esi, data->esi);
+	printk("ebp %p %p\n", pros->regs.ebp, data->ebp);
+	printk("ebx %p %p\n", pros->regs.ebx, data->ebx);
+	printk("edx %p %p\n", pros->regs.edx, data->edx);
+	printk("ecx %p %p\n", pros->regs.ecx, data->ecx);
+	printk("eax %p %p\n", pros->regs.eax, data->eax);
+
+	printk("eip %p %p\n", pros->regs.eip, data->eip);
+	printk("cs %p %p\n", pros->regs.cs, data->cs);
+	printk("eflags %p %p\n", pros->regs.eflags, data->eflags);
+	if (data->cs != GDT_SEG_KCODE)
+	{
+		printk("esp %p %p\n", pros->regs.esp, data->useresp);
+		printk("ss %p %p\n", pros->regs.ss, data->ss);
+	}
+	else
+		printk("esp %p %p\n", pros->regs.esp, data->esp);
+}
+
+
 void pros_load(struct prosses* pros, struct interupt *data)
 {
 	data->ds = pros->regs.ds;
@@ -94,7 +122,7 @@ void pros_load(struct prosses* pros, struct interupt *data)
 
 	data->eip = pros->regs.eip;
 	data->cs = pros->regs.cs;
-	data->eflags = pros->regs.eflags | 0x200;
+	data->eflags = (pros->regs.eflags | 0x200) & 0xFFFFBFFF;
 	if (data->cs != GDT_SEG_KCODE) // USERLAND
 	{
 		data->useresp = pros->regs.esp;
@@ -107,28 +135,43 @@ void pros_load(struct prosses* pros, struct interupt *data)
 int pros_switch(struct interupt *data, struct prosses *old, struct prosses *new)
 {
 	//TODO bad idee becose we can corrupt the stack with user esp and user ss
+	struct interupt *new_data;
+
 	if (old != NULL)
 	{
 		pros_save(old, data);
-		if (prosses_memory_switch(old, 0) == 0)
+		if (prosses_memory_switch(old, 0) != 0)
 			return 1;
 	}
 	if (new == NULL)
-		kern_panic("No more prosses to run\n");
-	pros_load(new, data);
-	if (prosses_memory_switch(new, 1) == 0)
+		return 3;
+	pros_load(new, new_data);
+	if (prosses_memory_switch(new, 1) != 0)
 		return 2;
 	return 0;
 }
 
 void irq_clock(struct interupt data)
 {
-	if (current != NULL)
+	outb(0x20, 0x20);
+	return ;// REMOVE FOR MULTI PROSSES
+	struct prosses *old = current;
+
+	if (current == NULL)
+		current = &prosses_list;
+
+	current = list_entry(current->plist.next, struct prosses, plist);
+	if (&current->plist == &prosses_list)
 	{
-		pros_switch(&data, NULL, current);
-		current = NULL;
+		current = list_first_entry(&prosses_list, struct prosses, plist);
+		if (&current->plist == &prosses_list)
+			current = NULL;
 	}
-	//printk("c");
+
+	int i;
+	if ((i = pros_switch(&data, old, current)) != 0)
+		kern_panic("Fail to switch prosses %d\n", i);
+
 	outb(0x20, 0x20);
 }
 
@@ -220,6 +263,11 @@ void irq_stackfault(struct interupt data)
 void irq_generalprotection(struct interupt data)
 {
 	(void)data;
+	printk("eip %p\n", data.eip);
+	printk("gs %p\n", data.gs);
+	printk("fs %p\n", data.fs);
+	printk("es %p\n", data.es);
+	printk("ds %p\n", data.ds);
 	kern_panic("General protection fault %p\n", data.err_code);
 }
 
@@ -284,7 +332,7 @@ void init_idt(void)
 	init_idt_desc(0x08, _asm_irq_32, INT_GATE, &kidt[32]);
 	init_idt_desc(0x08, _asm_irq_33, INT_GATE, &kidt[33]);
 
-	init_idt_desc(0x08, _asm_irq_128, TRAP_GATE_R3, &kidt[128]);
+	init_idt_desc(0x08, _asm_irq_128, INT_GATE_R3, &kidt[128]);
 
 	kidtr.limite = IDT_SIZE * sizeof(struct idtdesc) - 1;
 	kidtr.base = &kidt;

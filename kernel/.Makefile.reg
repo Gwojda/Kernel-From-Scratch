@@ -5,17 +5,15 @@ kernel/memory_init.o \
 kernel/minishell.o \
 kernel/panic.o \
 kernel/phys_mem_management.o \
+kernel/prosess.o \
 kernel/stack_setup.o \
 kernel/cmd/mem_debug.o \
 kernel/cmd/reboot.o \
 kernel/cmd/switchtty.o \
 kernel/io/getc.o \
 kernel/io/io.o \
-<<<<<<< HEAD
 kernel/io/stream.o \
-=======
 kernel/syscall/sys_restart.o \
->>>>>>> 40f15be8a1df1f6052dea55cf674c7cdec3b3c82
 kernel/tty/init_tty.o \
 kernel/tty/switch_tty.o \
 kernel/tty/tty_clear_screen.o \

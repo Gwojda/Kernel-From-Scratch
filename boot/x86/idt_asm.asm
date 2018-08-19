@@ -16,6 +16,17 @@ extern irq_machinecheck
 
 section .text
 
+;global _asm_irq_end
+;_asm_irq_end:
+;		push ...
+;		pop gs
+;		pop fs
+;		pop es
+;		pop ds
+;		popad
+;		add esp, 4
+;		iretd
+
 %macro INT_NOERRCODE 2
 	global _asm_irq_%1
 	_asm_irq_%1:
@@ -58,8 +69,6 @@ section .text
 		pop fs
 		pop es
 		pop ds
-		mov al, 0x20
-		out 0x20, al
 		popad
 		add esp, 4
 		iretd

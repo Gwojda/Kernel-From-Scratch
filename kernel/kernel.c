@@ -29,7 +29,9 @@ void	sys_restart(void);
 
 #include "prosses.h"
 void user1(void);
+void user1_2(void);
 void user2(void);
+void user3(void);
 
 void kmain (unsigned long volatile magic, unsigned long addr)
 {
@@ -53,9 +55,18 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 
 	heap_setup();
 	init_idt();
-	// current = prosses_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
-	// prosses_memory_switch(current, 0);
-	// current = prosses_ini_kern(user2, (void*)user2 + 0xC0000000, 1 << 12);
+
+	/*struct prosses *p1 = prosses_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
+	prosses_memory_switch(p1, 0);
+	struct prosses *p2 = prosses_ini_kern(user1_2, (void*)user1 + 0xC0000000, 1 << 12);
+	prosses_memory_switch(p2, 0);*/
+
+	/*struct prosses *p2 = prosses_ini_kern(user2, (void*)user2 + 0xC0000000, 1 << 12);
+	prosses_memory_switch(p2, 0);
+
+	struct prosses *p3 = prosses_ini_kern(user3, (void*)user3 + 0xC0000000, 1 << 12);
+	prosses_memory_switch(p3, 0);*/
+
 	printk("init ok\n");
 	asm volatile("sti");
 	//while (1)

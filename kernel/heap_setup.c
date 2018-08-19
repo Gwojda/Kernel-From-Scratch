@@ -82,7 +82,7 @@ void	*try_allocate(struct heap_list *heap_entry, size_t alloc_size)
 				struct alloc_header	*new_head = (void *)head + sizeof(struct alloc_header) + alloc_size;
 				new_head->free = 1;
 				new_head->size = head->size - (sizeof(struct alloc_header) + alloc_size);
-				printk("new_head->size = %d\n", new_head->size);
+//				printk("new_head->size = %d\n", new_head->size);
 				head->size = alloc_size;
 			}
 			head->free = 0;
@@ -107,10 +107,10 @@ void *kmalloc(size_t size)
 	}
 	if (!(new_virt_addr = find_free_virt_addr(size)))
 		goto err;	//no more virt addr available
-	printk("new_virt_addr = %p\n", new_virt_addr);
+//	printk("new_virt_addr = %p\n", new_virt_addr);
 	if (!(new_phys_addr = get_phys_block((size_t)PAGE_ALIGN(size) >> 12)))
 		goto err1;	//no more aligned phys addr
-	printk("new_phys_addr = %p\n", new_phys_addr);
+//	printk("new_phys_addr = %p\n", new_phys_addr);
 	if (!page_map(new_phys_addr, new_virt_addr, PAGE_WRITE | PAGE_PRESENT))
 		goto err2;
 	init_new_allocated_block(new_virt_addr, (size_t)PAGE_ALIGN(size), 0);

@@ -18,6 +18,7 @@ struct map_memory
 
 struct prosses
 {
+	struct list_head plist;
 	pid_t pid;
 	uid_t uid;
 	struct {
@@ -30,5 +31,6 @@ struct prosses
 };
 
 extern struct prosses *current;
+extern struct list_head prosses_list;
 
 #endif

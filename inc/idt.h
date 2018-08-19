@@ -12,14 +12,13 @@
 # define IDT_FLAGS_RING1	0b00100000
 # define IDT_FLAGS_RING2	0b01000000
 # define IDT_FLAGS_RING3	0b01100000
-# define IDT_FLAGS_TYPE_TASK16	0b00000101
-# define IDT_FLAGS_TYPE_INT16	0b00000110
-# define IDT_FLAGS_TYPE_TRAP16	0b00000111
-# define IDT_FLAGS_TYPE_INT32	0b00001110
-# define IDT_FLAGS_TYPE_TRAP32	0b00001111
+# define IDT_FLAGS_TYPE_INT32	0b00001110 // not interuptible
+# define IDT_FLAGS_TYPE_TRAP32	0b00001111 // interuptible
 
 # define NOT_GATE	(0x0)
 # define INT_GATE	(IDT_FLAGS_PRESENT | IDT_FLAGS_TYPE_INT32)
+# define INT_GATE_R3	(IDT_FLAGS_PRESENT | IDT_FLAGS_TYPE_INT32 | IDT_FLAGS_RING3)
+# define TRAP_GATE	(IDT_FLAGS_PRESENT | IDT_FLAGS_TYPE_TRAP32)
 # define TRAP_GATE_R3	(IDT_FLAGS_PRESENT | IDT_FLAGS_TYPE_TRAP32 | IDT_FLAGS_RING3)
 
 struct idtr {
@@ -53,6 +52,8 @@ struct err_code_pagefault
 };
 
 extern struct idtdesc kidt[IDT_SIZE];
+
+void _asm_irq_end(struct interupt data);
 
 void _asm_irq_0(void);
 void _asm_irq_1(void);
