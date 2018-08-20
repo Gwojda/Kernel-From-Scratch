@@ -2,6 +2,6 @@
 
 void	sys_restart()
 {
-	//printk("-");
-	reboot();
+	printk("-");
+	//reboot();
 }

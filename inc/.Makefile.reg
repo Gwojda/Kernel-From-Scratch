@@ -1,6 +1,8 @@
 HEADERS += \
 inc/GDT.h \
 inc/asm.h \
+inc/backtrace.h \
+inc/idt.h \
 inc/io.h \
 inc/kernel.h \
 inc/lib.h \
@@ -11,7 +13,10 @@ inc/panic.h \
 inc/phys_mem_management.h \
 inc/position.h \
 inc/printk.h \
+inc/prosses.h \
 inc/shell.h \
+inc/stream.h \
+inc/syscall.h \
 inc/tty.h \
 inc/typedef.h \
 inc/vga.h \

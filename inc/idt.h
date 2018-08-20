@@ -1,6 +1,7 @@
 #ifndef IDT_H
 # define IDT_H
 
+# include "signal.h"
 # include "typedef.h"
 # include "io.h"
 
@@ -38,7 +39,7 @@ struct interupt
 {
 	u32 ds, es, fs, gs;
 	u32 edi, esi, ebp, esp, ebx, edx, ecx, eax;
-	u32 /*int_no, */err_code;
+	u32 int_no, err_code;
 	u32 eip, cs, eflags, useresp, ss;
 };
 

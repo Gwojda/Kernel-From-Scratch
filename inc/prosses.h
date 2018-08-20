@@ -61,5 +61,6 @@ extern struct list_head prosses_list;
 
 int	add_signal(int sig, struct prosses *proc);
 void	send_signal(struct prosses *proc);
+int pros_switch(struct interupt *data, struct prosses *old, struct prosses *new);
 
 #endif

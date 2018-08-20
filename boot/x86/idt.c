@@ -4,10 +4,42 @@
 #include "page.h"
 #include "vga.h"
 #include "backtrace.h"
+#include "prosses.h"
 #include "GDT.h"
 
 struct idtr kidtr;
 struct idtdesc kidt[IDT_SIZE];
+
+struct
+{
+	int number;
+	char *name;
+	int signal;
+	int error;
+} signal_info[] = {
+	{0,  "Divide by zero",               SIGFPE,  1},
+	{3,  "Break point",                  SIGTRAP, 0},
+	{4,  "Overflow",                     0,       0},
+	{5,  "Bound Range Exceeded",         0,       0},
+	{6,  "Invalide Opcode",              SIGILL,  1},
+	//{7,  "Device Not Available",       0},//
+	{8,  "Double Fault",                 -1,      1},
+	{9,  "Coprocessor Segment overrun",  0,       0},
+	{10, "Invalide TSS",                 -1,      1},
+	{11, "Segement not present",         -1,      1},
+	{12, "Stack Segment Fault",          SIGBUS,  1},
+	{13, "General Protection",           SIGSEGV, 1},
+	{14, "Page Fault",                   SIGSEGV, 1},
+	{16, "x87 Floting point exception",  SIGFPE,  1},
+	{17, "Alignement check",             SIGSEGV, 1},
+	{18, "Machine check",                -1,      1},
+	{19, "SIMD Floting point exception", SIGFPE,  1},
+	//{1,  "Debug",                      0},
+	//{2,  "Not maskable Interrupt",     },
+	//{20, "Virtualization Exception",   },
+	//{30, "Security check",             },
+	{-1, NULL, 0, 0}
+};
 
 void init_idt_desc(u16 select, void (*offset)(), u16 type, struct idtdesc *desc)
 {
@@ -47,116 +79,8 @@ static void initialize_pic()
 	outb(0xA1 , 0xff);
 }
 
-#include "prosses.h"
-
-void pros_save(struct prosses* pros, struct interupt *data)
-{
-	pros->regs.ds = data->ds;
-	pros->regs.es = data->es;
-	pros->regs.fs = data->fs;
-	pros->regs.gs = data->gs;
-
-	pros->regs.edi = data->edi;
-	pros->regs.esi = data->esi;
-	pros->regs.ebp = data->ebp;
-	pros->regs.ebx = data->ebx;
-	pros->regs.edx = data->edx;
-	pros->regs.ecx = data->ecx;
-	pros->regs.eax = data->eax;
-
-	pros->regs.eip = data->eip;
-	pros->regs.cs = data->cs;
-	pros->regs.eflags = data->eflags;
-	if (data->cs != GDT_SEG_KCODE)
-	{
-		pros->regs.esp = data->useresp;
-		pros->regs.ss = data->ss;
-	}
-	else
-		pros->regs.esp = data->esp;
-}
-
-void pros_cmp(struct prosses* pros, struct interupt *data)
-{
-	printk("MEM\n");
-	printk("ds %p %p\n", pros->regs.ds, data->ds);
-	printk("es %p %p\n", pros->regs.es, data->es);
-	printk("fs %p %p\n", pros->regs.fs, data->fs);
-	printk("gs %p %p\n", pros->regs.gs, data->gs);
-
-	printk("edi %p %p\n", pros->regs.edi, data->edi);
-	printk("esi %p %p\n", pros->regs.esi, data->esi);
-	printk("ebp %p %p\n", pros->regs.ebp, data->ebp);
-	printk("ebx %p %p\n", pros->regs.ebx, data->ebx);
-	printk("edx %p %p\n", pros->regs.edx, data->edx);
-	printk("ecx %p %p\n", pros->regs.ecx, data->ecx);
-	printk("eax %p %p\n", pros->regs.eax, data->eax);
-
-	printk("eip %p %p\n", pros->regs.eip, data->eip);
-	printk("cs %p %p\n", pros->regs.cs, data->cs);
-	printk("eflags %p %p\n", pros->regs.eflags, data->eflags);
-	if (data->cs != GDT_SEG_KCODE)
-	{
-		printk("esp %p %p\n", pros->regs.esp, data->useresp);
-		printk("ss %p %p\n", pros->regs.ss, data->ss);
-	}
-	else
-		printk("esp %p %p\n", pros->regs.esp, data->esp);
-}
-
-
-void pros_load(struct prosses* pros, struct interupt *data)
-{
-	data->ds = pros->regs.ds;
-	data->es = pros->regs.es;
-	data->fs = pros->regs.fs;
-	data->gs = pros->regs.gs;
-
-	data->edi = pros->regs.edi;
-	data->esi = pros->regs.esi;
-	data->ebp = pros->regs.ebp;
-	data->ebx = pros->regs.ebx;
-	data->edx = pros->regs.edx;
-	data->ecx = pros->regs.ecx;
-	data->eax = pros->regs.eax;
-
-	data->eip = pros->regs.eip;
-	data->cs = pros->regs.cs;
-	data->eflags = (pros->regs.eflags | 0x200) & 0xFFFFBFFF;
-	if (data->cs != GDT_SEG_KCODE) // USERLAND
-	{
-		data->useresp = pros->regs.esp;
-		data->ss = pros->regs.ss;
-	}
-	else
-		data->esp = pros->regs.esp;
-}
-
-int pros_switch(struct interupt *data, struct prosses *old, struct prosses *new)
-{
-	//TODO bad idee becose we can corrupt the stack with user esp and user ss
-	struct interupt *new_data;
-
-	if (old != NULL)
-	{
-		pros_save(old, data);
-		if (prosses_memory_switch(old, 0) != 0)
-			return 1;
-	}
-	if (&new->signal.sig_queue.list != new->signal.sig_queue.list.next)
-		send_signal(new);
-	if (new == NULL)
-		return 3;
-	pros_load(new, new_data);
-	if (prosses_memory_switch(new, 1) != 0)
-		return 2;
-	return 0;
-}
-
 void irq_clock(struct interupt data)
 {
-	outb(0x20, 0x20);
-	return ;// REMOVE FOR MULTI PROSSES
 	struct prosses *old = current;
 
 	if (current == NULL)
@@ -220,69 +144,30 @@ void irq_pagefault(struct interupt data)
 	kern_panic("");
 }
 
-void irq_divisionbyzero(struct interupt data)
+void irq_general(struct interupt data)
 {
-	(void)data;
-	kern_panic("division by zero\n");
-}
+	int i;
 
-void irq_doublefault(struct interupt data)
-{
-	(void)data;
-	kern_panic("Double fault\n");
-}
-
-void irq_invalidopcode(struct interupt data)
-{
-	(void)data;
-	kern_panic("Invalid Opcode\n");
-}
-
-void irq_overflow(struct interupt data)
-{
-	(void)data;
-	kern_panic("Over flow\n");
-}
-
-void irq_invalidetaskstatesegment(struct interupt data)
-{
-	(void)data;
-	kern_panic("Invalide task state segment\n");
-}
-
-void irq_segmentnotpresent(struct interupt data)
-{
-	(void)data;
-	kern_panic("Segment not present\n");
-}
-
-void irq_stackfault(struct interupt data)
-{
-	(void)data;
-	kern_panic("Stack fault\n");
-}
-
-void irq_generalprotection(struct interupt data)
-{
-	(void)data;
-	printk("eip %p\n", data.eip);
-	printk("gs %p\n", data.gs);
-	printk("fs %p\n", data.fs);
-	printk("es %p\n", data.es);
-	printk("ds %p\n", data.ds);
-	kern_panic("General protection fault %p\n", data.err_code);
-}
-
-void irq_mathfault(struct interupt data)
-{
-	(void)data;
-	kern_panic("Math fault\n");
-}
-
-void irq_machinecheck(struct interupt data)
-{
-	(void)data;
-	kern_panic("Machine check\n");
+	i = 0;
+	while (signal_info[i].name)
+	{
+		if (signal_info[i].number == data.int_no)
+		{
+			if (signal_info[i].signal >= 0 && data.cs != GDT_SEG_KCODE)
+			{
+				if (signal_info[i].signal == 0)
+					// zero if for ignore
+					return;
+				kern_panic("send a signial %d\n", signal_info[i].signal);
+				// signal switch
+				return;
+			}
+			if (signal_info[i].error)
+				kern_panic("%s %p\n", signal_info[i].name, data.err_code);
+			return;
+		}
+		i++;
+	}
 }
 
 void usless_function(struct interupt data)

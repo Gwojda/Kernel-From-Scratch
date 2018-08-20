@@ -15,6 +15,7 @@ inc/position.h \
 inc/printk.h \
 inc/prosses.h \
 inc/shell.h \
+inc/signal.h \
 inc/stream.h \
 inc/syscall.h \
 inc/tty.h \
