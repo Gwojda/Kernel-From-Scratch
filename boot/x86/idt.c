@@ -143,6 +143,8 @@ int pros_switch(struct interupt *data, struct prosses *old, struct prosses *new)
 		if (prosses_memory_switch(old, 0) != 0)
 			return 1;
 	}
+	if (&new->signal.sig_queue.list != new->signal.sig_queue.list.next)
+		send_signal(new);
 	if (new == NULL)
 		return 3;
 	pros_load(new, new_data);

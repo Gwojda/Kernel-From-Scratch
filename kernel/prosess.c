@@ -15,6 +15,8 @@ struct prosses *prosses_new()
 		return (NULL);
 	bzero(pros, sizeof(*pros));
 	INIT_LIST_HEAD(&pros->map_memory);
+	INIT_LIST_HEAD(&pros->signal.sig_queue.list);
+	bzero(pros->signal.sig_handler, sizeof(pros->signal.sig_handler));
 	return (pros);
 }
 
