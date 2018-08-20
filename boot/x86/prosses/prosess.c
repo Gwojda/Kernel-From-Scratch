@@ -110,12 +110,12 @@ struct prosses	*prosses_ini_kern(u32 *v_addr, void* function, size_t size)
 	pros->regs.eip = (u32)v_addr;
 	pros->regs.eflags = 0;
 
-	pros->regs.cs = GDT_SEG_UCODE;
-	pros->regs.ss = GDT_SEG_USTACK;
-	pros->regs.ds = GDT_SEG_UDATA;
-	pros->regs.es = GDT_SEG_UDATA;
-	pros->regs.fs = GDT_SEG_UDATA;
-	pros->regs.gs = GDT_SEG_UDATA;
+	pros->regs.cs = GDT_SEG_KCODE;
+	pros->regs.ss = GDT_SEG_KSTACK;
+	pros->regs.ds = GDT_SEG_KDATA;
+	pros->regs.es = GDT_SEG_KDATA;
+	pros->regs.fs = GDT_SEG_KDATA;
+	pros->regs.gs = GDT_SEG_KDATA;
 	//printk("   %p %p %p %p\n", &prosses, &prosses.next, &(prosses.next)->next, &((prosses.next)->next)->next);
 	list_add(&pros->plist, &prosses_list);
 	//printk("init ok %p %p %p %p\n", &prosses, &prosses.next, &(prosses.next)->next, &((prosses.next)->next)->next);

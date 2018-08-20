@@ -23,3 +23,8 @@ __attribute__ ((section(".ucode"))) int user3(void)
 		syscall(0);
 	}
 }
+
+__attribute__ ((section(".ucode"))) int user_shell(void)
+{
+	launchshell();
+}

@@ -33,4 +33,6 @@ struct prosses
 extern struct prosses *current;
 extern struct list_head prosses_list;
 
+int pros_switch(struct interupt *data, struct prosses *old, struct prosses *new);
+
 #endif

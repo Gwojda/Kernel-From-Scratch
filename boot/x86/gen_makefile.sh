@@ -12,4 +12,8 @@ for f in *.c;
 do
 	echo "boot/x86/$f \\" | rev | sed s/c/o/ | rev >> Makefile;
 done
+for f in **/*.c;
+do
+	echo "boot/x86/$f \\" | rev | sed s/c/o/ | rev >> Makefile;
+done
 echo "new Makefile generated";

@@ -32,6 +32,7 @@ void user1(void);
 void user1_2(void);
 void user2(void);
 void user3(void);
+void user_shell(void);
 
 void kmain (unsigned long volatile magic, unsigned long addr)
 {
@@ -56,10 +57,10 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	heap_setup();
 	init_idt();
 
-	/*struct prosses *p1 = prosses_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
-	prosses_memory_switch(p1, 0);
-	struct prosses *p2 = prosses_ini_kern(user1_2, (void*)user1 + 0xC0000000, 1 << 12);
-	prosses_memory_switch(p2, 0);*/
+	//struct prosses *p1 = prosses_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
+	//prosses_memory_switch(p1, 0);
+	struct prosses *p2 = prosses_ini_kern(user_shell, (void*)user_shell + 0xC0000000, 1 << 12);
+	prosses_memory_switch(p2, 0);
 
 	/*struct prosses *p2 = prosses_ini_kern(user2, (void*)user2 + 0xC0000000, 1 << 12);
 	prosses_memory_switch(p2, 0);
@@ -69,7 +70,6 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 
 	printk("init ok\n");
 	asm volatile("sti");
-	//while (1)
-	//	;
-	launchshell();
+	while (1)
+		;
 }
