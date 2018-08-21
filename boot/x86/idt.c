@@ -84,7 +84,7 @@ void irq_clock(struct interupt data)
 	struct prosses *old = current;
 
 	if (current == NULL)
-		current = &prosses_list;
+		current = (struct prosses *)&prosses_list;
 
 	current = list_entry(current->plist.next, struct prosses, plist);
 	if (&current->plist == &prosses_list)
@@ -151,7 +151,7 @@ void irq_general(struct interupt data)
 	i = 0;
 	while (signal_info[i].name)
 	{
-		if (signal_info[i].number == data.int_no)
+		if ((u32)signal_info[i].number == data.int_no)
 		{
 			if (signal_info[i].signal >= 0 && data.cs != GDT_SEG_KCODE)
 			{

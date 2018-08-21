@@ -59,7 +59,7 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 
 	//struct prosses *p1 = prosses_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
 	//prosses_memory_switch(p1, 0);
-	struct prosses *p2 = prosses_ini_kern(user_shell, (void*)user_shell + 0xC0000000, 1 << 12);
+	struct prosses *p2 = prosses_ini_kern((u32*)user_shell, (void*)user_shell + 0xC0000000, 1 << 12);
 	prosses_memory_switch(p2, 0);
 
 	/*struct prosses *p2 = prosses_ini_kern(user2, (void*)user2 + 0xC0000000, 1 << 12);

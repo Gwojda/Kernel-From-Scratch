@@ -4,6 +4,8 @@
 # include "typedef.h"
 # include "list.h"
 # include "signal.h"
+# include "idt.h"
+# include "virt_mem_management.h"
 
 typedef unsigned pid_t;
 typedef unsigned uid_t;
@@ -62,5 +64,7 @@ extern struct list_head prosses_list;
 int	add_signal(int sig, struct prosses *proc);
 void	send_signal(struct prosses *proc);
 int pros_switch(struct interupt *data, struct prosses *old, struct prosses *new);
+int prosses_memory_switch(struct prosses *pros, int add);
+struct prosses	*prosses_ini_kern(u32 *v_addr, void* function, size_t size);
 
 #endif

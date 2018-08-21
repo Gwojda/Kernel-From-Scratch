@@ -1,4 +1,7 @@
-__attribute__ ((section(".ucode"))) int user2(void)
+#include "syscall.h"
+#include "shell.h"
+
+__attribute__ ((section(".ucode"))) void user2(void)
 {
 	int i;
 
@@ -11,7 +14,7 @@ __attribute__ ((section(".ucode"))) int user2(void)
 	}
 }
 
-__attribute__ ((section(".ucode"))) int user3(void)
+__attribute__ ((section(".ucode"))) void user3(void)
 {
 	int i;
 
@@ -24,7 +27,7 @@ __attribute__ ((section(".ucode"))) int user3(void)
 	}
 }
 
-__attribute__ ((section(".ucode"))) int user_shell(void)
+__attribute__ ((section(".ucode"))) void user_shell(void)
 {
 	launchshell();
 }

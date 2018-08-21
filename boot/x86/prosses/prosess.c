@@ -96,7 +96,7 @@ struct prosses	*prosses_ini_kern(u32 *v_addr, void* function, size_t size)
 	prosses_memory_add_size(pros, v_addr, PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, 1, size);
 	memcpy((void*)((size_t)v_addr & PAGE_ADDR), (void*)((size_t)function & PAGE_ADDR), size + ((size_t)v_addr & PAGE_FLAG));
 
-	prosses_memory_add(pros, 0xC0000000 - (1 << 12), PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, 1);
+	prosses_memory_add(pros, (void *)0xC0000000 - (1 << 12), PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, 1);
 
 	pros->regs.eax = 0;
 	pros->regs.ecx = 0;

@@ -2,26 +2,31 @@
 
 static void	sig_term(struct prosses *proc)
 {
+	(void) proc;
 	//free proc
 }
 
 static void	sig_ign(struct prosses *proc)
 {
+	(void) proc;
 	return ;
 }
 
 static void	sig_core(struct prosses *proc)
 {
+	(void) proc;
 	//core dump
 }
 
 static void	sig_stop(struct prosses *proc)
 {
+	(void) proc;
 	proc->state = STOPPED;
 }
 
 static void	sig_cont(struct prosses *proc)
 {
+	(void) proc;
 	proc->state = RUN;
 }
 
@@ -81,7 +86,7 @@ int	add_signal(int sig, struct prosses *proc)
 {
 	struct sig_queue	*new_signal;
 
-	if (sig <= 0 || sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
+	if (sig <= 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
 		return -1;
 	new_signal = kmalloc(sizeof(struct sig_queue));
 	new_signal->sig_handled = sig;
