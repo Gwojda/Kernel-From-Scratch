@@ -73,9 +73,9 @@ void	send_signal(struct prosses *proc)
 
 	if (proc->signal.sig_queue.list.next == &proc->signal.sig_queue.list)
 		return ;
-	sig_send = list_first_entry(&proc->signal.sig_queue.list, struct sig_queue, sig_handled);
-	if (!sig_handler[sig_send->sig_handled])
-		proc->signal.sig_handler[sig_send->sig_handled](proc);
+	sig_send = list_first_entry(&proc->signal.sig_queue.list, struct sig_queue, list);
+	if (!proc->signal.sig_handler[sig_send->sig_handled])
+		sig_handler[sig_send->sig_handled](proc);
 //	else
 		// en cas de syscall signal, ici c'est la partie tricky
 		// repartir cote user en pushant sur la stack user de quoi revenir ici en kernel land
@@ -90,7 +90,7 @@ int	add_signal(int sig, struct prosses *proc)
 		return -1;
 	new_signal = kmalloc(sizeof(struct sig_queue));
 	new_signal->sig_handled = sig;
-	list_add(&proc->signal.sig_queue.list, &new_signal->list);
+	list_add(&new_signal->list, &proc->signal.sig_queue.list);
 	return 0;
 }
 
