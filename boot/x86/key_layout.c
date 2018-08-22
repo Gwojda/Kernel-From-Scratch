@@ -105,9 +105,8 @@ char	key_layout(unsigned int key)
 	if (SHIFT_RELEASED(key))
 		shift_locked = 0;
 	key &= 0x7F;
-	if (tmp == 29)
-		printk("C^");
-	printk("%d %d\n", tmp, key);
+	//if (tmp == 29)
+	//	printk("C^");
 	if (tmp == key)
 	{
 		if (shift_locked)
