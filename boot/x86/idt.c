@@ -110,7 +110,8 @@ void irq_keybord(struct interupt data)
 	(void)data;
 	if (inb(0x64) & 1)
 	{
-		get_key = inb(0x60);
+		set_layout("qwerty");
+		get_key = key_layout(inb(0x60));
 		stream_write(&keybord_stream, &get_key, 1);
 	}
 	outb(0x20, 0x20);

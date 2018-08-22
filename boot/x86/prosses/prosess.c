@@ -51,7 +51,8 @@ int		prosses_memory_add(struct prosses *pros, void *v_addr, unsigned flags, int 
 	pm->v_addr = v_addr;
 	if ((pm->p_addr = get_phys_block(1)) == NULL)
 		return 5;
-	// TODO bzero prosses memory
+	access_table_with_physical(page_swap, pm->p_addr);
+	bzero(page_swap, 1 << 12);
 	pm->flags = flags;
 	if (imediate)
 		if (page_map(pm->p_addr, v_addr, flags) == 0)
