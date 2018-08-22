@@ -10,6 +10,7 @@ boot/x86/user1.o \
 boot/x86/GDT.o \
 boot/x86/backtrace.o \
 boot/x86/idt.o \
+boot/x86/key_layout.o \
 boot/x86/page.o \
 boot/x86/user2.o \
 boot/x86/prosses/interupt_prosses.o \
