@@ -5,6 +5,7 @@ kernel/memory_init.o \
 kernel/minishell.o \
 kernel/panic.o \
 kernel/phys_mem_management.o \
+kernel/signal.o \
 kernel/stack_setup.o \
 kernel/cmd/mem_debug.o \
 kernel/cmd/reboot.o \
