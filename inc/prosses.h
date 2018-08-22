@@ -36,9 +36,16 @@ struct map_memory
 	unsigned flags;
 };
 
+struct children
+{
+	struct list_head	list;
+	struct prosses		*p;	//reference on process, you MUSTN'T free it here
+};
+
 struct prosses
 {
 	struct list_head plist;
+
 	enum
 	{
 		RUN,
@@ -47,14 +54,25 @@ struct prosses
 		THREAD
 	}     state;
 	pid_t pid;
+
 	uid_t uid;
+
+	struct prosses		*father;
+	struct list_head	children;
+
+	pid_t			waiting_pid;
+
+	int			end_value;
+
 	struct {
 		u32 eax, ecx, edx, ebx;
 		u32 esp, ebp, esi, edi;
 		u32 eip, eflags;
 		u32 cs:16, ss:16, ds:16, es:16, fs:16, gs:16;
 	} regs __attribute__ ((packed));
+
 	struct list_head map_memory;
+
 	struct signal signal;
 };
 
@@ -66,5 +84,6 @@ void	send_signal(struct prosses *proc);
 int pros_switch(struct interupt *data, struct prosses *old, struct prosses *new);
 int prosses_memory_switch(struct prosses *pros, int add);
 struct prosses	*prosses_ini_kern(u32 *v_addr, void* function, size_t size);
+int		prosses_memory_add(struct prosses *pros, void *v_addr, unsigned flags, int imediate);
 
 #endif

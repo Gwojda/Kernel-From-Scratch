@@ -27,13 +27,3 @@ halt:
 	hlt
 	ret
 
-clear_register:
-	cli
-	mov ax, 0
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	mov ss, ax
-;	mov cs, ax
-	ltr ax

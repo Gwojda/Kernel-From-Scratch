@@ -14,10 +14,189 @@ struct prosses *prosses_new()
 	if ((pros = kmalloc(sizeof(*pros))) == NULL)
 		return (NULL);
 	bzero(pros, sizeof(*pros));
+	INIT_LIST_HEAD(&pros->children);
 	INIT_LIST_HEAD(&pros->map_memory);
 	INIT_LIST_HEAD(&pros->signal.sig_queue.list);
 	bzero(pros->signal.sig_handler, sizeof(pros->signal.sig_handler));
 	return (pros);
+}
+
+void		prosses_die(struct prosses *pros)
+{
+	struct map_memory	*pm;
+	struct list_head	*l;
+	struct list_head	*n;
+
+	if (pros->father)
+	{
+		add_signal(SIGCHLD, pros->father);
+		pros->state = ZOMBIE;
+	}
+	list_for_each_safe(l, n, &pros->map_memory)
+	{
+		pm = list_entry(l, struct map_memory, plist);
+		if (page_unmap(pm->v_addr, pm->flags))
+		{
+			printk("failled to unmap memory in process with pid : %d\n", pros->pid);
+			return ;
+		}
+		//change here if we can have more than one page peer link in process
+		free_phys_block(pm->p_addr, 1);
+		list_del(l);
+	}
+	list_for_each_safe(l, n, &pros->signal.sig_queue.list)
+		list_del(l);
+	
+}
+
+void		free_prosses(struct prosses *pros)
+{
+	struct list_head	*l;
+	struct list_head	*n;
+
+	list_del(&pros->plist);
+	list_for_each_safe(l, n, &pros->children)
+		list_del(l);
+//		child is unattach and so has to be attach to process with pid 1
+}
+
+int		copy_prosses(struct prosses *pros, struct prosses *neww)
+{
+	struct list_head	*l;
+	struct map_memory	*new_pm;
+	struct map_memory	*pm;
+	struct children		*new_child;
+	struct sig_queue	*sig_queued;
+	char			*tmp;
+
+	neww->state = pros->state;
+//	GET NEW PID HERE
+	neww->pid = pros->pid;
+
+	neww->uid = pros->uid;
+	neww->father = pros;
+	INIT_LIST_HEAD(&neww->children);
+	new_child = (struct children *)kmalloc(sizeof(*new_child));
+	new_child->p = neww;
+	list_add(&new_child->list, &pros->children);
+	neww->regs = pros->regs;
+	if ((tmp = vmalloc(4096)) == NULL)
+		return -1;
+	list_for_each(l, &pros->map_memory)
+	{
+		pm = list_entry(l, struct map_memory, plist);
+		if ((new_pm = kmalloc(sizeof(*pm))) == NULL)
+			return -1;
+		new_pm->v_addr = pm->v_addr;
+		new_pm->flags = pm->flags;
+//		size is always 4096 in every link, for now
+		memcpy(tmp, pm->v_addr, 4096);
+		if (prosses_memory_switch(pros, 0))
+			return -2;
+		prosses_memory_add(neww, new_pm->v_addr, PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, 0);
+		if (page_map(new_pm->p_addr, new_pm->v_addr, new_pm->flags) == 0)
+			return 1;
+//		size is always 4096 in every link, for now
+		memcpy(new_pm->v_addr, tmp, 4096);
+		page_unmap(new_pm->v_addr, new_pm->flags);
+		if (prosses_memory_switch(pros, 1))
+			return -2;
+		list_add(&new_pm->plist, &neww->map_memory);
+	}
+	list_for_each_entry(sig_queued, &pros->signal.sig_queue.list, list)
+		add_signal(sig_queued->sig_handled, neww);
+	vfree(tmp);
+	return 0;
+}
+
+struct prosses	*prosses_dup(struct prosses *pros)
+{
+	struct prosses *neww = prosses_new();
+
+	copy_prosses(pros, neww);
+	return neww;
+}
+
+//		this function is NOT working, we need more stuff for thread to make it work
+
+int		create_thread(struct prosses *pros, struct prosses *neww)
+{
+	struct list_head	*l;
+	struct map_memory	*new_pm;
+	struct map_memory	*pm;
+
+	neww->state = pros->state;
+	neww->pid = pros->pid;
+	neww->uid = pros->uid;
+//	neww->father = pros->father;
+//	neww->children 
+	neww->regs = pros->regs;
+
+//	thread need a new stack, actualy he share with here father his stack
+	list_for_each(l, &pros->map_memory)
+	{
+		pm = list_entry(l, struct map_memory, plist);
+		if ((new_pm = kmalloc(sizeof(*pm))) == NULL)
+			return -1;
+		new_pm->v_addr = pm->v_addr;
+		new_pm->p_addr = pm->p_addr;
+		new_pm->flags = pm->flags;
+		list_add(&new_pm->plist, &neww->map_memory);
+	}
+
+// should i copy the signal for the child ? I think it's bad idea, need to think about it with Nico
+	return 0;
+}
+
+static int	end_of_child(struct prosses *child, struct prosses *father)
+{
+	int	ret = child->end_value;
+	free_prosses(child);
+	father->state = RUN;
+	return ret;
+}
+
+int		child_ended(struct prosses *pros)
+{
+	struct prosses	*p;
+
+	list_for_each_entry(p, &pros->children, children)
+	{
+		if (p->pid == pros->waiting_pid)
+			return end_of_child(p, pros);
+	}
+	return -1;
+}
+
+int		process_wait(struct prosses *pros, pid_t waiting_on_pid)
+{
+	struct prosses	*p;
+
+	list_for_each_entry(p, &pros->children, children)
+	{
+		if (p->pid == waiting_on_pid)
+			goto start_waiting;
+	}
+	goto err;
+
+start_waiting:
+	if (p->state == ZOMBIE)
+		return end_of_child(p, pros);
+	else
+	{
+		pros->state = STOPPED;
+		pros->signal.sig_handler[SIGCHLD] = child_ended;
+		pros->waiting_pid = waiting_on_pid;
+	}
+	return (0);
+	
+err:
+	return (-1);
+}
+
+int		getuid(struct prosses *pros)
+{
+	return pros->uid;
 }
 
 int		prosses_memory_switch(struct prosses *pros, int add)

@@ -32,6 +32,7 @@ unsigned char	mm_virt_heap[HEAP_SIZE / 8];
 void *vmalloc(size_t size);
 void *kmalloc(size_t size);
 void kfree(const void *ptr);
+void vfree(const void *ptr);
 void heap_setup(void);
 
 #endif

@@ -39,15 +39,6 @@
 #define SIGPWR    30      /* Power failure restart (System V).  */
 #define SIGSYS    31      /* Bad system call.  */
 
-#define SIG_DFL		0	/* default signal handling */
-#define SIG_IGN		1	/* ignore signal */
-
-#define SIG_HANDLED(mask, sig)	mask |= ((u32) 1 << (sig - 1))
-#define SIG_FINISHED(mask, sig)	mask &= ~((u32) 1 << (sig - 1))
-#define IS_SIG(mask, sig)	(mask & ((u32) 1 << (sig - 1)))
-
-#define SIG_AVAILABLE(mask, sig)	((mask) & ((u32) 1 << (sig - 1)))
-
 #define DEFAULT_PROCMASK	0x00000000
 #define SIGHUP_PROCMASK		(1 << SIGHUP)
 #define SIGINT_PROCMASK		(1 << SIGINT)
@@ -83,5 +74,7 @@
 #define SIGIO_PROCMASK		(1 << SIGIO)
 #define SIGPWR_PROCMASK		(1 << SIGPWR)
 #define SIGSYS_PROCMASK		(1 << SIGSYS)
+
+#define SIG_AVAILABLE(mask, sig)	((mask) & ((u32) 1 << (sig - 1)))
 
 #endif
