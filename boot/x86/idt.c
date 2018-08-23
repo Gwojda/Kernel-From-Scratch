@@ -1,4 +1,5 @@
 #include "idt.h"
+#include "tty.h"
 #include "printk.h"
 #include "panic.h"
 #include "page.h"
@@ -101,8 +102,6 @@ void irq_clock(struct interupt data)
 	outb(0x20, 0x20);
 }
 
-struct stream keybord_stream;
-
 void irq_keybord(struct interupt data)
 {
 	char get_key;
@@ -112,7 +111,7 @@ void irq_keybord(struct interupt data)
 	{
 		set_layout("qwerty");
 		get_key = key_layout(inb(0x60));
-		stream_write(&keybord_stream, &get_key, 1);
+		tty_input_char(current_tty, get_key);
 	}
 	outb(0x20, 0x20);
 }

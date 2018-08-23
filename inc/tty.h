@@ -2,6 +2,7 @@
 # define TTY_H
 
 #include "vga.h"
+#include "stream.h"
 
 #define MAX_TTY 10
 
@@ -11,6 +12,9 @@ typedef struct	s_tty
 	size_t		tty_column;
 	uint8_t		tty_color;
 	uint16_t	screen[VGA_WIDTH * VGA_HEIGHT];
+	char		input_raw[STREAM_BUFF];
+	int		input_raw_c;
+	struct stream	input;
 }				t_tty;
 
 extern struct s_tty	*current_tty;
@@ -31,5 +35,6 @@ void	tty_render_vga(struct s_tty *term);
 
 void	print_initialize_status(char *init, char state);
 
+void	tty_input_char(struct s_tty *term, char key);
 
 #endif

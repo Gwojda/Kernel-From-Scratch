@@ -11,6 +11,7 @@ long stream_read(struct stream *s, char *data, size_t size)
 {
 	size_t readed = 0;
 
+
 	while (readed < size && s->pos != s->end)
 	{
 		*data = s->buff[s->pos];
