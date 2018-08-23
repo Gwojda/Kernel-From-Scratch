@@ -1,6 +1,7 @@
 #include "shell.h"
 #include "printk.h"
 #include "lib.h"
+#include "tty.h"
 
 size_t	cmd_ind = 0;
 char cmd[SIZE_MAX_CMD];
@@ -12,7 +13,7 @@ static void	remove_last_char(void)
 	if (cmd_ind)
 	{
 		--cmd_ind;
-		vga_putchar('\b');
+		tty_putchar(current_tty, '\b');
 	}
 }
 
@@ -24,7 +25,7 @@ static void	pushback_char(char c)
 		remove_last_char();
 	else
 	{
-		vga_putchar(c);
+		tty_putchar(current_tty, c);
 		cmd[cmd_ind] = c;
 		++cmd_ind;
 		cmd[cmd_ind] = '\0';

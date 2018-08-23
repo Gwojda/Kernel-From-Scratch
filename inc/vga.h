@@ -36,18 +36,10 @@ volatile uint16_t*	vga_buffer;
 */
 
 void		init_vga(void);
-void		vga_putchar(char c);
-void		vga_putstr(const char* data);
-void		vga_write(const char* data, size_t size);
-void		vga_putentryat(char c, uint8_t color, size_t x, size_t y);
-void		vga_setcolor(uint8_t color);
-void		vga_render_tty(void);
 
 void		vga_move_cursor(size_t x, size_t y);
 
 uint16_t	vga_entry(unsigned char uc, uint8_t color);
 uint8_t		vga_entry_color(enum vga_color fg, enum vga_color bg);
-
-void	print_initialize_status(char *init, char state);
 
 #endif

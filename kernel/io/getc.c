@@ -1,6 +1,7 @@
 #include "vga.h"
 #include "io.h"
 
+#include "tty.h"
 char	getc(void)
 {
 	unsigned int cr;

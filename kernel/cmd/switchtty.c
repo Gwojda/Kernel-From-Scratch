@@ -13,5 +13,5 @@ void switchtty_cmd(void)
 	nb = atoi((char *)cmd + default_cmd_size - 1);
 	if (nb < 0 || nb >= MAX_TTY)
 		return ;
-	switch_tty(nb);
+	switch_tty(&tty[nb]);
 }

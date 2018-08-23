@@ -2,8 +2,8 @@
 
 static void	print_kernel_visu(void)
 {
-	vga_setcolor(vga_entry_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK + current_tty));
-	vga_putstr("\n"
+	tty_setcolor(&tty[0], vga_entry_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
+	tty_putstr(&tty[0], "\n"
 			"                             ___---___\n"
 			"                          .--         --.\n"
 			"                        ./   ()      .-. \\.\n"
@@ -21,7 +21,7 @@ static void	print_kernel_visu(void)
 			"                         Moonlight Kernel\n"
 			"################################################################################\n"
 		  );
-	vga_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK + current_tty));
+	tty_setcolor(&tty[0], vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
 
 }
 

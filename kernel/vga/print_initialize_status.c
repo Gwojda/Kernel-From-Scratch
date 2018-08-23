@@ -12,14 +12,14 @@ void	print_initialize_status(char *init, char state)
 	printk("[ ");
 	if (state == TRUE)
 	{
-		vga_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK + current_tty));
+		tty_setcolor(&tty[0], vga_entry_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
 		printk("DONE");
 	}
 	else
 	{
-		vga_setcolor(vga_entry_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK + current_tty));
+		tty_setcolor(&tty[0], vga_entry_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
 		printk("FAIL");
 	}
-	vga_setcolor(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK + current_tty));
+	tty_setcolor(&tty[0], vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
 	printk(" ]\n");
 }

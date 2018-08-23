@@ -5,11 +5,8 @@ kernel/memory_init.o \
 kernel/minishell.o \
 kernel/panic.o \
 kernel/phys_mem_management.o \
-<<<<<<< HEAD
-kernel/prosess.o \
+kernel/printk.o \
 kernel/signal.o \
-=======
->>>>>>> 97349e4e4cbdc7f419899e81d447d46e2957dd4d
 kernel/stack_setup.o \
 kernel/cmd/mem_debug.o \
 kernel/cmd/reboot.o \

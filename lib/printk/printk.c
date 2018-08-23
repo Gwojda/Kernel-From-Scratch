@@ -12,7 +12,7 @@
 
 #include "printk.h"
 
-size_t write_str(struct printk_writer *writer, char *str)
+/*size_t write_str(struct printk_writer *writer, char *str)
 {
 	size_t i;
 
@@ -25,14 +25,14 @@ size_t write_str(struct printk_writer *writer, char *str)
 size_t write_char(struct printk_writer *writer, int c)
 {
 	(void)writer;
-	vga_putchar(c);
+	vga_putchar_1(c);
 	return 1;
 }
 
 static struct printk_writer writer = {
 	.write_str = write_str,
 	.write_char = write_char
-};
+};*/
 
 static int printk_display(struct printk_writer *writer, const char **fmt, va_list *ap)
 {
@@ -52,7 +52,7 @@ static int printk_display(struct printk_writer *writer, const char **fmt, va_lis
 	return 0;
 }
 
-size_t vprintk(const char *fmt, va_list *ap)
+size_t wvprintk(struct printk_writer *writer, const char *fmt, va_list *ap)
 {
 	size_t	ret = 0;
 	int		tmp;
@@ -62,30 +62,30 @@ size_t vprintk(const char *fmt, va_list *ap)
 		if (*fmt == '%')
 		{
 			fmt++;
-			if ((tmp = printk_display(&writer, &fmt, ap)) < 0)
+			if ((tmp = printk_display(writer, &fmt, ap)) < 0)
 			{
-				writer.write_str(&writer, "BAD PRINTK FORMAT !");
+				writer->write_str(writer, "BAD PRINTK FORMAT !");
 				return (-1);
 			}
 			ret += tmp;
 		}
 		else
 		{
-			writer.write_char(&writer, *fmt);
+			writer->write_char(writer, *fmt);
 			fmt++;
 		}
 	}
 	return ret;
 }
 
-size_t printk(const char *fmt, ...)
+size_t wprintk(struct printk_writer *writer, const char *fmt, ...)
 {
 	va_list ap;
 	size_t ret;
 
 	va_start(ap, fmt);
 
-	ret = vprintk(fmt, &ap);
+	ret = wvprintk(writer, fmt, &ap);
 
 	va_end(ap);
 	return ret;

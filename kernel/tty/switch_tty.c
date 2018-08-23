@@ -1,9 +1,9 @@
 #include "tty.h"
 #include "vga.h"
 
-void	switch_tty(size_t new_tty)
+void	switch_tty(struct s_tty *new_tty)
 {
 	current_tty = new_tty;
-	vga_render_tty();
-	vga_move_cursor(tty[current_tty].tty_column, tty[current_tty].tty_row);
+	tty_render_vga(current_tty);
+	vga_move_cursor(current_tty->tty_column, current_tty->tty_row);
 }

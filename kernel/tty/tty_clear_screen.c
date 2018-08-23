@@ -1,18 +1,18 @@
 #include "tty.h"
 #include "vga.h"
 
-void	tty_clear_screen(size_t ind)
+void	tty_clear_screen(struct s_tty *term)
 {
 	for (size_t y = 0; y < VGA_HEIGHT; ++y)
 	{
 		for (size_t x = 0; x < VGA_WIDTH; ++x)
-			tty[ind].screen[(y * VGA_WIDTH) + x] = vga_entry(' ', tty[ind].tty_color);
+			term->screen[(y * VGA_WIDTH) + x] = vga_entry(' ', term->tty_color);
 	}
-	tty[ind].tty_row = 0;
-	tty[ind].tty_column = 0;
-	if (current_tty == ind)
+	term->tty_row = 0;
+	term->tty_column = 0;
+	if (current_tty == term)
 	{
-		vga_render_tty();
+		tty_render_vga(term);
 		vga_move_cursor(0, 0);
 	}
 }
