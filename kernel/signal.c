@@ -1,30 +1,70 @@
 #include "prosses.h"
 
-static void	sig_term(struct prosses *proc)
+const struct {
+	u32	signal;
+	u32	mask;
+} blocked_sig[] = {
+	{SIGHUP		, SIGHUP_PROCMASK	},
+	{SIGINT		, SIGINT_PROCMASK	},
+	{SIGQUIT	, SIGQUIT_PROCMASK	},
+	{SIGILL		, SIGILL_PROCMASK	},
+	{SIGTRAP	, SIGTRAP_PROCMASK	},
+	{SIGABRT	, SIGABRT_PROCMASK	},
+	{SIGIOT		, SIGIOT_PROCMASK	},
+	{SIGBUS		, SIGBUS_PROCMASK	},
+	{SIGFPE		, SIGFPE_PROCMASK	},
+	{SIGKILL	, SIGKILL_PROCMASK	},
+	{SIGUSR1	, SIGUSR1_PROCMASK	},
+	{SIGSEGV	, SIGSEGV_PROCMASK	},
+	{SIGUSR2	, SIGHUP_PROCMASK	},
+	{SIGPIPE	, SIGPIPE_PROCMASK	},
+	{SIGALRM	, SIGALRM_PROCMASK	},
+	{SIGTERM	, SIGTERM_PROCMASK	},
+	{SIGSTKFLT	, SIGSTKFLT_PROCMASK	},
+	{SIGCHLD	, SIGCHLD_PROCMASK	},
+	{SIGCLD		, SIGCLD_PROCMASK	},
+	{SIGCONT	, SIGCONT_PROCMASK	},
+	{SIGSTOP	, SIGSTOP_PROCMASK	},
+	{SIGTSTP	, SIGTSTP_PROCMASK	},
+	{SIGTTIN	, SIGTTIN_PROCMASK	},
+	{SIGTTOU	, SIGTTOU_PROCMASK	},
+	{SIGURG		, SIGURG_PROCMASK	},
+	{SIGXCPU	, SIGXCPU_PROCMASK	},
+	{SIGXFSZ	, SIGXFSZ_PROCMASK	},
+	{SIGVTALRM	, SIGVTALRM_PROCMASK	},
+	{SIGPROF	, SIGPROF_PROCMASK	},
+	{SIGWINCH	, SIGWINCH_PROCMASK	},
+	{SIGPOLL	, SIGPOLL_PROCMASK	},
+	{SIGIO		, SIGIO_PROCMASK	},
+	{SIGPWR		, SIGPWR_PROCMASK	},
+	{SIGSYS		, SIGSYS_PROCMASK	}
+};
+
+static int	sig_term(struct prosses *proc)
 {
 	(void) proc;
 	//free proc
 }
 
-static void	sig_ign(struct prosses *proc)
+static int	sig_ign(struct prosses *proc)
 {
 	(void) proc;
 	return ;
 }
 
-static void	sig_core(struct prosses *proc)
+static int	sig_core(struct prosses *proc)
 {
 	(void) proc;
 	//core dump
 }
 
-static void	sig_stop(struct prosses *proc)
+static int	sig_stop(struct prosses *proc)
 {
 	(void) proc;
 	proc->state = STOPPED;
 }
 
-static void	sig_cont(struct prosses *proc)
+static int	sig_cont(struct prosses *proc)
 {
 	(void) proc;
 	proc->state = RUN;
@@ -76,9 +116,19 @@ void	send_signal(struct prosses *proc)
 	sig_send = list_first_entry(&proc->signal.sig_queue.list, struct sig_queue, list);
 	if (!proc->signal.sig_handler[sig_send->sig_handled])
 		sig_handler[sig_send->sig_handled](proc);
+	if (proc->signal.sig_handler[sig_send->sig_handled] > KERNEL_POS)
+		proc->signal.sig_handler[sig_send->sig_handled](proc);
 //	else
 		// en cas de syscall signal, ici c'est la partie tricky
 		// repartir cote user en pushant sur la stack user de quoi revenir ici en kernel land
+	for (size_t i = 0;i < sizeof(blocked_sig) / sizeof(*blocked_sig);++i)
+	{
+		if (blocked_sig[i].signal == sig_send->sig_handled)
+		{
+			proc->signal.sig_avalaible &= ~(blocked_sig[i].mask);
+			break ;
+		}
+	}
 	list_del(&sig_send->list);
 }
 
@@ -86,11 +136,20 @@ int	add_signal(int sig, struct prosses *proc)
 {
 	struct sig_queue	*new_signal;
 
+	if (!SIG_AVAILABLE(proc->signal.sig_avalaible, sig))
+		return 0;
 	if (sig <= 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
 		return -1;
 	new_signal = kmalloc(sizeof(struct sig_queue));
 	new_signal->sig_handled = sig;
 	list_add(&new_signal->list, &proc->signal.sig_queue.list);
+	for (size_t i = 0;i < sizeof(blocked_sig) / sizeof(*blocked_sig);++i)
+	{
+		if (blocked_sig[i].signal == sig)
+		{
+			proc->signal.sig_avalaible |= blocked_sig[i].mask;
+			break ;
+		}
+	}
 	return 0;
 }
-

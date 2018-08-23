@@ -145,7 +145,7 @@ int page_map(void *phy_addr, void *virt_addr, unsigned int flag)
 	return 1;
 }
 
-static int page_map_range(void *phy_addr, void *virt_addr, unsigned flags, size_t size)
+int page_map_range(void *phy_addr, void *virt_addr, unsigned flags, size_t size)
 {
 	size_t i;
 

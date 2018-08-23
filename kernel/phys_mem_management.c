@@ -12,6 +12,11 @@ static void	alloc_phys_block(void *start_phys_addr, size_t size)
 
 void	free_phys_block(void *start_phys_addr, size_t size)
 {
+	if (ACCESS_BITMAP_BY_ADDR(start_phys_addr) >= MAX_RAM_PAGE / 8)
+	{
+		printk("try to phys unvalaible physical block\n");
+		return ;
+	}
 	while (size)
 	{
 		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] |= 1 << (((size_t)start_phys_addr >> 12) % 8);
