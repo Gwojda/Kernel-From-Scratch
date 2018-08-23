@@ -40,31 +40,31 @@ const struct {
 	{SIGSYS		, SIGSYS_PROCMASK	}
 };
 
-static void	sig_term(struct prosses *proc)
+static int	sig_term(struct prosses *proc)
 {
 	(void) proc;
 	//free proc
 }
 
-static void	sig_ign(struct prosses *proc)
+static int	sig_ign(struct prosses *proc)
 {
 	(void) proc;
 	return ;
 }
 
-static void	sig_core(struct prosses *proc)
+static int	sig_core(struct prosses *proc)
 {
 	(void) proc;
 	//core dump
 }
 
-static void	sig_stop(struct prosses *proc)
+static int	sig_stop(struct prosses *proc)
 {
 	(void) proc;
 	proc->state = STOPPED;
 }
 
-static void	sig_cont(struct prosses *proc)
+static int	sig_cont(struct prosses *proc)
 {
 	(void) proc;
 	proc->state = RUN;
