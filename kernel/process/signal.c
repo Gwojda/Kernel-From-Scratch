@@ -42,8 +42,7 @@ const struct {
 
 static int	sig_term(struct process *proc)
 {
-	(void) proc;
-	//free proc
+	process_die(proc);
 	return 0;
 }
 
@@ -55,8 +54,8 @@ static int	sig_ign(struct process *proc)
 
 static int	sig_core(struct process *proc)
 {
-	(void) proc;
 	//core dump
+	process_die(proc);
 	return 0;
 }
 
@@ -120,7 +119,7 @@ void	send_signal(struct process *proc)
 	sig_send = list_first_entry(&proc->signal.sig_queue.list, struct sig_queue, list);
 	if (!proc->signal.sig_handler[sig_send->sig_handled])
 		sig_handler[sig_send->sig_handled](proc);
-	if (proc->signal.sig_handler[sig_send->sig_handled] > KERNEL_POS)
+	if ((void *)proc->signal.sig_handler[sig_send->sig_handled] > KERNEL_POS)
 		proc->signal.sig_handler[sig_send->sig_handled](proc);
 //	else
 		// en cas de syscall signal, ici c'est la partie tricky
@@ -149,7 +148,7 @@ int	add_signal(int sig, struct process *proc)
 	list_add(&new_signal->list, &proc->signal.sig_queue.list);
 	for (size_t i = 0;i < sizeof(blocked_sig) / sizeof(*blocked_sig);++i)
 	{
-		if (blocked_sig[i].signal == sig)
+		if (blocked_sig[i].signal == (u32)sig)
 		{
 			proc->signal.sig_avalaible |= blocked_sig[i].mask;
 			break ;

@@ -5,7 +5,7 @@
 # include <stddef.h>
 # include <stdint.h>
 
-#define PI 3.141592
+# define PI 3.141592
 
 int		isalnum(int c);
 int		isalpha(int c);

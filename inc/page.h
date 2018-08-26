@@ -53,6 +53,13 @@ int page_info_data_display(struct page_info_data *ret);
 int page_info_display(void *virt_addr);
 void page_info_display_tab(void);
 
+void page_entry_remove(uint32_t *table, unsigned int index);
+void page_entry_set_range(uint32_t *table, unsigned int from, unsigned int to, unsigned flag);
+void page_entry_set(uint32_t *table, unsigned int index, void *ptr, unsigned int flag);
+void page_entry_clear(uint32_t *table);
+
+void page_directory_reset(void);
+
 void *page_get_phys(void *virt_addr);
 int page_is_present(void *virt_addr);
 
@@ -64,5 +71,6 @@ void	*page_directory_get(void);
 void	page_directory_set(void *);
 
 void	stack_setup(void);
+uint32_t *access_table_with_physical(void *empty_static_page, void *physical);
 
 #endif

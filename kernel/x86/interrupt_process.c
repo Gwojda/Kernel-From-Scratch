@@ -58,7 +58,7 @@ void proc_load(struct process* proc, struct interupt *data)
 
 int proc_switch(struct interupt *data, struct process *old, struct process *new)
 {
-	//TODO bad idee becose we can corrupt the stack with user esp and user ss
+	//TODO bad idee because we can corrupt the stack with user esp and user ss
 	//struct interupt *new_data;
 
 	if (old != NULL)
