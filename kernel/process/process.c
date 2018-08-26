@@ -320,9 +320,6 @@ int		process_memory_switch(struct process *proc, int add)
 	return 0;
 }
 
-// -------------------------------------------------------------------------------------
-// changement on proc has to be done here
-
 int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigned mflags, unsigned pflags)
 {
 	struct map_memory *pm;
@@ -381,7 +378,7 @@ err:
 	kfree(pm);
 
 end:
-	printk(" virt addr %p, phys addr = %p, size = %d\n", pm->v_addr, pm->p_addr, pm->size * 4096);
+//	printk(" virt addr %p, phys addr = %p, size = %d\n", pm->v_addr, pm->p_addr, pm->size * 4096);
 	return ret;
 
 }

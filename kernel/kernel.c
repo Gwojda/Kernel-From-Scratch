@@ -52,15 +52,13 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	__asm__ volatile ("movl %%esp, %[r]" :  [r] "=r" (esp));
 	esp = STACK_END - 1 - ((void*)&stack_top - esp);
 	__asm__ volatile ("movl %[r], %%esp" : : [r] "r" (esp));
-	print_initialize_status("Memory setup", TRUE);
-
 	heap_setup();
+	print_initialize_status("Memory setup", TRUE);
 	init_idt();
 
 	//struct process *p1 = process_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
 	//process_memory_switch(p1, 0);
 	struct process *p2 = process_ini_kern((u32*)user_shell, (void*)user_shell + 0xC0000000, 1 << 12);
-	printk("created proc = %p\n", p2);
 	add_signal(SIGKILL, p2);
 	process_memory_switch(p2, 0);
 
@@ -70,7 +68,6 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	struct process *p3 = process_ini_kern(user3, (void*)user3 + 0xC0000000, 1 << 12);
 	process_memory_switch(p3, 0);*/
 
-	printk("init ok\n");
 	asm volatile("sti");
 	while (1)
 		;

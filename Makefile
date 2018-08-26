@@ -1,6 +1,6 @@
 ARCH =		x86
-KERNEL =	KKERNEL
-ISO =		kkernel.iso
+KERNEL =	kernel
+ISO =		kernel.iso
 
 ## Compilers
 CC =		gcc
