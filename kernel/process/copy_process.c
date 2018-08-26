@@ -20,7 +20,7 @@ static int	process_copy_mem_block(struct process *proc, struct process *neww,
 		return -1;
 	}
 	process_memory_add(neww, new_pm->size, new_pm->v_addr, PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, pflags);
-	if (page_map(new_pm->p_addr, new_pm->v_addr, new_pm->flags) == 0)
+	if (page_map(new_pm->p_addr, new_pm->v_addr, new_pm->flags))
 	{
 		free_phys_block(new_pm->p_addr, new_pm->size);
 		vfree(tmp);

@@ -8,6 +8,7 @@ struct list_head process_list = LIST_HEAD_INIT(process_list);
 
 int		process_memory_switch(struct process *proc, int add)
 {
+	int err = 0;
 	struct map_memory *pm;
 	struct list_head *l;
 	unsigned flags;
@@ -18,8 +19,8 @@ int		process_memory_switch(struct process *proc, int add)
 		flags = pm->flags;
 		if (add == 0)
 			flags &= ~PAGE_PRESENT;
-		if (page_map_range(pm->p_addr, pm->v_addr, flags, pm->size) == 0)
-			return 1;
+		if ((err = page_map_range(pm->p_addr, pm->v_addr, flags, pm->size)))
+			return err;
 	}
 	list_for_each(l, &proc->mm_stack)
 	{
@@ -27,14 +28,14 @@ int		process_memory_switch(struct process *proc, int add)
 		flags = pm->flags;
 		if (add == 0)
 			flags &= ~PAGE_PRESENT;
-		if (page_map_range(pm->p_addr, pm->v_addr, flags, pm->size) == 0)
-			return 1;
+		if ((err = page_map_range(pm->p_addr, pm->v_addr, flags, pm->size)))
+			return err;
 	}
 	flags = proc->mm_code.flags;
 	if (add == 0)
 		flags &= ~PAGE_PRESENT;
-	if (page_map_range(proc->mm_code.p_addr, proc->mm_code.v_addr, flags, proc->mm_code.size) == 0)
-		return 1;
+	if ((err = page_map_range(proc->mm_code.p_addr, proc->mm_code.v_addr, flags, proc->mm_code.size)))
+		return err;
 	return 0;
 }
 
@@ -65,7 +66,7 @@ int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigne
 	pm->size = size;
 	if (pflags & PROC_MEM_ADD_IMEDIATE)
 	{
-		if (page_map_range(pm->p_addr, v_addr, mflags, size) == 0)
+		if (page_map_range(pm->p_addr, v_addr, mflags, size))
 		{
 			ret = -4;
 			goto err2;
@@ -107,9 +108,13 @@ struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
 	if ((proc = process_new()) == NULL)
 		return NULL;
 
-	process_memory_add(proc, size, v_addr, PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, PROC_MEM_ADD_IMEDIATE | PROC_MEM_ADD_CODE);
+	if (process_memory_add(proc, size, v_addr, PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, PROC_MEM_ADD_IMEDIATE | PROC_MEM_ADD_CODE))
+		// TODO free
+		return NULL;
 	memcpy((void*)((size_t)v_addr & PAGE_ADDR), (void*)((size_t)function & PAGE_ADDR), size + ((size_t)v_addr & PAGE_FLAG));
-	process_memory_add(proc, 1, (void *)0xC0000000 - (1 << 12), PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, PROC_MEM_ADD_IMEDIATE | PROC_MEM_ADD_STACK);
+	if (process_memory_add(proc, 1, (void *)0xC0000000 - (1 << 12), PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, PROC_MEM_ADD_IMEDIATE | PROC_MEM_ADD_STACK))
+		// TODO free
+		return NULL;
 
 	proc->regs.eax = 0;
 	proc->regs.ecx = 0;
@@ -131,8 +136,6 @@ struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
 	proc->regs.es = GDT_SEG_KDATA;
 	proc->regs.fs = GDT_SEG_KDATA;
 	proc->regs.gs = GDT_SEG_KDATA;
-	//printk("   %p %p %p %p\n", &process, &process.next, &(process.next)->next, &((process.next)->next)->next);
 	list_add(&proc->plist, &process_list);
-	//printk("init ok %p %p %p %p\n", &process, &process.next, &(process.next)->next, &((process.next)->next)->next);
 	return proc;
 }
