@@ -34,9 +34,9 @@
 # define PIC_OCW1_MASK_6	0b01000000
 # define PIC_OCW1_MASK_7	0b10000000
 
-# define PIC_OCW2_NORMAL_EOI	0x00100000
+# define PIC_OCW2_NORMAL_EOI	0b00100000
 
-# define PIC_OCW3_REQUEST1	0x00001000
+# define PIC_OCW3_REQUEST1	0b00001000
 
 # define PIC_INT_BASE		32
 
@@ -53,7 +53,7 @@
 # define PIC_INT_SLAVE_IDE	15
 
 void	pic_initialize(void);
-void	pic_end_of_interupt(int is_on_slave);
+void	pic_end_of_interupt(u8 is_on_slave);
 void	pic_interupt_mask(u16 mask);
 
 #endif
