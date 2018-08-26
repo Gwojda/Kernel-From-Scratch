@@ -54,26 +54,34 @@ void init_idt_desc(u16 select, void (*offset)(), u16 type, struct idtdesc *desc)
 
 static void initialize_pic()
 {
+	/*
+	 * master pic commande: 0x20
+	 * master pic data: 0x21
+	 * Slave pic commande 0xA0
+	 * Slave pic data 0xA1
+	 */
+
 	/* ICW1 - begin initialization */
-	outb(0x20, 0x11);
-	outb(0xA0, 0x11);
+//	outb(0x20, 0x11);
+//	outb(0xA0, 0x11);
 
 	/* ICW2 - remap offset address of idt_table */
 	/*
 	 * In x86 protected mode, we have to remap the PICs beyond 0x20 because
 	 * Intel have designated the first 32 interrupts as "reserved" for cpu exceptions
 	 */
-	outb(0x21, 0x20);
-	outb(0xA1, 0x28);
+//	outb(0x21, 0x20);
+//	outb(0xA1, 0x28);
 
 	/* ICW3 - setup cascading */
-	outb(0x21, 0x00);
-	outb(0xA1, 0x00);
+//	outb(0x21, 0x00);
+//	outb(0xA1, 0x00);
 
 	/* ICW4 - environment info */
-	outb(0x21, 0x01);
-	outb(0xA1, 0x01);
+//	outb(0x21, 0x01);
+//	outb(0xA1, 0x01);
 	/* Initialization finished */
+	pic_initialize();
 
 	/* mask interrupts */
 	outb(0x21 , 0xff);
@@ -99,7 +107,7 @@ void irq_clock(struct interupt data)
 	if ((i = proc_switch(&data, old, current)) != 0)
 		kern_panic("Fail to switch process %d\n", i);
 
-	outb(0x20, 0x20);
+	pic_end_of_interupt(data.int_no);
 }
 
 void irq_keybord(struct interupt data)
@@ -113,7 +121,7 @@ void irq_keybord(struct interupt data)
 		get_key = key_layout(inb(0x60));
 		tty_input_char(current_tty, get_key);
 	}
-	outb(0x20, 0x20);
+	pic_end_of_interupt(data.int_no);
 }
 
 void irq_pagefault(struct interupt data)
