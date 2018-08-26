@@ -6,6 +6,9 @@
 # define PROC_MEM_ADD_STACK	0b00000100
 # define PROC_MEM_ADD_CODE	0b00001000
 
+# define PROC_MIN_PID		0x1
+# define PROC_MAX_PID		0xfff
+
 # include "typedef.h"
 # include "list.h"
 # include "signal.h"
@@ -106,6 +109,7 @@ void	process_die(struct process *proc);
 
 int				copy_process(struct process *proc, struct process *neww);
 struct process	*process_new();
+int		process_alloc_pid(pid_t *pid);
 struct process	*process_dup(struct process *proc);
 struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size);
 

@@ -33,7 +33,7 @@ int page_entry_set(uint32_t *table, unsigned int index, void *ptr, unsigned int 
 	return 0;
 }
 
-void page_entry_remove(uint32_t *table, unsigned int index)
+int page_entry_remove(uint32_t *table, unsigned int index)
 {
 	return page_entry_set(table, index, 0x00000000, PAGE_NOTHING);
 }

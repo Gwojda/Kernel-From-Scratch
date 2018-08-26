@@ -36,6 +36,7 @@ static int	process_copy_mem_block(struct process *proc, struct process *neww,
 
 int		copy_process(struct process *proc, struct process *neww)
 {
+	int err;
 	struct map_memory	*new_pm;
 	struct map_memory	*pm;
 	struct list_head	*l;
@@ -44,8 +45,8 @@ int		copy_process(struct process *proc, struct process *neww)
 	int			checker;
 
 	neww->state = proc->state;
-//	GET NEW PID HERE
-	neww->pid = proc->pid;
+	if ((err = process_alloc_pid(&neww->pid)))
+		return err;
 	neww->regs = proc->regs;
 	neww->uid = proc->uid;
 
@@ -97,9 +98,16 @@ int		copy_process(struct process *proc, struct process *neww)
 
 struct process	*process_dup(struct process *proc)
 {
+	int err;
 	struct process *neww = process_new();
 
-	copy_process(proc, neww);
+	if (neww == NULL)
+		return NULL;
+	if ((err = copy_process(proc, neww)))
+	{
+		free_process(neww);
+		return NULL;
+	}
 	return neww;
 }
 

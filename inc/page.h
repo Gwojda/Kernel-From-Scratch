@@ -53,7 +53,7 @@ int page_info_data_display(struct page_info_data *ret);
 int page_info_display(void *virt_addr);
 void page_info_display_tab(void);
 
-void page_entry_remove(uint32_t *table, unsigned int index);
+int page_entry_remove(uint32_t *table, unsigned int index);
 int page_entry_set_range(uint32_t *table, unsigned int from, unsigned int to, unsigned flag);
 int page_entry_set(uint32_t *table, unsigned int index, void *ptr, unsigned int flag);
 void page_entry_clear(uint32_t *table);

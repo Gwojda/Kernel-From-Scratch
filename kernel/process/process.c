@@ -2,6 +2,7 @@
 #include "page.h"
 #include "GDT.h"
 #include "printk.h"
+#include "errno.h"
 
 struct process *current = NULL;
 struct list_head process_list = LIST_HEAD_INIT(process_list);
@@ -50,15 +51,15 @@ int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigne
 	size = (size % 4096) ? (size >> 12) + 1: size >> 12;
 	if ((phys = page_get_phys(v_addr)))
 		// TODO check more thing, it can be ok
-		return -1;
+		return -ENOMEM;
 	if ((mflags & PAGE_PRESENT) == 0)
-		return -2;
+		return -EINVAL;
 	if ((pm = kmalloc(sizeof(*pm))) == NULL)
-		return -3;
+		return -ENOMEM;
 	pm->v_addr = v_addr;
 	if ((pm->p_addr = get_phys_block(size)) == NULL)
 	{
-		ret = -4;
+		ret = -ENOMEM;
 		goto err;
 	}
 	// TODO bzero process memory
@@ -66,11 +67,8 @@ int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigne
 	pm->size = size;
 	if (pflags & PROC_MEM_ADD_IMEDIATE)
 	{
-		if (page_map_range(pm->p_addr, v_addr, mflags, size))
-		{
-			ret = -4;
+		if ((ret = page_map_range(pm->p_addr, v_addr, mflags, size)))
 			goto err2;
-		}
 		pflags &= ~(PROC_MEM_ADD_IMEDIATE);
 	}
 	switch (pflags)
@@ -103,10 +101,16 @@ end:
 
 struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
 {
+	int err;
 	struct process *proc;
 
 	if ((proc = process_new()) == NULL)
 		return NULL;
+	if ((err = process_alloc_pid(&proc->pid)))
+	{
+		free_process(proc);
+		return NULL;
+	}
 
 	if (process_memory_add(proc, size, v_addr, PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, PROC_MEM_ADD_IMEDIATE | PROC_MEM_ADD_CODE))
 		// TODO free
