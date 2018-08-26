@@ -35,4 +35,6 @@ void kfree(const void *ptr);
 void vfree(const void *ptr);
 void heap_setup(void);
 
+void	mem_tester(void);
+
 #endif
