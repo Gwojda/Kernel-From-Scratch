@@ -1,7 +1,7 @@
 extern printk
 
 extern sys_restart
-	
+
 section .data
 syscall_function_array dd sys_restart,
 ;	dd next_syscall
@@ -18,14 +18,14 @@ syscall_handler:
 	push ebp
 	mov ebp, esp
 
-	; we push the register to creat function parameter
+	; we push the register to create function parameter
 	push edi
 	push esi
 	push edx
 	push ecx
 	push ebx
 
-	; we ccheck if the syscall number existe
+	; we check if the syscall number exist
 	cmp eax, 0
 	jl syscall_invalid
 	cmp eax, arraylen / 4

@@ -10,6 +10,7 @@
 # include "list.h"
 # include "signal.h"
 # include "idt.h"
+# include "lib.h"
 # include "virt_mem_management.h"
 # include "phys_mem_management.h"
 
@@ -88,11 +89,24 @@ struct process
 extern struct process *current;
 extern struct list_head process_list;
 
-int	add_signal(int sig, struct process *proc);
-void	send_signal(struct process *proc);
-int proc_switch(struct interupt *data, struct process *old, struct process *new);
-int process_memory_switch(struct process *proc, int add);
-struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size);
+int		process_memory_switch(struct process *proc, int add);
 int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigned mflags, unsigned pflags);
+
+int		add_signal(int sig, struct process *proc);
+void	send_signal(struct process *proc);
+int		child_ended(struct process *proc);
+int		process_wait(struct process *proc, pid_t waiting_on_pid);
+
+int		proc_switch(struct interupt *data, struct process *old, struct process *new);
+int		getuid(struct process *proc);
+
+void	free_process(struct process *proc);
+void	process_die(struct process *proc);
+
+
+int				copy_process(struct process *proc, struct process *neww);
+struct process	*process_new();
+struct process	*process_dup(struct process *proc);
+struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size);
 
 #endif

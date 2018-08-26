@@ -242,7 +242,6 @@ static void _free(const void *ptr, void (*defrag)(struct heap_list *))
 				}
 				head = (void *)head + sizeof(struct alloc_header) + head->size;
 			}
-
 		}
 	}
 }

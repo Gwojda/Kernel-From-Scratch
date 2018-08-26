@@ -1,3 +1,5 @@
+#include "lib.h"
+
 #define SHIFT_PRESSED(x) (x == 0x36 || x == 0x2A)
 #define SHIFT_RELEASED(x) (x == 0xB6 || x == 0xAA)
 
@@ -73,7 +75,7 @@ int	set_layout(char *keymap)
 		memcpy(value_table, value_table_qwerty, sizeof(*value_table));
 		return 0;
 	}
-	else if (strcmp(keymap, "awerty") == 0)
+	else if (strcmp(keymap, "azerty") == 0)
 	{
 		//memcpy(value_table_shift, value_table_qwerty_shift, sizeof(*value_table_shift));
 		//memcpy(value_table, value_table_qwerty, sizeof(*value_table));
@@ -84,7 +86,7 @@ int	set_layout(char *keymap)
 char	key_layout(unsigned int key)
 {
 	static char shift_locked = 0;
-	static char controle = 0;
+//	static char ctrl = 0;
 	unsigned int tmp;
 
 /*
