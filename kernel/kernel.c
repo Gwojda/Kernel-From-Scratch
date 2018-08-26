@@ -56,6 +56,7 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	print_initialize_status("Memory setup", TRUE);
 	init_idt();
 
+	mem_tester();
 	//struct process *p1 = process_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
 	//process_memory_switch(p1, 0);
 	struct process *p2 = process_ini_kern((u32*)user_shell, (void*)user_shell + 0xC0000000, 1 << 12);
