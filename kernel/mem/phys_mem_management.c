@@ -14,7 +14,7 @@ void	free_phys_block(void *start_phys_addr, size_t size)
 {
 	if (ACCESS_BITMAP_BY_ADDR(start_phys_addr) >= MAX_RAM_PAGE / 8)
 	{
-		printk("try to phys unvalaible physical block\n");
+		printk("try to free unvalaible physical block\n");
 		return ;
 	}
 	while (size)

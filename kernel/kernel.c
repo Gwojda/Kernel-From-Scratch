@@ -1,4 +1,13 @@
 #include "kernel.h"
+#include "process.h"
+
+void sys_restart(void);
+void user1(void);
+void user1_2(void);
+void user2(void);
+void user3(void);
+void user_shell(void);
+
 
 static void	print_kernel_visu(void)
 {
@@ -24,15 +33,6 @@ static void	print_kernel_visu(void)
 	tty_setcolor(&tty[0], vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
 
 }
-
-void	sys_restart(void);
-
-#include "process.h"
-void user1(void);
-void user1_2(void);
-void user2(void);
-void user3(void);
-void user_shell(void);
 
 void kmain (unsigned long volatile magic, unsigned long addr)
 {
