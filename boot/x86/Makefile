@@ -1,17 +1,7 @@
 LINKER = boot/$(ARCH)/linker.ld
 OBJS += \
-boot/x86/asm.o \
 boot/x86/boot.o \
-boot/x86/idt_asm.o \
 boot/x86/multiboot_header.o \
-boot/x86/page_tool.o \
-boot/x86/syscall.o \
-boot/x86/user1.o \
-boot/x86/GDT.o \
-boot/x86/backtrace.o \
-boot/x86/idt.o \
-boot/x86/key_layout.o \
-boot/x86/page.o \
-boot/x86/user2.o \
-boot/x86/prosses/interupt_prosses.o \
-boot/x86/prosses/prosess.o \
+boot/x86/*.o \
+boot/x86/GDT/GDT.o \
+boot/x86/IDT/idt.o \

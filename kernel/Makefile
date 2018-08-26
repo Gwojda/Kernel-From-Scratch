@@ -1,19 +1,18 @@
 OBJS += \
-kernel/heap_setup.o \
 kernel/kernel.o \
-kernel/memory_init.o \
-kernel/minishell.o \
-kernel/panic.o \
-kernel/phys_mem_management.o \
-kernel/printk.o \
-kernel/signal.o \
-kernel/stack_setup.o \
-kernel/cmd/mem_debug.o \
-kernel/cmd/reboot.o \
-kernel/cmd/switchtty.o \
 kernel/io/getc.o \
 kernel/io/io.o \
+kernel/io/key_layout.o \
+kernel/io/panic.o \
+kernel/io/printk.o \
 kernel/io/stream.o \
+kernel/mem/heap_setup.o \
+kernel/mem/memory_init.o \
+kernel/mem/phys_mem_management.o \
+kernel/mem/stack_setup.o \
+kernel/minishell/minishell.o \
+kernel/process/process.o \
+kernel/process/signal.o \
 kernel/syscall/sys_restart.o \
 kernel/tty/init_tty.o \
 kernel/tty/switch_tty.o \
@@ -30,3 +29,7 @@ kernel/vga/init_vga.o \
 kernel/vga/print_initialize_status.o \
 kernel/vga/vga_entry.o \
 kernel/vga/vga_move_cursor.o \
+kernel/x86/backtrace.o \
+kernel/x86/interupt_process.o \
+kernel/x86/page.o \
+kernel/x86/user2.o \

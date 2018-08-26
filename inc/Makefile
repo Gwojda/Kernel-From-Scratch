@@ -5,6 +5,7 @@ inc/backtrace.h \
 inc/idt.h \
 inc/io.h \
 inc/kernel.h \
+inc/key_layout.h \
 inc/lib.h \
 inc/list.h \
 inc/multiboot2.h \
@@ -13,7 +14,7 @@ inc/panic.h \
 inc/phys_mem_management.h \
 inc/position.h \
 inc/printk.h \
-inc/prosses.h \
+inc/process.h \
 inc/shell.h \
 inc/signal.h \
 inc/stream.h \

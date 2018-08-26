@@ -5,7 +5,7 @@
 #include "page.h"
 #include "vga.h"
 #include "backtrace.h"
-#include "prosses.h"
+#include "process.h"
 #include "GDT.h"
 
 struct idtr kidtr;
@@ -82,22 +82,22 @@ static void initialize_pic()
 
 void irq_clock(struct interupt data)
 {
-	struct prosses *old = current;
+	struct process *old = current;
 
 	if (current == NULL)
-		current = (struct prosses *)&prosses_list;
+		current = (struct process *)&process_list;
 
-	current = list_entry(current->plist.next, struct prosses, plist);
-	if (&current->plist == &prosses_list)
+	current = list_entry(current->plist.next, struct process, plist);
+	if (&current->plist == &process_list)
 	{
-		current = list_first_entry(&prosses_list, struct prosses, plist);
-		if (&current->plist == &prosses_list)
+		current = list_first_entry(&process_list, struct process, plist);
+		if (&current->plist == &process_list)
 			current = NULL;
 	}
 
 	int i;
-	if ((i = pros_switch(&data, old, current)) != 0)
-		kern_panic("Fail to switch prosses %d\n", i);
+	if ((i = proc_switch(&data, old, current)) != 0)
+		kern_panic("Fail to switch process %d\n", i);
 
 	outb(0x20, 0x20);
 }

@@ -18,6 +18,7 @@ kernel/syscall/sys_restart.o \
 kernel/tty/init_tty.o \
 kernel/tty/switch_tty.o \
 kernel/tty/tty_clear_screen.o \
+kernel/tty/tty_input.o \
 kernel/tty/tty_putchar.o \
 kernel/tty/tty_putentryat.o \
 kernel/tty/tty_putstr.o \

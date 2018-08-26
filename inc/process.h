@@ -1,5 +1,5 @@
-#ifndef PROSSES_H
-# define PROSSES_H
+#ifndef PROCESS_H
+# define PROCESS_H
 
 # define PROC_MEM_ADD_IMEDIATE	0b00000001
 # define PROC_MEM_ADD_HEAP	0b00000010
@@ -17,9 +17,9 @@ typedef unsigned pid_t;
 typedef unsigned uid_t;
 typedef unsigned gid_t;
 
-struct prosses;
+struct process;
 
-typedef int (*shandler)(struct prosses *);
+typedef int (*shandler)(struct process *);
 
 struct sig_queue
 {
@@ -46,10 +46,10 @@ struct map_memory
 struct children
 {
 	struct list_head	list;
-	struct prosses		*p;	//reference on process, you MUSTN'T free it here
+	struct process		*p;	//reference on process, you MUSTN'T free it here
 };
 
-struct prosses
+struct process
 {
 	struct list_head plist;
 
@@ -64,7 +64,7 @@ struct prosses
 
 	uid_t uid;
 
-	struct prosses		*father;
+	struct process		*father;
 	struct list_head	children;
 
 	pid_t			waiting_pid;
@@ -85,14 +85,14 @@ struct prosses
 	struct signal signal;
 };
 
-extern struct prosses *current;
-extern struct list_head prosses_list;
+extern struct process *current;
+extern struct list_head process_list;
 
-int	add_signal(int sig, struct prosses *proc);
-void	send_signal(struct prosses *proc);
-int pros_switch(struct interupt *data, struct prosses *old, struct prosses *new);
-int prosses_memory_switch(struct prosses *pros, int add);
-struct prosses	*prosses_ini_kern(u32 *v_addr, void* function, size_t size);
-int		prosses_memory_add(struct prosses *pros, size_t size, void *v_addr, unsigned mflags, unsigned pflags);
+int	add_signal(int sig, struct process *proc);
+void	send_signal(struct process *proc);
+int proc_switch(struct interupt *data, struct process *old, struct process *new);
+int process_memory_switch(struct process *proc, int add);
+struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size);
+int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigned mflags, unsigned pflags);
 
 #endif

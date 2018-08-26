@@ -13,8 +13,9 @@ inc/panic.h \
 inc/phys_mem_management.h \
 inc/position.h \
 inc/printk.h \
-inc/prosses.h \
+inc/process.h \
 inc/shell.h \
+inc/signal.h \
 inc/stream.h \
 inc/syscall.h \
 inc/tty.h \

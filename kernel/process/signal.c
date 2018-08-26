@@ -1,4 +1,4 @@
-#include "prosses.h"
+#include "process.h"
 
 const struct {
 	u32	signal;
@@ -40,37 +40,41 @@ const struct {
 	{SIGSYS		, SIGSYS_PROCMASK	}
 };
 
-static int	sig_term(struct prosses *proc)
+static int	sig_term(struct process *proc)
 {
 	(void) proc;
 	//free proc
+	return 0;
 }
 
-static int	sig_ign(struct prosses *proc)
+static int	sig_ign(struct process *proc)
 {
 	(void) proc;
-	return ;
+	return 0;
 }
 
-static int	sig_core(struct prosses *proc)
+static int	sig_core(struct process *proc)
 {
 	(void) proc;
 	//core dump
+	return 0;
 }
 
-static int	sig_stop(struct prosses *proc)
+static int	sig_stop(struct process *proc)
 {
 	(void) proc;
 	proc->state = STOPPED;
+	return 0;
 }
 
-static int	sig_cont(struct prosses *proc)
+static int	sig_cont(struct process *proc)
 {
 	(void) proc;
 	proc->state = RUN;
+	return 0;
 }
 
-void	send_signal(struct prosses *proc)
+void	send_signal(struct process *proc)
 {
 	struct sig_queue	*sig_send;
 	const shandler		sig_handler[] =
@@ -132,7 +136,7 @@ void	send_signal(struct prosses *proc)
 	list_del(&sig_send->list);
 }
 
-int	add_signal(int sig, struct prosses *proc)
+int	add_signal(int sig, struct process *proc)
 {
 	struct sig_queue	*new_signal;
 
