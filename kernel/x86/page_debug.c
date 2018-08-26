@@ -2,6 +2,8 @@
 
 int page_info(void *virt_addr, struct page_info_data *ret)
 {
+	int err = 0;
+
 	ret->target = virt_addr;
 	virt_addr = (void *)(((size_t)virt_addr >> 12) << 12);
 	ret->target_page = virt_addr;
@@ -23,14 +25,16 @@ int page_info(void *virt_addr, struct page_info_data *ret)
 	ret->page_directory_entry = *directory_entry;
 
 	if (!(*directory_entry & PAGE_PRESENT) || *directory_entry & PAGE_SIZE)
-		return 1;
+		return err;
 
-	uint32_t *page_table = access_table_with_physical(page_swap, PAGE_GET_ADDR(*directory_entry));
+	uint32_t *page_table = page_swap;
+	if ((err = access_table_with_physical(page_swap, PAGE_GET_ADDR(*directory_entry))))
+		return err;
 
 	ret->have_page_entry = 1;
 	ret->page_table = page_table;
 	ret->page_table_entry = page_table[page_table_index];
-	return 1;
+	return err;
 }
 
 int page_info_data_display(struct page_info_data *ret)
@@ -67,7 +71,7 @@ int page_info_data_display(struct page_info_data *ret)
 	if (!ret->have_page_entry)
 	{
 		printk("  no page entry\n");
-		return 1;
+		return 0;
 	}
 	printk("  page_entry %p\n", ret->page_table);
 	printk("  page_table_entry %p\n", ret->page_table_entry);
@@ -76,7 +80,7 @@ int page_info_data_display(struct page_info_data *ret)
 	for (i = 0; (1 << i) & PAGE_FLAG; i++)
 		if ((1 << i) & (size_t)ret->page_table_entry)
 			printk("    %s(%d) -> %s\n", flags_info[i].mini, i, flags_info[i].desc);
-	return 1;
+	return 0;
 }
 
 int page_info_display(void *virt_addr)

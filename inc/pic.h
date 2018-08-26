@@ -1,0 +1,59 @@
+#ifndef PIC_H
+# define PIC_H
+
+
+# include "typedef.h"
+
+# define PIC_MASTER_COMMANDE 0x20
+# define PIC_MASTER_DATA 0x21
+# define PIC_SLAVE_COMMANDE 0xa0
+# define PIC_SLAVE_DATA 0xa1
+
+# define PIC_ICW1_ICW4		0b00000001
+# define PIC_ICW1_CASCADE	0b00000010
+# define PIC_ICW1_8_INT_BYTE	0b00000100
+# define PIC_ICW1_LEVEL_TRIGER	0b00001000
+# define PIC_ICW1_REQUEST	0b00010000
+
+# define PIC_ICW3_SLAVE_ON_2	0b00000100
+
+# define PIC_ICW3_MASTER_ON_2	2
+
+# define PIC_ICW4_X86		0b00000001
+# define PIC_ICW4_AUTO_EOI	0b00000010
+# define PIC_ICW4_BUFFERED_SLAV	0b00001000
+# define PIC_ICW4_BUFFERED_MAST	0b00001100
+# define PIC_ICW4_SFNM		0b00010000
+
+# define PIC_OCW1_MASK_0	0b00000001
+# define PIC_OCW1_MASK_1	0b00000010
+# define PIC_OCW1_MASK_2	0b00000100
+# define PIC_OCW1_MASK_3	0b00001000
+# define PIC_OCW1_MASK_4	0b00010000
+# define PIC_OCW1_MASK_5	0b00100000
+# define PIC_OCW1_MASK_6	0b01000000
+# define PIC_OCW1_MASK_7	0b10000000
+
+# define PIC_OCW2_NORMAL_EOI	0b00100000
+
+# define PIC_OCW3_REQUEST1	0b00001000
+
+# define PIC_INT_BASE		32
+
+# define PIC_INT_ISA_TIMER	0
+# define PIC_INT_KEYBORD	1
+# define PIC_INT_COM2		3
+# define PIC_INT_COM3		4
+# define PIC_INT_FLOPY		6
+# define PIC_INT_PRINTER	7
+# define PIC_INT_RT_CLOCK	8
+# define PIC_INT_MOUSE		12
+# define PIC_INT_FPU		13
+# define PIC_INT_MASTER_IDE	14
+# define PIC_INT_SLAVE_IDE	15
+
+void	pic_initialize(void);
+void	pic_end_of_interupt(u8 is_on_slave);
+void	pic_interupt_mask(u16 mask);
+
+#endif

@@ -112,7 +112,12 @@ void *kmalloc(size_t size)
 		goto err;	//no more virt addr available
 	if (!(new_phys_addr = get_phys_block((size_t)PAGE_ALIGN(size) >> 12)))
 		goto err1;	//no more aligned phys addr
+<<<<<<< HEAD
 	if (!page_map(new_phys_addr, new_virt_addr, PAGE_WRITE | PAGE_PRESENT))
+=======
+//	printk("new_phys_addr = %p\n", new_phys_addr);
+	if (page_map(new_phys_addr, new_virt_addr, PAGE_WRITE | PAGE_PRESENT))
+>>>>>>> df74b5184ab6bb8b195d63d4b29107ec10a676c9
 		goto err2;
 	init_new_allocated_block(new_virt_addr, (size_t)PAGE_ALIGN(size), 0);
 	heap_entry = list_entry(heap_entry->list.next, typeof(*heap_entry), list);
@@ -147,7 +152,7 @@ void *vmalloc(size_t size)
 	{
 		if (!(new_phys_addr = get_phys_block(1)))
 			goto err1;	//no more phys addr
-		if (!page_map(new_phys_addr, new_virt_addr, PAGE_WRITE | PAGE_PRESENT))
+		if (page_map(new_phys_addr, new_virt_addr, PAGE_WRITE | PAGE_PRESENT))
 			goto err2;
 		last_virt_addr_mapped = new_virt_addr;
 	}
