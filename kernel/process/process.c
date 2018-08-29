@@ -5,6 +5,7 @@
 #include "errno.h"
 
 struct process *current = NULL;
+struct process *process_hlt = NULL;
 struct list_head process_list = LIST_HEAD_INIT(process_list);
 
 int		process_memory_switch(struct process *proc, int add)

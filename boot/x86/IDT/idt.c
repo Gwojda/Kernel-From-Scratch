@@ -12,35 +12,49 @@
 struct idtr kidtr;
 struct idtdesc kidt[IDT_SIZE];
 
+#define SIGNAL_INFO_DEFAULT 0
+#define SIGNAL_INFO_CONTINUE 1
+
+int	page_fault_handler(struct interupt *data)
+{
+	void *addr;
+
+	(void)data;
+	asm("mov %%cr2, %0" : "=r"(addr));
+	printk("Page fault %p:\n", addr);
+	return SIGNAL_INFO_DEFAULT;
+}
+
 struct
 {
 	int number;
 	char *name;
 	int signal;
 	int error;
+	int (*catch)(struct interupt *data);
 } signal_info[] = {
-	{0,  "Divide by zero",               SIGFPE,  1},
-	{3,  "Break point",                  SIGTRAP, 0},
-	{4,  "Overflow",                     0,       0},
-	{5,  "Bound Range Exceeded",         0,       0},
-	{6,  "Invalide Opcode",              SIGILL,  1},
+	{0,  "Divide by zero",               SIGFPE,  1, NULL},
+	{3,  "Break point",                  SIGTRAP, 0, NULL},
+	{4,  "Overflow",                     0,       0, NULL},
+	{5,  "Bound Range Exceeded",         0,       0, NULL},
+	{6,  "Invalide Opcode",              SIGILL,  1, NULL},
 	//{7,  "Device Not Available",       0},//
-	{8,  "Double Fault",                 -1,      1},
-	{9,  "Coprocessor Segment overrun",  0,       0},
-	{10, "Invalide TSS",                 -1,      1},
-	{11, "Segement not present",         -1,      1},
-	{12, "Stack Segment Fault",          SIGBUS,  1},
-	{13, "General Protection",           SIGSEGV, 1},
-	{14, "Page Fault",                   SIGSEGV, 1},
-	{16, "x87 Floting point exception",  SIGFPE,  1},
-	{17, "Alignement check",             SIGSEGV, 1},
-	{18, "Machine check",                -1,      1},
-	{19, "SIMD Floting point exception", SIGFPE,  1},
+	{8,  "Double Fault",                 -1,      1, NULL},
+	{9,  "Coprocessor Segment overrun",  0,       0, NULL},
+	{10, "Invalide TSS",                 -1,      1, NULL},
+	{11, "Segement not present",         -1,      1, NULL},
+	{12, "Stack Segment Fault",          SIGBUS,  1, NULL},
+	{13, "General Protection",           SIGSEGV, 1, NULL},
+	{14, "Page Fault",                   SIGSEGV, 1, page_fault_handler},
+	{16, "x87 Floting point exception",  SIGFPE,  1, NULL},
+	{17, "Alignement check",             SIGSEGV, 1, NULL},
+	{18, "Machine check",                -1,      1, NULL},
+	{19, "SIMD Floting point exception", SIGFPE,  1, NULL},
 	//{1,  "Debug",                      0},
 	//{2,  "Not maskable Interrupt",     },
 	//{20, "Virtualization Exception",   },
 	//{30, "Security check",             },
-	{-1, NULL, 0, 0}
+	{-1, NULL, 0, 0, NULL}
 };
 
 void init_idt_desc(u16 select, void (*offset)(), u16 type, struct idtdesc *desc)
@@ -53,10 +67,12 @@ void init_idt_desc(u16 select, void (*offset)(), u16 type, struct idtdesc *desc)
 	return;
 }
 
-void irq_clock(struct interupt data)
+void switch_process(struct interupt *data)
 {
+	int more_one_process = 0;
 	struct process *old = current;
 
+select:
 	if (current == NULL)
 		current = (struct process *)&process_list;
 
@@ -68,10 +84,30 @@ void irq_clock(struct interupt data)
 			current = NULL;
 	}
 
-	int i;
-	if ((i = proc_switch(&data, old, current)) != 0)
-		kern_panic("Fail to switch process %d\n", i);
+	if (current == NULL)
+		;
+	else if (current == old && current->state != RUN)
+	{
+		more_one_process = 1;
+		current = NULL;
+	}
+	else if (current->state != RUN)
+	{
+		if (current->state != ZOMBIE)
+			more_one_process = 1;
+		goto select;
+	}
 
+	if (more_one_process == 0 && current == NULL)
+		kern_panic("No more task\n");
+	int i;
+	if ((i = proc_switch(data, old, current)) != 0)
+		kern_panic("Fail to switch process %d\n", i);
+}
+
+void irq_clock(struct interupt data)
+{
+	switch_process(&data);
 	pic_end_of_interupt(data.int_no);
 }
 
@@ -89,58 +125,46 @@ void irq_keybord(struct interupt data)
 	pic_end_of_interupt(data.int_no);
 }
 
-void irq_pagefault(struct interupt data)
-{
-	const struct err_code_pagefault *err = (void*)&(data.err_code);
-	void *addr;
-
-	asm("mov %%cr2, %0" : "=r"(addr));
-	printk("Page fault %p: ", addr);
-	if (err->write)
-		printk("write ");
-	else
-		printk("read ");
-	if (err->protection)
-		printk("cause protection violation ");
-	else
-		printk("to not present page ");
-	if (err->user)
-		printk("in user mode\n");
-	else
-		printk("in supervisor mode\n");
-	if (err->reserve)
-		printk("  reserve byte set in page directory / entry\n");
-	if (err->execute)
-		printk("  execute not execute memory\n");
-	page_info_display(addr);
-	backtrace((size_t*)data.ebp, 5);
-	kern_panic("");
-}
-
 void irq_general(struct interupt data)
 {
 	int i;
+	int err = 0;
+	typeof(*signal_info) *s;
 
 	i = 0;
 	while (signal_info[i].name)
 	{
-		if ((u32)signal_info[i].number == data.int_no)
+		s = signal_info + i;
+		if ((u32)s->number == data.int_no)
 		{
-			if (signal_info[i].signal >= 0 && data.cs != GDT_SEG_KCODE)
+			if (s->catch(&data))
 			{
-				if (signal_info[i].signal == 0)
+				if (s->catch(&data) == SIGNAL_INFO_CONTINUE)
+					return ;
+			}
+			if (s->signal >= 0 && data.cs != GDT_SEG_KCODE)
+			{
+				if (s->signal == 0)
 					// zero if for ignore
 					return;
-				kern_panic("send a signial %d\n", signal_info[i].signal);
+				if ((err = add_signal(s->signal, current)) != 0) // TODO check if signal send if first
+					goto kill_process;
+				send_signal(current); // TODO check
 				// signal switch
 				return;
 			}
 			if (signal_info[i].error)
-				kern_panic("%s %p\n", signal_info[i].name, data.err_code);
+				goto kill_process;
 			return;
 		}
 		i++;
 	}
+	return;
+kill_process:
+	if (err != 0)
+		printk("Kernel error terminate process %d error code %d\n", s->signal, err);
+	process_die(current);
+	switch_process(&data);
 }
 
 void usless_function(struct interupt data)

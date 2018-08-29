@@ -67,10 +67,10 @@ int proc_switch(struct interupt *data, struct process *old, struct process *new)
 		if (process_memory_switch(old, 0) != 0)
 			return 1;
 	}
+	if (new == NULL)
+		new = process_hlt;
 	if (&new->signal.sig_queue.list != new->signal.sig_queue.list.next)
 		send_signal(new);
-	if (new == NULL)
-		return 3;
 	proc_load(new, data);
 	if (process_memory_switch(new, 1) != 0)
 		return 2;

@@ -38,7 +38,7 @@ const struct {
 	{SIGIO		, SIGIO_PROCMASK	},
 	{SIGPWR		, SIGPWR_PROCMASK	},
 	{SIGSYS		, SIGSYS_PROCMASK	}
-};
+}; // TODO what do you have 2 differnate tab
 
 static int	sig_term(struct process *proc)
 {
@@ -120,7 +120,9 @@ void	send_signal(struct process *proc)
 	if (!proc->signal.sig_handler[sig_send->sig_handled])
 		sig_handler[sig_send->sig_handled](proc);
 	if ((void *)proc->signal.sig_handler[sig_send->sig_handled] > KERNEL_POS)
-		proc->signal.sig_handler[sig_send->sig_handled](proc);
+		proc->signal.sig_handler[sig_send->sig_handled](proc); // TODO ATTENTION, il faut qur signal verifie l'input
+									// pour moi, le mieux, c'est verifier l'egaliter entre les fonction
+									// meme en verifien signal
 //	else
 		// en cas de syscall signal, ici c'est la partie tricky
 		// repartir cote user en pushant sur la stack user de quoi revenir ici en kernel land
@@ -139,11 +141,13 @@ int	add_signal(int sig, struct process *proc)
 {
 	struct sig_queue	*new_signal;
 
-	if (!SIG_AVAILABLE(proc->signal.sig_avalaible, sig))
+	if (!SIG_AVAILABLE(proc->signal.sig_avalaible, sig)) // TODO what apend with sig = 0 (mask & (1 << -1))
+								// 0 can return 0 or -1
 		return 0;
 	if (sig <= 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
-		return -1;
-	new_signal = kmalloc(sizeof(struct sig_queue));
+		return -EINVAL;
+	if ((new_signal = kmalloc(sizeof(struct sig_queue))) == NULL)
+		return -ENOMEM;
 	new_signal->sig_handled = sig;
 	list_add(&new_signal->list, &proc->signal.sig_queue.list);
 	for (size_t i = 0;i < sizeof(blocked_sig) / sizeof(*blocked_sig);++i)

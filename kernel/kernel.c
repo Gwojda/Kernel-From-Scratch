@@ -7,6 +7,7 @@ void user1_2(void);
 void user2(void);
 void user3(void);
 void user_shell(void);
+void user_hlt(void);
 
 
 static void	print_kernel_visu(void)
@@ -59,8 +60,10 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	//mem_tester();
 	//struct process *p1 = process_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
 	//process_memory_switch(p1, 0);
+	if ((process_hlt = process_hlt_creat()) == NULL)
+		kern_panic("Can not setup process");
 	struct process *p2 = process_ini_kern((u32*)user_shell, (void*)user_shell + 0xC0000000, 1 << 12);
-	add_signal(SIGKILL, p2);
+	//add_signal(SIGKILL, p2);
 	process_memory_switch(p2, 0);
 
 	/*struct process *p2 = process_ini_kern(user2, (void*)user2 + 0xC0000000, 1 << 12);
@@ -71,5 +74,5 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 
 	asm volatile("sti");
 	while (1)
-		;
+		asm("hlt");
 }

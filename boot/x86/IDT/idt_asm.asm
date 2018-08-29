@@ -1,6 +1,5 @@
 extern usless_function
 extern irq_clock
-extern irq_pagefault
 extern irq_keybord
 extern syscall_handler
 extern irq_general
@@ -81,7 +80,7 @@ INT_ERRCODE 10, irq_general ;Invalid Task State Segment
 INT_ERRCODE 11, irq_general ;Segment not present
 INT_ERRCODE 12, irq_general ;Stack Fault
 INT_ERRCODE 13, irq_general ;General protection fault
-INT_ERRCODE 14, irq_pagefault ;Page fault
+INT_ERRCODE 14, irq_general ;Page fault
 INT_NOERRCODE 15, irq_general ;reserved
 INT_NOERRCODE 16, irq_general ;Math Fault
 INT_ERRCODE 17, irq_general ;Alignment Check
