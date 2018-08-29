@@ -10,7 +10,8 @@ __attribute__ ((section(".ucode"))) void user2(void)
 		i = 0;
 		while (i++ < 10000000 / 2)
 			;
-		syscall(0);
+		asm("mov $0x00, %eax; int $0x80");
+		//sys();
 	}
 }
 
@@ -23,8 +24,14 @@ __attribute__ ((section(".ucode"))) void user3(void)
 		i = 0;
 		while (i++ < 10000000 / 2)
 			;
-		syscall(0);
+		asm("mov $0x00, %eax; int $0x80");
+		//sys();
 	}
+}
+
+__attribute__ ((section(".ucode"))) void sys(void)
+{
+	asm("mov $0x00, %eax; int $0x80");
 }
 
 __attribute__ ((section(".ucode"))) void user_shell(void)
