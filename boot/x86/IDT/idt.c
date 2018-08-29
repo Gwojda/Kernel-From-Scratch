@@ -86,16 +86,14 @@ select:
 
 	if (current == NULL)
 		;
-	else if (current == old && current->state != RUN)
-	{
-		more_one_process = 1;
-		current = NULL;
-	}
 	else if (current->state != RUN)
 	{
 		if (current->state != ZOMBIE)
 			more_one_process = 1;
-		goto select;
+		if (current == old)
+			current = NULL;
+		else
+			goto select;
 	}
 
 	if (more_one_process == 0 && current == NULL)
@@ -149,7 +147,8 @@ void irq_general(struct interupt data)
 					return;
 				if ((err = add_signal(s->signal, current)) != 0) // TODO check if signal send if first
 					goto kill_process;
-				send_signal(current); // TODO check
+				switch_process(&data);
+				//proc_switch(&data, current, current);
 				// signal switch
 				return;
 			}
@@ -161,8 +160,7 @@ void irq_general(struct interupt data)
 	}
 	return;
 kill_process:
-	if (err != 0)
-		printk("Kernel error terminate process %d error code %d\n", s->signal, err);
+	printk("Kernel error terminate process %d error code %d\n", s->signal, err);
 	process_die(current);
 	switch_process(&data);
 }

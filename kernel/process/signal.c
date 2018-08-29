@@ -1,4 +1,5 @@
 #include "process.h"
+#include "errno.h"
 
 const struct {
 	u32	signal;

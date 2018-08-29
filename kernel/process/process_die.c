@@ -2,6 +2,7 @@
 #include "printk.h"
 
 // TODO die a not maped process
+// if proc == current
 void		process_die(struct process *proc)
 {
 	struct map_memory	*pm;
@@ -40,5 +41,8 @@ void		process_die(struct process *proc)
 		add_signal(SIGCHLD, proc->father);
 		proc->state = ZOMBIE;
 	}
-	// TODO else
+	else
+		proc->state = ZOMBIE;
+	// TODO else -> remove the process from the list
+	// kernel panic ?
 }
