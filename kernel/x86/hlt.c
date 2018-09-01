@@ -8,6 +8,7 @@ struct process	*process_hlt_creat(void)
 	if ((proc = process_new()) == NULL)
 		return NULL;
 
+	proc->regs.esp = (char*)kmalloc(128) + 128;
 	proc->regs.eip = (u32)process_hlt_user;
 	proc->regs.cs = GDT_SEG_KCODE;
 	proc->regs.ss = GDT_SEG_KSTACK;
