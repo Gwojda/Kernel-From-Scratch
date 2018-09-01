@@ -48,6 +48,7 @@ kernel/process/copy_process.o \
 kernel/process/signal.o \
 kernel/x86/page_tool.o \
 kernel/x86/hlt_asm.o \
+kernel/x86/interrupt_proc_asm.o \
 kernel/x86/syscall.o \
 kernel/x86/asm.o \
 kernel/x86/user1.o \

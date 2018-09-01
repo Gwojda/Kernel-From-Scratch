@@ -142,11 +142,10 @@ int	add_signal(int sig, struct process *proc)
 {
 	struct sig_queue	*new_signal;
 
-	if (!SIG_AVAILABLE(proc->signal.sig_avalaible, sig)) // TODO what apend with sig = 0 (mask & (1 << -1))
-								// 0 can return 0 or -1
-		return 0;
 	if (sig <= 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
 		return -EINVAL;
+	if (!SIG_AVAILABLE(proc->signal.sig_avalaible, sig))
+		return 0;
 	if ((new_signal = kmalloc(sizeof(struct sig_queue))) == NULL)
 		return -ENOMEM;
 	new_signal->sig_handled = sig;

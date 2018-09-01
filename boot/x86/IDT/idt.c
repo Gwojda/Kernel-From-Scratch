@@ -105,8 +105,8 @@ select:
 
 void irq_clock(struct interupt data)
 {
-	switch_process(&data);
 	pic_end_of_interupt(data.int_no);
+	switch_process(&data);
 }
 
 void irq_keybord(struct interupt data)

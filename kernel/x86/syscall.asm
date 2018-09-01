@@ -40,6 +40,7 @@ syscall_invalid:
 	lea eax, [invalid_syscall_msg]
 	push eax
 	call printk
+	pop eax
 	mov eax, -38
 
 syscall_end:

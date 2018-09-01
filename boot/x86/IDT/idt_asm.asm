@@ -100,4 +100,4 @@ INT_ERRCODE 30, irq_general ;Security Exception
 INT_NOERRCODE 31, irq_general ;reserved
 INT_NOERRCODE 32, irq_clock ;Clock
 INT_NOERRCODE 33, irq_keybord ;Keyboard Interrupt
-INT_NOERRCODE 128, syscall_handler ;Keyboard Interrupt
+INT_NOERRCODE 128, syscall_handler ;SYSCALL

@@ -29,7 +29,7 @@ void proc_save(struct process* proc, struct interupt *data)
 		proc->regs.esp = data->esp;
 }
 
-void proc_load(struct process* proc, struct interupt *data)
+static void proc_load(struct process* proc, struct interupt *data)
 {
 	data->ds = proc->regs.ds;
 	data->es = proc->regs.es;
@@ -56,23 +56,65 @@ void proc_load(struct process* proc, struct interupt *data)
 		data->esp = proc->regs.esp;
 }
 
+static struct process *global_old;
+static struct process *global_new;
+static char proc_switch_context[4096 * 2];
+void switch_stack(void *, void *);
+void proc_switch_iret(struct interupt);
+int proc_switch_p();
+
 int proc_switch(struct interupt *data, struct process *old, struct process *new)
 {
-	//TODO bad idee because we can corrupt the stack with user esp and user ss
-	//struct interupt *new_data;
-
 	if (old != NULL)
-	{
 		proc_save(old, data);
-		if (process_memory_switch(old, 0) != 0)
-			return 1;
-	}
 	if (new == NULL)
 		new = process_hlt;
-	if (&new->signal.sig_queue.list != new->signal.sig_queue.list.next)
-		send_signal(new);
-	proc_load(new, data);
-	if (process_memory_switch(new, 1) != 0)
-		return 2;
-	return 0;
+	global_old = old;
+	global_new = new;
+	switch_stack((void *)proc_switch_context + 4096, proc_switch_p);
+}
+
+int proc_switch_p()
+{
+	struct interupt data;
+	struct interupt *dataptr;
+
+	if (global_old != NULL)
+	{
+		if (process_memory_switch(global_old, 0) != 0)
+			kern_panic("error switch process: unmap\n");
+	}
+	proc_load(global_new, &data);
+	if (process_memory_switch(global_new, 1) != 0)
+		kern_panic("error switch process: map\n");
+	if (&global_new->signal.sig_queue.list != global_new->signal.sig_queue.list.next)
+		send_signal(global_new);
+	if (data.cs != GDT_SEG_KCODE)
+	{
+		proc_switch_iret(data);
+	}
+	//we want to switch of stack, let setup the stack
+	dataptr = global_new->regs.esp - 0x30;
+	dataptr->ds = data.ds;
+	dataptr->es = data.es;
+	dataptr->fs = data.fs;
+	dataptr->gs = data.gs;
+
+	dataptr->edi = data.edi;
+	dataptr->esi = data.esi;
+	dataptr->ebp = data.ebp;
+	dataptr->esp = data.esp;
+	dataptr->ebx = data.ebx;
+	dataptr->edx = data.edx;
+	dataptr->ecx = data.ecx;
+	dataptr->eax = data.eax;
+
+	dataptr->int_no = data.int_no;
+	dataptr->err_code = data.err_code;
+
+	dataptr->eip = data.eip;
+	dataptr->cs = data.cs;
+	dataptr->eflags = data.eflags;
+	// We dont push useresp and ss to not corupt the stack
+	switch_stack(((char*)dataptr), proc_switch_iret);
 }

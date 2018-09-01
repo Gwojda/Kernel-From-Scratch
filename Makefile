@@ -13,7 +13,7 @@ INCS =	-I inc/
 
 ## Flags
 CFLAGS =	-std=gnu99 -ffreestanding -Wall -Wextra -m32 $(INCS) \
-		-fno-builtin -fno-stack-protector -nostdlib -nodefaultlibs -g
+		-fno-builtin -fno-stack-protector -nostdlib -nodefaultlibs -g -fno-pic
 LDFLAG =	-melf_i386 -static --entry=_start -T $(LINKER)
 ASMFLAGS =	-f elf -o
 

@@ -1,14 +1,14 @@
 #include "process.h"
 #include "printk.h"
 
-// TODO die a not maped process
-// if proc == current
 void		process_die(struct process *proc)
 {
 	struct map_memory	*pm;
 	struct list_head	*l;
 	struct list_head	*n;
 
+	if (proc != current)
+		kern_panic("try to kill unmapped process.\n");
 	list_for_each_safe(l, n, &proc->mm_heap)
 	{
 		pm = list_entry(l, struct map_memory, plist);
@@ -43,6 +43,4 @@ void		process_die(struct process *proc)
 	}
 	else
 		proc->state = ZOMBIE;
-	// TODO else -> remove the process from the list
-	// kernel panic ?
 }
