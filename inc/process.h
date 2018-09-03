@@ -100,7 +100,7 @@ void	send_signal(struct process *proc);
 int		child_ended(struct process *proc);
 int		process_wait(struct process *proc, pid_t waiting_on_pid);
 
-int		proc_switch(struct interupt *data, struct process *old, struct process *new);
+void		proc_switch(struct interupt *data, struct process *old, struct process *new);
 int		getuid(struct process *proc);
 
 void	free_process(struct process *proc);

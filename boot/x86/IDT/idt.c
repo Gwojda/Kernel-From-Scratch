@@ -98,9 +98,7 @@ select:
 
 	if (more_one_process == 0 && current == NULL)
 		kern_panic("No more task\n");
-	int i;
-	if ((i = proc_switch(data, old, current)) != 0)
-		kern_panic("Fail to switch process %d\n", i);
+	proc_switch(data, old, current);
 }
 
 void irq_clock(struct interupt data)

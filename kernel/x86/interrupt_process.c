@@ -61,20 +61,8 @@ static struct process *global_new;
 static char proc_switch_context[4096 * 2];
 void switch_stack(void *, void *);
 void proc_switch_iret(struct interupt);
-int proc_switch_p();
 
-int proc_switch(struct interupt *data, struct process *old, struct process *new)
-{
-	if (old != NULL)
-		proc_save(old, data);
-	if (new == NULL)
-		new = process_hlt;
-	global_old = old;
-	global_new = new;
-	switch_stack((void *)proc_switch_context + 4096, proc_switch_p);
-}
-
-int proc_switch_p()
+void proc_switch_p(void)
 {
 	struct interupt data;
 	struct interupt *dataptr;
@@ -94,7 +82,7 @@ int proc_switch_p()
 		proc_switch_iret(data);
 	}
 	//we want to switch of stack, let setup the stack
-	dataptr = global_new->regs.esp - 0x30;
+	dataptr = (struct interupt*)(global_new->regs.esp - 0x30);
 	dataptr->ds = data.ds;
 	dataptr->es = data.es;
 	dataptr->fs = data.fs;
@@ -117,4 +105,15 @@ int proc_switch_p()
 	dataptr->eflags = data.eflags;
 	// We dont push useresp and ss to not corupt the stack
 	switch_stack(((char*)dataptr), proc_switch_iret);
+}
+
+void proc_switch(struct interupt *data, struct process *old, struct process *new)
+{
+	if (old != NULL)
+		proc_save(old, data);
+	if (new == NULL)
+		new = process_hlt;
+	global_old = old;
+	global_new = new;
+	switch_stack((void *)proc_switch_context + 4096, proc_switch_p);
 }

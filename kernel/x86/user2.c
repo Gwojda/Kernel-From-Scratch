@@ -1,6 +1,8 @@
 #include "syscall.h"
 #include "shell.h"
 
+void sys(void);
+
 __attribute__ ((section(".ucode"))) void user2(void)
 {
 	volatile int j = 42;

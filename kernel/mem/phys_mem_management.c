@@ -1,4 +1,6 @@
 #include "phys_mem_management.h"
+#include "page.h"
+#include "lib.h"
 
 static void	alloc_phys_block(void *start_phys_addr, size_t size)
 {
@@ -50,4 +52,16 @@ void	*get_phys_block(size_t nb_pages)
 		++i;
 	}
 	return (NULL);
+}
+
+int		phys_bzero(void *addr, size_t nb_page)
+{
+	while (nb_page > 0)
+	{
+		access_table_with_physical(page_swap, addr);
+		bzero(page_swap, 1 << 12);
+		addr += 1 << 12;
+		nb_page--;
+	}
+	return 0;
 }
