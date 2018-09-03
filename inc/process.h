@@ -9,6 +9,11 @@
 # define PROC_MIN_PID		0x1
 # define PROC_MAX_PID		0xfff
 
+# define PROT_NONE		0
+# define PROT_READ		1
+# define PROT_WRITE		2
+# define PROT_EXEC		1
+
 # include "typedef.h"
 # include "list.h"
 # include "signal.h"

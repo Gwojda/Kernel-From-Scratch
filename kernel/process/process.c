@@ -101,6 +101,37 @@ end:
 	return ret;
 }
 
+void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags)
+{
+	unsigned pflags = PROC_MEM_ADD_HEAP;
+	if (proc == current)
+		pflags |= PROC_MEM_ADD_IMEDIATE;
+
+	unsigned mflags = 0;
+	if (prot & PROT_READ)
+		mflags |= PAGE_PRESENT;
+	if (prot & PROT_WRITE)
+		mflags |= PAGE_WRITE | PAGE_PRESENT;
+	if (prot & PROT_EXEC)
+		mflags |= PAGE_PRESENT;
+	if (prot == 0)
+		goto err;
+
+	// TODO flags
+
+	// TODO change the virtual addr
+	if (process_memory_add(proc, size, addr, mflags | PAGE_USER_SUPERVISOR, pflags))
+		goto err;
+err:
+	// TODO MAP_FAIL
+	return NULL;
+}
+
+int munmap(void *addr, size_t len)
+{
+	// TODO
+}
+
 void sys(void);
 
 struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
