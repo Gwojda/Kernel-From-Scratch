@@ -65,7 +65,8 @@ int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigne
 	}
 	pm->flags = mflags;
 	pm->size = size;
-	phys_bzero(pm->p_addr, pm->flags);
+	if ((ret = phys_bzero(pm->p_addr, pm->flags)))
+		goto err2;
 	if (pflags & PROC_MEM_ADD_IMEDIATE)
 	{
 		if ((ret = page_map_range(pm->p_addr, v_addr, mflags, size)))

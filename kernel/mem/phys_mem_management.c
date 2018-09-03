@@ -56,12 +56,16 @@ void	*get_phys_block(size_t nb_pages)
 
 int		phys_bzero(void *addr, size_t nb_page)
 {
+	int err = 0;
+
 	while (nb_page > 0)
 	{
-		access_table_with_physical(page_swap, addr);
+		if ((err = access_table_with_physical(page_swap, addr)))
+			goto end;
 		bzero(page_swap, 1 << 12);
 		addr += 1 << 12;
 		nb_page--;
 	}
-	return 0;
+end:
+	return err;
 }
