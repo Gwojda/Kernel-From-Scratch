@@ -106,23 +106,18 @@ void sys(void);
 struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
 {
 	int err;
-	struct process *proc;
+	struct process *proc = NULL;
 
 	if ((proc = process_new()) == NULL)
-		return NULL;
+		goto err;
 	if ((err = process_alloc_pid(&proc->pid)))
-	{
-		free_process(proc);
-		return NULL;
-	}
+		goto err;
 
 	if (process_memory_add(proc, size, v_addr, PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, PROC_MEM_ADD_IMEDIATE | PROC_MEM_ADD_CODE))
-		// TODO free
-		return NULL;
+		goto err;
 	memcpy((void*)((size_t)v_addr & PAGE_ADDR), (void*)((size_t)function & PAGE_ADDR), size + ((size_t)v_addr & PAGE_FLAG));
 	if (process_memory_add(proc, 2 << 12, (void *)0xC0000000 - (2 << 12), PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, PROC_MEM_ADD_IMEDIATE | PROC_MEM_ADD_STACK))
-		// TODO free
-		return NULL;
+		goto err;
 
 	proc->regs.eax = 0;
 	proc->regs.ecx = 0;
@@ -146,4 +141,8 @@ struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
 	proc->regs.gs = GDT_SEG_KDATA;
 	list_add(&proc->plist, &process_list);
 	return proc;
+err:
+	if (proc != NULL)
+		free_process(proc);
+	return NULL;
 }
