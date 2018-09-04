@@ -115,18 +115,19 @@ void	send_signal(struct process *proc)
 		sig_core	//SIGSYS
 	};
 
+
 	if (proc->signal.sig_queue.list.next == &proc->signal.sig_queue.list)
 		return ;
 	sig_send = list_first_entry(&proc->signal.sig_queue.list, struct sig_queue, list);
 	if (!proc->signal.sig_handler[sig_send->sig_handled])
 		sig_handler[sig_send->sig_handled](proc);
 	if ((void *)proc->signal.sig_handler[sig_send->sig_handled] > KERNEL_POS)
-		proc->signal.sig_handler[sig_send->sig_handled](proc); // TODO ATTENTION, il faut qur signal verifie l'input
-									// pour moi, le mieux, c'est verifier l'egaliter entre les fonction
-									// meme en verifien signal
-//	else
+		proc->signal.sig_handler[sig_send->sig_handled](proc);
+	//	else
 		// en cas de syscall signal, ici c'est la partie tricky
 		// repartir cote user en pushant sur la stack user de quoi revenir ici en kernel land
+	if (proc->state != RUN || proc->state != STOPPED)
+		return ;
 	for (size_t i = 0;i < sizeof(blocked_sig) / sizeof(*blocked_sig);++i)
 	{
 		if (blocked_sig[i].signal == sig_send->sig_handled)
@@ -142,9 +143,11 @@ int	add_signal(int sig, struct process *proc)
 {
 	struct sig_queue	*new_signal;
 
-	if (sig <= 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
+	if (sig == 0)
+		return 0;
+	if (sig < 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
 		return -EINVAL;
-	if (!SIG_AVAILABLE(proc->signal.sig_avalaible, sig))
+	if (SIG_UNAVAILABLE(proc->signal.sig_avalaible, sig))	//signal blocked
 		return 0;
 	if ((new_signal = kmalloc(sizeof(struct sig_queue))) == NULL)
 		return -ENOMEM;

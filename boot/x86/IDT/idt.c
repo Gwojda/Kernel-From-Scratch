@@ -70,35 +70,41 @@ void init_idt_desc(u16 select, void (*offset)(), u16 type, struct idtdesc *desc)
 void switch_process(struct interupt *data)
 {
 	int more_one_process = 0;
-	struct process *old = current;
+	struct process *cur_proc = current;
+	struct process *prev_proc;
 
 select:
-	if (current == NULL)
-		current = (struct process *)&process_list;
-
-	current = list_entry(current->plist.next, struct process, plist);
-	if (&current->plist == &process_list)
+	prev_proc = cur_proc;
+	if (cur_proc == NULL)
+		cur_proc = (struct process *)&process_list;
+	cur_proc = list_entry(cur_proc->plist.next, struct process, plist);
+	if (&cur_proc->plist == &process_list)
 	{
-		current = list_first_entry(&process_list, struct process, plist);
-		if (&current->plist == &process_list)
-			current = NULL;
+		cur_proc = list_first_entry(&process_list, struct process, plist);
+		if (&cur_proc->plist == &process_list)
+			cur_proc = NULL;
 	}
 
-	if (current == NULL)
-		;
-	else if (current->state != RUN)
+
+
+	if (cur_proc && cur_proc->state != RUN)
 	{
-		if (current->state != ZOMBIE)
+		if (cur_proc->state != ZOMBIE)
 			more_one_process = 1;
-		if (current == old)
-			current = NULL;
+		if (cur_proc == prev_proc)
+			cur_proc = NULL;
 		else
+		{
+			prev_proc = cur_proc;
 			goto select;
+		}
 	}
 
-	if (more_one_process == 0 && current == NULL)
+	if (more_one_process == 0 && cur_proc == NULL)
 		kern_panic("No more task\n");
-	proc_switch(data, old, current);
+	prev_proc = current;
+	current = cur_proc;
+	proc_switch(data, prev_proc, current);
 }
 
 void irq_clock(struct interupt data)
@@ -133,16 +139,16 @@ void irq_general(struct interupt data)
 		s = signal_info + i;
 		if ((u32)s->number == data.int_no)
 		{
-			if (s->catch(&data))
+			if (s->catch)
 			{
 				if (s->catch(&data) == SIGNAL_INFO_CONTINUE)
 					return ;
 			}
 			if (s->signal >= 0 && data.cs != GDT_SEG_KCODE)
 			{
-				if (s->signal == 0)
+/*				if (s->signal == 0)
 					// zero if for ignore
-					return;
+					return;*/
 				if ((err = add_signal(s->signal, current)) != 0) // TODO check if signal send if first
 					goto kill_process;
 				switch_process(&data);
@@ -150,7 +156,7 @@ void irq_general(struct interupt data)
 				// signal switch
 				return;
 			}
-			if (signal_info[i].error)
+			if (s->error)
 				goto kill_process;
 			return;
 		}
