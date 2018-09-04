@@ -14,6 +14,10 @@
 # define PROT_WRITE		2
 # define PROT_EXEC		1
 
+# define MAP_ANONYMOUS		1
+# define MAP_ANON		MAP_ANONYMOUS
+# define MAP_FIXED		2
+
 # include "typedef.h"
 # include "list.h"
 # include "signal.h"
