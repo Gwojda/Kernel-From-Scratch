@@ -26,6 +26,7 @@
 
 # include "typedef.h"
 # include "list.h"
+# include "page.h"
 # include "signal.h"
 # include "idt.h"
 # include "lib.h"
