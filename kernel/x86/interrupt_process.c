@@ -75,8 +75,12 @@ void proc_switch_p(void)
 	proc_load(global_new, &data);
 	if (process_memory_switch(global_new, 1) != 0)
 		kern_panic("error switch process: map\n");
+	
 	if (&global_new->signal.sig_queue.list != global_new->signal.sig_queue.list.next)
 		send_signal(global_new);
+	if (global_new->state == ZOMBIE)
+		switch_process(&data);
+
 	if (data.cs != GDT_SEG_KCODE)
 	{
 		proc_switch_iret(data);
