@@ -103,33 +103,45 @@ end:
 
 void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags)
 {
+	int err = 0;
+
+	if (size == 0)
+	{
+		err = -EINVAL;
+		goto err;
+	}
 	unsigned pflags = PROC_MEM_ADD_HEAP;
 	if (proc == current)
 		pflags |= PROC_MEM_ADD_IMEDIATE;
 
-	unsigned mflags = 0;
+	unsigned mflags = PAGE_PRESENT;
 	if (prot & PROT_READ)
-		mflags |= PAGE_PRESENT;
+		mflags |= PAGE_USER_SUPERVISOR;
 	if (prot & PROT_WRITE)
-		mflags |= PAGE_WRITE | PAGE_PRESENT;
+		mflags |= PAGE_USER_SUPERVISOR | PAGE_WRITE;
 	if (prot & PROT_EXEC)
-		mflags |= PAGE_PRESENT;
-	if (prot == 0)
-		goto err;
+		mflags |= PAGE_USER_SUPERVISOR;
 
-	// TODO flags
+	if (!(flags & MAP_ANON) || !(flags & MAP_FIXED))
+	{
+		err = -ENOSYS; // TODO for file descriptor
+		goto err;
+	}
 
 	// TODO change the virtual addr
-	if (process_memory_add(proc, size, addr, mflags | PAGE_USER_SUPERVISOR, pflags))
+	if ((err = process_memory_add(proc, size, addr, mflags, pflags)))
 		goto err;
+	return addr;
 err:
-	// TODO MAP_FAIL
-	return NULL;
+	return (void*)err;
 }
 
 int munmap(void *addr, size_t len)
 {
+	(void)addr;
+	(void)len;
 	// TODO
+	return -ENOSYS;
 }
 
 void sys(void);

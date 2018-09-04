@@ -20,6 +20,10 @@
 # define			SIG_EXECUTING (0b00000100)
 # define			SIG_NOT_EXECUTING (0b00001000)
 
+# define MAP_ANONYMOUS		1
+# define MAP_ANON		MAP_ANONYMOUS
+# define MAP_FIXED		2
+
 # include "typedef.h"
 # include "list.h"
 # include "signal.h"
