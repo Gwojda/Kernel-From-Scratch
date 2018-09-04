@@ -149,7 +149,7 @@ void irq_general(struct interupt data)
 /*				if (s->signal == 0)
 					// zero if for ignore
 					return;*/
-				if ((err = add_signal(s->signal, current)) != 0) // TODO check if signal send if first
+				if ((err = add_signal(s->signal, current, SIG_HARD)) != 0) // TODO check if signal send if first
 					goto kill_process;
 				switch_process(&data);
 				//proc_switch(&data, current, current);

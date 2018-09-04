@@ -14,6 +14,12 @@
 # define PROT_WRITE		2
 # define PROT_EXEC		1
 
+# define			SIG_DEFAULT (0b00000000)
+# define			SIG_SOFT (0b00000001)
+# define			SIG_HARD (0b00000010)
+# define			SIG_EXECUTING (0b00000100)
+# define			SIG_NOT_EXECUTING (0b00001000)
+
 # include "typedef.h"
 # include "list.h"
 # include "signal.h"
@@ -34,6 +40,7 @@ struct sig_queue
 {
 	struct list_head	list;
 	u32			sig_handled;
+	char   			state;
 };
 
 struct signal
@@ -100,7 +107,7 @@ extern struct list_head process_list;
 int		process_memory_switch(struct process *proc, int add);
 int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigned mflags, unsigned pflags);
 
-int		add_signal(int sig, struct process *proc);
+int		add_signal(int sig, struct process *proc, int type);
 void	send_signal(struct process *proc);
 int		child_ended(struct process *proc);
 int		process_wait(struct process *proc, pid_t waiting_on_pid);

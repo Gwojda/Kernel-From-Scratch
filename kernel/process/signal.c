@@ -119,14 +119,19 @@ void	send_signal(struct process *proc)
 	if (proc->signal.sig_queue.list.next == &proc->signal.sig_queue.list)
 		return ;
 	sig_send = list_first_entry(&proc->signal.sig_queue.list, struct sig_queue, list);
-	if (!proc->signal.sig_handler[sig_send->sig_handled])
+	if (sig_send->state == SIG_EXECUTING)
+		return ;
+	if (!proc->signal.sig_handler[sig_send->sig_handled] || sig_send->state & SIG_HARD)
 		sig_handler[sig_send->sig_handled](proc);
-	if ((void *)proc->signal.sig_handler[sig_send->sig_handled] > KERNEL_POS)
+	else if ((void *)proc->signal.sig_handler[sig_send->sig_handled] > KERNEL_POS)
 		proc->signal.sig_handler[sig_send->sig_handled](proc);
-	//	else
+	else
+	{
+		sig_send->state |= SIG_EXECUTING;	// because handler might be interrupt in user land
 		// en cas de syscall signal, ici c'est la partie tricky
 		// repartir cote user en pushant sur la stack user de quoi revenir ici en kernel land
-	if (proc->state != RUN || proc->state != STOPPED)
+	}
+	if (proc->state == ZOMBIE)
 		return ;
 	for (size_t i = 0;i < sizeof(blocked_sig) / sizeof(*blocked_sig);++i)
 	{
@@ -139,20 +144,27 @@ void	send_signal(struct process *proc)
 	list_del(&sig_send->list);
 }
 
-int	add_signal(int sig, struct process *proc)
+int	add_signal(int sig, struct process *proc, int type)
 {
 	struct sig_queue	*new_signal;
 
 	if (sig == 0)
 		return 0;
+	if (((type & SIG_HARD) && (type & SIG_SOFT)) ||
+	!((type & SIG_HARD) && !(type & SIG_SOFT)))
+		return -EINVAL;
 	if (sig < 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
 		return -EINVAL;
-	if (SIG_UNAVAILABLE(proc->signal.sig_avalaible, sig))	//signal blocked
+	if ((type & SIG_HARD) && SIG_UNAVAILABLE(proc->signal.sig_avalaible, sig))	//signal blocked
 		return 0;
 	if ((new_signal = kmalloc(sizeof(struct sig_queue))) == NULL)
 		return -ENOMEM;
 	new_signal->sig_handled = sig;
-	list_add(&new_signal->list, &proc->signal.sig_queue.list);
+	new_signal->state = type | SIG_NOT_EXECUTING;
+	if (type & SIG_HARD)
+		list_add(&new_signal->list, &proc->signal.sig_queue.list);
+	else if (type & SIG_SOFT)
+		list_add_end(&new_signal->list, &proc->signal.sig_queue.list);
 	for (size_t i = 0;i < sizeof(blocked_sig) / sizeof(*blocked_sig);++i)
 	{
 		if (blocked_sig[i].signal == (u32)sig)

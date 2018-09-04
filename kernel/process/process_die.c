@@ -30,7 +30,7 @@ void		process_die(struct process *proc)
 		list_del(l);
 	if (proc->father)
 	{
-		add_signal(SIGCHLD, proc->father);
+		add_signal(SIGCHLD, proc->father, SIG_SOFT);
 		proc->state = ZOMBIE;
 	}
 	else
