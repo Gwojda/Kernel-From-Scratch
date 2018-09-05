@@ -92,7 +92,7 @@ int		copy_process(struct process *proc, struct process *neww)
 	process_copy_mem_block(proc, neww, &neww->mm_code, &proc->mm_code, PROC_MEM_ADD_CODE);
 
 	list_for_each_entry(sig_queued, &proc->signal.sig_queue.list, list)
-		add_signal(sig_queued->sig_handled, neww);
+		add_signal(sig_queued->sig_handled, neww, sig_queued->state);
 	return 0;
 }
 
