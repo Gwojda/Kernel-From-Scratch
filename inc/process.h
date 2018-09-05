@@ -17,6 +17,8 @@
 # define MAP_ANONYMOUS		1
 # define MAP_ANON		MAP_ANONYMOUS
 # define MAP_FIXED		2
+# define MAP_USER		4
+# define MAP_KERNEL_SPACE	8
 
 # include "typedef.h"
 # include "list.h"

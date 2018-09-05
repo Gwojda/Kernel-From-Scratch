@@ -65,7 +65,7 @@ int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigne
 	}
 	pm->flags = mflags;
 	pm->size = size;
-	if ((ret = phys_bzero(pm->p_addr, pm->flags)))
+	if ((ret = phys_bzero(pm->p_addr, pm->size)))
 		goto err2;
 	if (pflags & PROC_MEM_ADD_IMEDIATE)
 	{
@@ -88,6 +88,7 @@ int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigne
 			goto err;
 			break ;
 		default:
+			ret = -EINVAL;
 			break ;
 	}
 err2:
@@ -101,15 +102,50 @@ end:
 	return ret;
 }
 
-void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags)
+void *mmap_get_block_l(struct list_head *b, void *addr)
+{
+	struct list_head *l;
+	struct map_memory *pm;
+
+	list_for_each(l, b)
+	{
+		pm = list_entry(l, struct map_memory, plist);
+		if (pm->v_addr <= addr && (char*)pm->v_addr + (pm->size << 12) > addr)
+			return pm;
+	}
+	return NULL;
+}
+
+void *mmap_get_block(struct process *proc, void *addr)
+{
+	void *ret;
+
+	if ((ret = mmap_get_block_l(&proc->mm_stack, addr)))
+		return ret;
+	if ((ret = mmap_get_block_l(&proc->mm_heap, addr)))
+		return ret;
+	if (proc->mm_code.v_addr <= addr && (char*)proc->mm_code.v_addr + (proc->mm_code.size << 12) > addr)
+		return &proc->mm_code;
+	return NULL;
+}
+
+int mmap_is_free(struct process *proc, void *addr)
+{
+	if (mmap_get_block(proc, addr) == NULL)
+		return 1;
+	return 0;
+}
+
+void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags, int fd, size_t offset)
 {
 	int err = 0;
 
-	if (size == 0)
+	if (size == 0 || (size_t)addr & PAGE_FLAG || size & PAGE_FLAG)
 	{
 		err = -EINVAL;
 		goto err;
 	}
+	size <<= size;
 	unsigned pflags = PROC_MEM_ADD_HEAP;
 	if (proc == current)
 		pflags |= PROC_MEM_ADD_IMEDIATE;
@@ -122,13 +158,75 @@ void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags)
 	if (prot & PROT_EXEC)
 		mflags |= PAGE_USER_SUPERVISOR;
 
-	if (!(flags & MAP_ANON) || !(flags & MAP_FIXED))
+	if (!(flags & MAP_ANON) || fd != -1 || offset != 0)
 	{
 		err = -ENOSYS; // TODO for file descriptor
 		goto err;
 	}
 
-	// TODO change the virtual addr
+	void *max_addr = (void*)(((~0) << 12) >> 12);
+	if (!(flags & MAP_KERNEL_SPACE))
+		max_addr = (void*)0xC0000000 - (1 << 12);
+
+	if (flags & MAP_FIXED)
+	{
+		if (addr == NULL || addr > max_addr || addr + (size << 12) > max_addr)
+		{
+			err = -EINVAL;
+			goto err;
+		}
+		size_t find = 0;
+		void *addr2 = addr;
+		while ((err = mmap_is_free(proc, addr2)) == 1)
+		{
+			find++;
+			if (find == size)
+				break;
+			addr2 += 1 << 12;
+			if (addr2 > max_addr)
+			{
+				err = -EINVAL;
+				break;
+			}
+		}
+		if (err != 1)
+		{
+			err = -EINVAL;
+			goto err;
+		}
+	}
+	else
+	{
+		if (addr == NULL || addr >= max_addr)
+			addr = max_addr;
+		void *already = addr;
+		size_t find = 0;
+		while ((err = mmap_is_free(proc, addr)) >= 0)
+		{
+			if (err == 1)
+			{
+				find++;
+				if (find == size)
+					break;
+			}
+			addr -= 1 << 12;
+			if (addr == NULL)
+			{
+				addr = max_addr;
+				find = 0;
+			}
+			if (already == addr)
+			{
+				err = -ENOMEM;
+				goto err;
+			}
+		}
+		if (err == 1)
+			err = 0;
+		else
+			goto err;
+	}
+
 	if ((err = process_memory_add(proc, size, addr, mflags, pflags)))
 		goto err;
 	return addr;
@@ -136,12 +234,74 @@ err:
 	return (void*)err;
 }
 
-int munmap(void *addr, size_t len)
+int munmap(struct process *proc, void *addr, size_t size, int flags)
 {
-	(void)addr;
-	(void)len;
-	// TODO
-	return -ENOSYS;
+	int ret = 0;
+	size_t size_before;
+	size_t size_after;
+
+	if (size == 0 || (size_t)addr & PAGE_FLAG || size & PAGE_FLAG || addr + size < addr)
+	{
+		ret = -EINVAL;
+		goto end;
+	}
+
+	void *max_addr = (void*)(((~0) << 12) >> 12);
+	if (!(flags & MAP_KERNEL_SPACE))
+		max_addr = (void*)0xC0000000 - (1 << 12);
+	if (addr + size > max_addr)
+	{
+		ret = -EINVAL;
+		goto end;
+	}
+
+	size = size << 12;
+	struct map_memory *block = mmap_get_block(proc, addr);
+	if (block == NULL)
+	{
+		ret = -EINVAL;
+		goto end;
+	}
+
+	size_before = (addr - block->v_addr) >> 12;
+	if (block->size - size_before <= size)
+	{
+		//munmap(proc, addr + (block->size - size_before) << 12, (size - block->size - size_before) << 12, flags)
+		size = block->size - size_before; // TODO not recursive
+	}
+	size_after = block->size - size - size_before;
+
+	struct map_memory *new_map = NULL;
+	if (size_after)
+	{
+		if ((new_map = kmalloc(sizeof(*new_map))) == NULL)
+		{
+			ret = -ENOMEM;
+			goto end;
+		}
+		new_map->v_addr = block->v_addr + ((size + size_before) << 12);
+		new_map->p_addr = block->p_addr + ((size + size_before) << 12);
+		new_map->size = size_after;
+		new_map->flags = block->flags;
+	}
+
+	if (proc == current)
+	{
+		if ((ret = page_map_range(block->p_addr + (size_after << 12), block->v_addr + (size_after << 12), block->flags & ~PAGE_PRESENT, size)))
+			goto end;
+	}
+
+	if (new_map)
+		list_add(&new_map->plist, &block->plist);
+	if (size_before == 0)
+	{
+		list_del(&block->plist);
+		kfree(block);
+	}
+	else
+		block->size = size_before;
+end:
+	return ret;
 }
 
 void sys(void);
