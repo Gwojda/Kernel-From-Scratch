@@ -67,7 +67,7 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 
 	struct process *p3 = process_ini_kern(user3, (void*)user3 + 0xC0000000, 1 << 12);
 	process_memory_switch(p3, 0);
-//	add_signal(SIGKILL, p0);
+//	add_signal(SIGKILL, p0, SIG_SOFT);
 
 
 	struct process *p2 = process_ini_kern(user2, (void*)user2 + 0xC0000000, 1 << 12);
