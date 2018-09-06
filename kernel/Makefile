@@ -43,9 +43,11 @@ kernel/process/process_wait.o \
 kernel/process/process_new.o \
 kernel/process/getuid.o \
 kernel/process/process.o \
+kernel/process/exit.o \
 kernel/process/free_process.o \
 kernel/process/copy_process.o \
 kernel/process/signal.o \
+kernel/process/fork.o \
 kernel/x86/page_tool.o \
 kernel/x86/hlt_asm.o \
 kernel/x86/interrupt_proc_asm.o \

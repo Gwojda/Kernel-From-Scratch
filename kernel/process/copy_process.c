@@ -3,6 +3,9 @@
 #include "GDT.h"
 #include "printk.h"
 
+
+//TODO vmalloc 4096 is alligne ?
+//better chose is to use acces page function
 static int	process_copy_mem_block(struct process *proc, struct process *neww,
 		struct map_memory *new_pm, struct map_memory *pm, unsigned pflags)
 {
