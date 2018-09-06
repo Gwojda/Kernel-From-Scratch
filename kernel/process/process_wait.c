@@ -6,11 +6,11 @@
 
 static int	end_of_child(struct process *child, struct process *father)
 {
-	int	ret = child->end_value;
+	father->waiting_return = child->end_value;
+	father->waiting_pid = child->pid;
 	free_process(child);
 	father->state = RUN;
-	father->waiting_return = ret;
-	return ret;
+	return 0;
 }
 
 int		child_ended(struct process *proc, int signum)
@@ -25,7 +25,7 @@ int		child_ended(struct process *proc, int signum)
 			proc->waiting_pid = p->pid;
 			return end_of_child(p, proc);
 		}
-		if (p->pid == proc->waiting_pid)
+		if (p->pid == proc->waiting_pid && p->state == ZOMBIE)
 			return end_of_child(p, proc);
 	}
 	return -1;
