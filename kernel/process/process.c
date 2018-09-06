@@ -145,7 +145,7 @@ void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags, i
 		err = -EINVAL;
 		goto err;
 	}
-	size <<= size;
+	size >>= 12;
 	unsigned pflags = PROC_MEM_ADD_HEAP;
 	if (proc == current)
 		pflags |= PROC_MEM_ADD_IMEDIATE;
@@ -170,7 +170,7 @@ void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags, i
 
 	if (flags & MAP_FIXED)
 	{
-		if (addr == NULL || addr > max_addr || addr + (size << 12) > max_addr)
+		if (addr == NULL || addr >= max_addr || addr + (size << 12) >= max_addr || addr >= addr + (size << 12))
 		{
 			err = -EINVAL;
 			goto err;
@@ -189,7 +189,9 @@ void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags, i
 				break;
 			}
 		}
-		if (err != 1)
+		if (err == 1)
+			err = 0;
+		else
 		{
 			err = -EINVAL;
 			goto err;
@@ -209,6 +211,8 @@ void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags, i
 				if (find == size)
 					break;
 			}
+			else
+				find = 0;
 			addr -= 1 << 12;
 			if (addr == NULL)
 			{
@@ -239,8 +243,9 @@ int munmap(struct process *proc, void *addr, size_t size, int flags)
 	int ret = 0;
 	size_t size_before;
 	size_t size_after;
+	struct map_memory *new_map = NULL;
 
-	if (size == 0 || (size_t)addr & PAGE_FLAG || size & PAGE_FLAG || addr + size < addr)
+	if (size == 0 || (size_t)addr & PAGE_FLAG || size & PAGE_FLAG || addr + size <= addr)
 	{
 		ret = -EINVAL;
 		goto end;
@@ -255,7 +260,7 @@ int munmap(struct process *proc, void *addr, size_t size, int flags)
 		goto end;
 	}
 
-	size = size << 12;
+	size >>= 12;
 	struct map_memory *block = mmap_get_block(proc, addr);
 	if (block == NULL)
 	{
@@ -266,12 +271,12 @@ int munmap(struct process *proc, void *addr, size_t size, int flags)
 	size_before = (addr - block->v_addr) >> 12;
 	if (block->size - size_before <= size)
 	{
-		//munmap(proc, addr + (block->size - size_before) << 12, (size - block->size - size_before) << 12, flags)
+		//if ((ret = munmap(proc, addr + (block->size - size_before) << 12, (size - block->size - size_before) << 12, flags)))
+		//	goto end;
 		size = block->size - size_before; // TODO not recursive
 	}
 	size_after = block->size - size - size_before;
 
-	struct map_memory *new_map = NULL;
 	if (size_after)
 	{
 		if ((new_map = kmalloc(sizeof(*new_map))) == NULL)
@@ -287,12 +292,14 @@ int munmap(struct process *proc, void *addr, size_t size, int flags)
 
 	if (proc == current)
 	{
-		if ((ret = page_map_range(block->p_addr + (size_after << 12), block->v_addr + (size_after << 12), block->flags & ~PAGE_PRESENT, size)))
+		if ((ret = page_map_range(NULL, block->v_addr + (size_after << 12), PAGE_NOTHING, size)))
 			goto end;
 	}
 
+	free_phys_block(block->p_addr + (size_after << 12), size); // TODO MULTI THREAD
+
 	if (new_map)
-		list_add(&new_map->plist, &block->plist);
+		list_add(&new_map->plist, &block->plist); // TODO MULTI THREAD
 	if (size_before == 0)
 	{
 		list_del(&block->plist);
