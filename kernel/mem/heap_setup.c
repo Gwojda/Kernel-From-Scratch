@@ -75,6 +75,7 @@ void	*try_allocate(struct heap_list *heap_entry, size_t alloc_size)
 	alloc_size = (size_t)MALLOC_ALIGN(alloc_size);
 	while ((void *)head < (void *)heap_entry + heap_entry->page_size)
 	{
+		printk("head_size = %x\n", head->size);
 		if (alloc_size < head->size && head->free)
 		{
 			if (head->size > sizeof(struct alloc_header) + 16)
@@ -106,13 +107,13 @@ void *kmalloc(size_t size)
 		if (!heap_entry->virtual && heap_entry->page_size && (ret = try_allocate(heap_entry, size)))
 			return ret;
 	}
-	if (!(new_virt_addr = find_free_virt_addr(size)))
+	if (!(new_virt_addr = find_free_virt_addr(PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)))))
 		goto err;	//no more virt addr available
-	if (!(new_phys_addr = get_phys_block((size_t)PAGE_ALIGN(size) >> 12)))
+	if (!(new_phys_addr = get_phys_block((size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)) >> 12)))
 		goto err1;	//no more aligned phys addr
 	if (page_map(new_phys_addr, new_virt_addr, PAGE_WRITE | PAGE_PRESENT))
 		goto err2;
-	init_new_allocated_block(new_virt_addr, (size_t)PAGE_ALIGN(size), 0);
+	init_new_allocated_block(new_virt_addr, (size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)), 0);
 	heap_entry = list_entry(heap_entry->list.next, typeof(*heap_entry), list);
 	return (try_allocate(heap_entry, size));
 
@@ -139,9 +140,9 @@ void *vmalloc(size_t size)
 		if (heap_entry->virtual && heap_entry->page_size && (ret = try_allocate(heap_entry, size)))
 			return ret;
 	}
-	if (!(new_virt_addr = find_free_virt_addr(size)))
+	if (!(new_virt_addr = find_free_virt_addr(PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)))))
 		goto err;	//no more virt addr available
-	for (void *tmp_virt_addr = new_virt_addr ; tmp_virt_addr < new_virt_addr + (size_t)PAGE_ALIGN(size) ; tmp_virt_addr += 4096)
+	for (void *tmp_virt_addr = new_virt_addr ; tmp_virt_addr < new_virt_addr + (size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)) ; tmp_virt_addr += 4096)
 	{
 		if (!(new_phys_addr = get_phys_block(1)))
 			goto err1;	//no more phys addr
@@ -149,7 +150,7 @@ void *vmalloc(size_t size)
 			goto err2;
 		last_virt_addr_mapped = new_virt_addr;
 	}
-	init_new_allocated_block(new_virt_addr, (size_t)PAGE_ALIGN(size), 1);
+	init_new_allocated_block(new_virt_addr, (size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)), 1);
 	heap_entry = list_entry(heap_entry->list.next, typeof(*heap_entry), list);
 	return (try_allocate(heap_entry, size));
 
