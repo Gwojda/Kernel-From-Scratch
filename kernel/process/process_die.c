@@ -97,6 +97,10 @@ void		process_die(struct process *proc)
 	if (proc->father)
 	{
 		add_signal(SIGCHLD, proc->father, SIG_SOFT);
+		if (proc->father->signal.sig_handler[SIGCHLD] != NULL)
+			;
+		// TODO custom sig
+		// free_process
 		proc->state = ZOMBIE;
 	}
 	else

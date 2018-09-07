@@ -26,6 +26,17 @@
 # define MAP_USER		4
 # define MAP_KERNEL_SPACE	8
 
+# define SIG_KERNEL_SPACE	1
+# define SIG_DFL		((void*)~0)
+# define SIG_IGN		((void*)(~0 & ~1))
+
+# define WAIT_EXITCODE(ret, sig)  ((ret) << 8 | (sig))
+# define WAIT_STOPCODE(sig)       ((sig) << 8 | 0x7f)
+# define WAIT_CONTINUED           0xffff
+# define WAIT_COREFLAG             0x80
+
+# define WNOHANG		1
+
 # include "typedef.h"
 # include "list.h"
 # include "page.h"
@@ -35,13 +46,13 @@
 # include "virt_mem_management.h"
 # include "phys_mem_management.h"
 
-typedef unsigned pid_t;
+typedef int pid_t;
 typedef unsigned uid_t;
 typedef unsigned gid_t;
 
 struct process;
 
-typedef int (*shandler)(struct process *);
+typedef int (*shandler)(struct process *, int id);
 
 struct sig_queue
 {
@@ -91,6 +102,7 @@ struct process
 	struct list_head	children;
 
 	pid_t			waiting_pid;
+	int			waiting_return;
 
 	int			end_value;
 
@@ -116,8 +128,8 @@ int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigne
 
 int		add_signal(int sig, struct process *proc, int type);
 void	send_signal(struct process *proc);
-int		child_ended(struct process *proc);
-int		process_wait(struct process *proc, pid_t waiting_on_pid);
+int		child_ended(struct process *proc, int signum);
+int		process_wait(struct process *proc, pid_t waiting_on_pid, int *wstatus, int option);
 
 void		proc_switch(struct interupt *data, struct process *old, struct process *new);
 int		getuid(struct process *proc);

@@ -3,7 +3,7 @@
 #include "GDT.h"
 #include "printk.h"
 
-static int	process_copy_mem_block(struct process *neww,
+static int	process_copy_mem_block(struct process *neww, 
 		struct map_memory *new_pm, struct map_memory *pm)
 {
 	char			swap[4096];
