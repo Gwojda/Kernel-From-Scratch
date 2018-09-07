@@ -42,7 +42,7 @@ int		process_wait(struct process *proc, pid_t waiting_on_pid, int *wstatus, int 
 		goto end;
 	}
 
-	if ((proc->waiting_pid == waiting_on_pid || waiting_on_pid == 0) && proc->waiting_return)
+	if ((proc->waiting_pid == waiting_on_pid || waiting_on_pid == -1) && proc->waiting_return)
 	{
 		*wstatus = proc->waiting_return;
 		proc->waiting_return = 0;
@@ -56,6 +56,8 @@ int		process_wait(struct process *proc, pid_t waiting_on_pid, int *wstatus, int 
 		if (p->pid == waiting_on_pid)
 			goto start_waiting;
 	}
+	if (waiting_on_pid <= 0)
+		goto wait_signal;
 	err = -ECHILD;
 	goto end;
 
@@ -69,6 +71,7 @@ start_waiting:
 	}
 	else if (!(option & WNOHANG))
 	{
+wait_signal:
 		proc->state = STOPPED;
 		proc->waiting_pid = waiting_on_pid;
 		err = -EWOULDBLOCK;
