@@ -3,6 +3,7 @@
 
 uint32_t kernel_page[1024] __attribute__((aligned(4096)));
 uint32_t page_swap[1024] __attribute__((aligned(4096)));
+uint32_t page_swap2[1024] __attribute__((aligned(4096)));
 
 static inline void invlpg(void* m)
 {

@@ -46,6 +46,7 @@ kernel/process/process.o \
 kernel/process/free_process.o \
 kernel/process/copy_process.o \
 kernel/process/signal.o \
+kernel/process/process_tester.o \
 kernel/x86/page_tool.o \
 kernel/x86/hlt_asm.o \
 kernel/x86/interrupt_proc_asm.o \

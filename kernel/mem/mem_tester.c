@@ -55,5 +55,6 @@ void	mem_tester(void)
 		printk("test %d passed well\n", j);
 		++j;
 	}
+
 	printk("Mem seems to work well !\n");
 }

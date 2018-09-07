@@ -13,5 +13,6 @@ void		free_process(struct process *proc)
 		list_del(l);
 		kfree(l);
 	}
+	kfree(proc);
 //		child is unattach and so has to be attach to process with pid 1
 }

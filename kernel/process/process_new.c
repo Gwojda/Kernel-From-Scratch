@@ -31,6 +31,7 @@ struct process	*process_new()
 	if ((proc = kmalloc(sizeof(*proc))) == NULL)
 		return (NULL);
 	bzero(proc, sizeof(*proc));
+	INIT_LIST_HEAD(&proc->plist);
 	INIT_LIST_HEAD(&proc->children);
 	INIT_LIST_HEAD(&proc->mm_heap);
 	INIT_LIST_HEAD(&proc->mm_stack);

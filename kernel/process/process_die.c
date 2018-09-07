@@ -59,50 +59,6 @@ void		process_free_memory_page(struct process *proc, void *vaddr)
 	}
 }
 
-static void	free_map_memory(struct process *proc, struct map_memory *pm, struct list_head *l)
-{
-	if (proc == current)
-		page_unmap(pm->v_addr, pm->flags);
-	free_phys_block(pm->p_addr, pm->size);
-	list_del(l);
-}
-
-int		process_free_memory(struct process *proc, void *vaddr, size_t size)
-{
-	struct map_memory	*pm;
-	struct list_head	*l;
-	struct list_head	*n;
-
-	list_for_each_safe(l, n, &proc->mm_heap)
-	{
-		pm = list_entry(l, struct map_memory, plist);
-		if (pm->v_addr != vaddr)
-			continue ;
-		if (pm->size != size)
-			return -EINVAL;
-		free_map_memory(proc, pm, l);
-	}
-	list_for_each_safe(l, n, &proc->mm_stack)
-	{
-		pm = list_entry(l, struct map_memory, plist);
-		if (pm->v_addr != vaddr)
-			continue ;
-		if (pm->size != size)
-			return -EINVAL;
-		free_map_memory(proc, pm, l);
-	}
-	if (pm->size != size ||
-	proc->mm_code.v_addr != vaddr)
-		return -EINVAL;
-	if (proc == current)
-		page_unmap(proc->mm_code.v_addr, proc->mm_code.flags);
-	free_phys_block(proc->mm_code.p_addr, proc->mm_code.size);
-	proc->mm_code.size = 0;
-	proc->mm_code.v_addr = NULL;
-	proc->mm_code.p_addr = NULL;
-	return 0;
-}
-
 void		process_free_all_memory(struct process *proc)
 {
 	struct map_memory	*pm;

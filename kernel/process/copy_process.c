@@ -3,34 +3,30 @@
 #include "GDT.h"
 #include "printk.h"
 
-static int	process_copy_mem_block(struct process *proc, struct process *neww,
-		struct map_memory *new_pm, struct map_memory *pm, unsigned pflags)
+static int	process_copy_mem_block(struct process *neww,
+		struct map_memory *new_pm, struct map_memory *pm)
 {
+	char			swap[4096];
+	char			swap2[4096];
 	char			*tmp;
+	void			*p_swap_addr;
 
 	new_pm->v_addr = pm->v_addr;
 	new_pm->flags = pm->flags;
 	new_pm->size = pm->size;
-	if ((tmp = vmalloc(pm->size * 4096)) == NULL)
+	if ((new_pm->p_addr = get_phys_block(new_pm->size)) == NULL)
 		return -1;
-	memcpy(tmp, pm->v_addr, pm->size * 4096);
-	if (process_memory_switch(proc, 0))
+	p_swap_addr = page_get_phys(swap);
+	p_swap_addr = page_get_phys(swap2);
+	for (size_t i = 0; i < pm->size * 4096; i += 4096)
 	{
-		vfree(tmp);
-		return -1;
+		access_table_with_physical(page_swap, new_pm->p_addr);
+		access_table_with_physical(page_swap2, pm->p_addr);
+		memcpy(page_swap, page_swap2, 4096);
 	}
-	process_memory_add(neww, new_pm->size, new_pm->v_addr, PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, pflags);
-	if (page_map(new_pm->p_addr, new_pm->v_addr, new_pm->flags))
-	{
-		free_phys_block(new_pm->p_addr, new_pm->size);
-		vfree(tmp);
-		return -2;
-	}
-	memcpy(new_pm->v_addr, tmp, new_pm->size * 4096);
-	page_unmap(new_pm->v_addr, new_pm->flags);
+	page_map(p_swap_addr, swap, pm->flags);
+	page_map(p_swap_addr, swap2, pm->flags);
 	vfree(tmp);
-	if (process_memory_switch(proc, 1))
-		return -1;
 	return 0;
 }
 
@@ -42,30 +38,15 @@ int		copy_process(struct process *proc, struct process *neww)
 	struct list_head	*l;
 	struct children		*new_child;
 	struct sig_queue	*sig_queued;
-	int			checker;
 
-	neww->state = proc->state;
-	if ((err = process_alloc_pid(&neww->pid)))
-		return err;
-	neww->regs = proc->regs;
-	neww->uid = proc->uid;
-
-	INIT_LIST_HEAD(&neww->children);
-
-	neww->father = proc;
-	new_child = (struct children *)kmalloc(sizeof(*new_child));
-	new_child->p = neww;
-	list_add(&new_child->list, &proc->children);
-
+	if (process_alloc_pid(&neww->pid) < 0)
+		return -1;
 	list_for_each(l, &proc->mm_heap)
 	{
 		pm = list_entry(l, struct map_memory, plist);
 		if ((new_pm = kmalloc(sizeof(*pm))) == NULL)
 			return -1;
-		checker = process_copy_mem_block(proc, neww, new_pm, pm, PROC_MEM_ADD_STACK);
-		if (checker == -1)
-			return -1;
-		else if (checker == -2)
+		if (process_copy_mem_block(neww, new_pm, pm) < 0)
 		{
 			kfree(new_pm);
 			return -1;
@@ -78,10 +59,7 @@ int		copy_process(struct process *proc, struct process *neww)
 		pm = list_entry(l, struct map_memory, plist);
 		if ((new_pm = kmalloc(sizeof(*pm))) == NULL)
 			return -1;
-		checker = process_copy_mem_block(proc, neww, new_pm, pm, PROC_MEM_ADD_HEAP);
-		if (checker == -1)
-			return -1;
-		else if (checker == -2)
+		if (process_copy_mem_block(neww, new_pm, pm) < 0)
 		{
 			kfree(new_pm);
 			return -1;
@@ -89,21 +67,39 @@ int		copy_process(struct process *proc, struct process *neww)
 		list_add(&new_pm->plist, &neww->mm_stack);
 	}
 
-	process_copy_mem_block(proc, neww, &neww->mm_code, &proc->mm_code, PROC_MEM_ADD_CODE);
+	if (process_copy_mem_block(neww, &neww->mm_code, &proc->mm_code) < 0)
+		return -1;
 
 	list_for_each_entry(sig_queued, &proc->signal.sig_queue.list, list)
 		add_signal(sig_queued->sig_handled, neww, sig_queued->state);
+
+	if (!(new_child = (struct children *)kmalloc(sizeof(*new_child))))
+		return -1;
+	new_child->p = neww;
+	neww->state = proc->state;
+	if ((err = process_alloc_pid(&neww->pid)))
+		return err;
+	neww->regs = proc->regs;
+	neww->uid = proc->uid;
+
+	INIT_LIST_HEAD(&neww->children);
+
+	neww->father = proc;
+	neww->end_value = 0;
+	neww->waiting_pid = 0;
+
+	list_add(&new_child->list, &proc->children);
+	list_add(&neww->plist, &proc->plist);
 	return 0;
 }
 
 struct process	*process_dup(struct process *proc)
 {
-	int err;
 	struct process *neww = process_new();
 
 	if (neww == NULL)
 		return NULL;
-	if ((err = copy_process(proc, neww)))
+	if (copy_process(proc, neww) < 0)
 	{
 		free_process(neww);
 		return NULL;

@@ -28,6 +28,7 @@
 
 extern uint32_t page_directory[1024];
 extern uint32_t page_swap[1024];
+extern uint32_t page_swap2[1024];
 
 int page_map(void *physical_addr, void *virtual_addr, unsigned flags);
 int page_map_range(void *phy_addr, void *virt_addr, unsigned flags, size_t size);
