@@ -2,6 +2,7 @@
 #include "printk.h"
 #include "errno.h"
 #include "idt.h"
+#include "page.h"
 
 static void	free_page_map_memory(struct process *proc, struct map_memory *pm, struct list_head *l)
 {
@@ -87,20 +88,20 @@ void		process_free_all_memory(struct process *proc)
 	free_phys_block(proc->mm_code.p_addr, proc->mm_code.size);
 }
 
-void		process_die(struct process *proc)
+void		process_die_safe(struct process *proc)
 {
 	struct list_head	*l;
 	struct list_head	*n;
 
-	// si proc == current alors il faut jump sur une stack different et changer de process
+// si proc == current alors il faut jump sur une stack different et changer de process
 	process_free_all_memory(proc);
 	list_for_each_safe(l, n, &proc->signal.sig_queue.list)
 		list_del(l);
 	if (proc->father)
 	{
 		add_signal(SIGCHLD, proc->father, SIG_SOFT);
-		if (proc->father->signal.sig_handler[SIGCHLD] != NULL)
-			;
+//		if (proc->father->signal.sig_handler[SIGCHLD] != NULL)
+//			;
 		// TODO custom sig
 		// free_process
 		proc->state = ZOMBIE;
@@ -111,6 +112,15 @@ void		process_die(struct process *proc)
 	if (proc == current)
 	{
 		current = NULL;
-		die_switch_stack(proc_switch_context, NULL, &switch_process);
+		reload_process(proc_switch_context, NULL, &switch_process);
 	}
+}
+
+void		process_die(struct process *proc)
+{
+	if (proc == current)
+	{
+		reload_process(proc_switch_context, proc, &process_die_safe);
+	}
+	process_die_safe(proc);
 }

@@ -55,3 +55,4 @@ kernel/x86/interrupt_proc_asm.o \
 kernel/x86/syscall.o \
 kernel/x86/asm.o \
 kernel/x86/user1.o \
+kernel/process/process_die_asm.o \

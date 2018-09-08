@@ -8,8 +8,6 @@ void user_shell(void);
 void user_hlt(void);
 void user_noobcrash(void);
 
-
-
 void	process_tester(void)
 {
 //	struct process *p1 = process_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
