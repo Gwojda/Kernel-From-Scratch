@@ -73,5 +73,6 @@ void	page_directory_set(void *);
 
 void	stack_setup(void);
 int access_table_with_physical(void *empty_static_page, void *physical);
+int page_unmap_at(void *virt_addr, unsigned flags, size_t nb_page);
 
 #endif

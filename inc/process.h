@@ -152,5 +152,7 @@ struct process		*process_hlt_creat(void);
 void			process_hlt_user(void);
 void switch_stack(void *, void *);
 void proc_switch_iret(struct interupt);
+void reload_process(void *, void *, void *);
+void	process_tester(void);
 
 #endif

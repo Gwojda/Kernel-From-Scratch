@@ -3,12 +3,10 @@
 #include "GDT.h"
 #include "printk.h"
 
-static int	process_copy_mem_block(struct process *neww, 
-		struct map_memory *new_pm, struct map_memory *pm)
+static int	process_copy_mem_block(struct map_memory *new_pm, struct map_memory *pm)
 {
 	char			swap[4096];
 	char			swap2[4096];
-	char			*tmp;
 	void			*p_swap_addr;
 
 	new_pm->v_addr = pm->v_addr;
@@ -26,7 +24,6 @@ static int	process_copy_mem_block(struct process *neww,
 	}
 	page_map(p_swap_addr, swap, pm->flags);
 	page_map(p_swap_addr, swap2, pm->flags);
-	vfree(tmp);
 	return 0;
 }
 
@@ -46,7 +43,7 @@ int		copy_process(struct process *proc, struct process *neww)
 		pm = list_entry(l, struct map_memory, plist);
 		if ((new_pm = kmalloc(sizeof(*pm))) == NULL)
 			return -1;
-		if (process_copy_mem_block(neww, new_pm, pm) < 0)
+		if (process_copy_mem_block(new_pm, pm) < 0)
 		{
 			kfree(new_pm);
 			return -1;
@@ -59,7 +56,7 @@ int		copy_process(struct process *proc, struct process *neww)
 		pm = list_entry(l, struct map_memory, plist);
 		if ((new_pm = kmalloc(sizeof(*pm))) == NULL)
 			return -1;
-		if (process_copy_mem_block(neww, new_pm, pm) < 0)
+		if (process_copy_mem_block(new_pm, pm) < 0)
 		{
 			kfree(new_pm);
 			return -1;
@@ -67,7 +64,7 @@ int		copy_process(struct process *proc, struct process *neww)
 		list_add(&new_pm->plist, &neww->mm_stack);
 	}
 
-	if (process_copy_mem_block(neww, &neww->mm_code, &proc->mm_code) < 0)
+	if (process_copy_mem_block(&neww->mm_code, &proc->mm_code) < 0)
 		return -1;
 
 	list_for_each_entry(sig_queued, &proc->signal.sig_queue.list, list)

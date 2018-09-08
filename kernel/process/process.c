@@ -110,7 +110,7 @@ void *mmap_get_block_l(struct list_head *b, void *addr)
 	list_for_each(l, b)
 	{
 		pm = list_entry(l, struct map_memory, plist);
-		if (pm->v_addr <= addr && (char*)pm->v_addr + (pm->size << 12) > addr)
+		if (pm->v_addr <= addr && (void *)pm->v_addr + (pm->size << 12) > addr)
 			return pm;
 	}
 	return NULL;
@@ -124,7 +124,7 @@ void *mmap_get_block(struct process *proc, void *addr)
 		return ret;
 	if ((ret = mmap_get_block_l(&proc->mm_heap, addr)))
 		return ret;
-	if (proc->mm_code.v_addr <= addr && (char*)proc->mm_code.v_addr + (proc->mm_code.size << 12) > addr)
+	if (proc->mm_code.v_addr <= addr && (void *)proc->mm_code.v_addr + (proc->mm_code.size << 12) > addr)
 		return &proc->mm_code;
 	return NULL;
 }
@@ -164,7 +164,7 @@ void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags, i
 		goto err;
 	}
 
-	void *max_addr = (void*)(((~0) << 12) >> 12);
+	void *max_addr = (void*)((~0) << 12);
 	if (!(flags & MAP_KERNEL_SPACE))
 		max_addr = (void*)0xC0000000 - (1 << 12);
 
@@ -251,7 +251,7 @@ int munmap(struct process *proc, void *addr, size_t size, int flags)
 		goto end;
 	}
 
-	void *max_addr = (void*)(((~0) << 12) >> 12);
+	void *max_addr = (void*)((~0) << 12);
 	if (!(flags & MAP_KERNEL_SPACE))
 		max_addr = (void*)0xC0000000 - (1 << 12);
 	if (addr + size > max_addr)

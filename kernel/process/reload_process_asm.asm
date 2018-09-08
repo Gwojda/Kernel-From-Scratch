@@ -1,5 +1,5 @@
-global die_switch_stack
-die_switch_stack:
+global reload_process
+reload_process:
 	push ebp
 	mov ebp, esp
 	mov esp, [ebp + 4 * 2]

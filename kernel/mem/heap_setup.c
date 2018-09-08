@@ -106,7 +106,7 @@ void *kmalloc(size_t size)
 		if (!heap_entry->virtual && heap_entry->page_size && (ret = try_allocate(heap_entry, size)))
 			return ret;
 	}
-	if (!(new_virt_addr = find_free_virt_addr(PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)))))
+	if (!(new_virt_addr = find_free_virt_addr((size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)))))
 		goto err;	//no more virt addr available
 	if (!(new_phys_addr = get_phys_block((size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)) >> 12)))
 		goto err1;	//no more aligned phys addr
@@ -139,7 +139,7 @@ void *vmalloc(size_t size)
 		if (heap_entry->virtual && heap_entry->page_size && (ret = try_allocate(heap_entry, size)))
 			return ret;
 	}
-	if (!(new_virt_addr = find_free_virt_addr(PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)))))
+	if (!(new_virt_addr = find_free_virt_addr((size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)))))
 		goto err;	//no more virt addr available
 	for (void *tmp_virt_addr = new_virt_addr ; tmp_virt_addr < new_virt_addr + (size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)) ; tmp_virt_addr += 4096)
 	{

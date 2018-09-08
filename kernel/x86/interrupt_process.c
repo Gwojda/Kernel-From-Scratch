@@ -77,7 +77,8 @@ void proc_switch_p(void)
 	
 	if (&global_new->signal.sig_queue.list != global_new->signal.sig_queue.list.next)
 		send_signal(global_new);
-	if (global_new->state == ZOMBIE)
+	// pas encore de thread
+	if (global_new->state != RUN)
 		switch_process(&data);
 
 	if (data.cs != GDT_SEG_KCODE)
