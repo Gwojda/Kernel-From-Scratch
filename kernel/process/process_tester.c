@@ -7,6 +7,7 @@ void user3(void);
 void user_shell(void);
 void user_hlt(void);
 void user_noobcrash(void);
+void testwait(void);
 
 
 
@@ -23,8 +24,8 @@ void	process_tester(void)
 	process_memory_switch(p0, 0);
 	p0 = process_dup(p0);
 	process_memory_switch(p0, 0);
-	p0 = process_ini_kern(user_noobcrash, (void*)user_noobcrash + 0xC0000000, 1 << 12);
-	process_memory_switch(p0, 0);
+	//p0 = process_ini_kern(user_noobcrash, (void*)user_noobcrash + 0xC0000000, 1 << 12);
+	//process_memory_switch(p0, 0);
 
 
 /*	struct process *p3 = process_ini_kern(user3, (void*)user3 + 0xC0000000, 1 << 12);
@@ -96,5 +97,8 @@ void	process_tester(void)
 	process_memory_switch(p3, 0);
 	p3 = process_ini_kern(user3, (void*)user3 + 0xC0000000, 1 << 12);
 	process_memory_switch(p3, 0);*/
+	struct process *w = process_ini_kern(testwait, (void*)testwait + 0xC0000000, 1 << 12);
+	process_memory_switch(w, 0);
+	fork(w);
 
 }
