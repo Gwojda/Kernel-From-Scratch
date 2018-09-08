@@ -93,5 +93,6 @@ void _asm_irq_33(void);
 void _asm_irq_128(void);
 
 void init_idt(void);
+void switch_process(struct interupt *data);
 
 #endif

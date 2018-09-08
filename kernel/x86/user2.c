@@ -50,3 +50,9 @@ __attribute__ ((section(".ucode"))) void user_shell(void)
 {
 	launchshell();
 }
+
+__attribute__ ((section(".ucode"))) void user_noobcrash(void)
+{
+	char *ptr = NULL;
+	*ptr = 42;	// AH
+}

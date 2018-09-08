@@ -123,6 +123,9 @@ struct process
 extern struct process *current;
 extern struct list_head process_list;
 
+extern char proc_switch_context[4096];
+extern struct process	*process_hlt;
+
 int		process_memory_switch(struct process *proc, int add);
 int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigned mflags, unsigned pflags);
 
@@ -147,6 +150,7 @@ struct process *process_get_with_pid(pid_t pid);
 
 struct process		*process_hlt_creat(void);
 void			process_hlt_user(void);
-extern struct process	*process_hlt;
+void switch_stack(void *, void *);
+void proc_switch_iret(struct interupt);
 
 #endif

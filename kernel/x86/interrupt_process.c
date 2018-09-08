@@ -2,6 +2,11 @@
 #include "process.h"
 #include "GDT.h"
 
+static struct process *global_old;
+static struct process *global_new;
+
+char proc_switch_context[4096];
+
 void proc_save(struct process* proc, struct interupt *data)
 {
 	proc->regs.ds = data->ds;
@@ -56,12 +61,6 @@ static void proc_load(struct process* proc, struct interupt *data)
 		data->esp = proc->regs.esp;
 }
 
-static struct process *global_old;
-static struct process *global_new;
-static char proc_switch_context[4096 * 2];
-void switch_stack(void *, void *);
-void proc_switch_iret(struct interupt);
-
 void proc_switch_p(void)
 {
 	struct interupt data;
@@ -107,7 +106,7 @@ void proc_switch_p(void)
 	dataptr->eip = data.eip;
 	dataptr->cs = data.cs;
 	dataptr->eflags = data.eflags;
-	// We dont push useresp and ss to not corupt the stack
+	// We dont push useresp and ss
 	switch_stack(((char*)dataptr), proc_switch_iret);
 }
 

@@ -1,6 +1,7 @@
 #include "process.h"
 #include "printk.h"
 #include "errno.h"
+#include "idt.h"
 
 static void	free_page_map_memory(struct process *proc, struct map_memory *pm, struct list_head *l)
 {
@@ -91,6 +92,7 @@ void		process_die(struct process *proc)
 	struct list_head	*l;
 	struct list_head	*n;
 
+	// si proc == current alors il faut jump sur une stack different et changer de process
 	process_free_all_memory(proc);
 	list_for_each_safe(l, n, &proc->signal.sig_queue.list)
 		list_del(l);
@@ -105,4 +107,10 @@ void		process_die(struct process *proc)
 	}
 	else
 		proc->state = ZOMBIE;
+	// problem en cas de multi coeur ici
+	if (proc == current)
+	{
+		current = NULL;
+		die_switch_stack(proc_switch_context, NULL, &switch_process);
+	}
 }
