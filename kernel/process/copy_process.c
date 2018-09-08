@@ -77,7 +77,7 @@ int		copy_process(struct process *proc, struct process *neww)
 		return -1;
 	new_child->p = neww;
 	neww->state = proc->state;
-	if ((err = process_alloc_pid(&neww->pid)))
+	if ((err = process_alloc_pid(&neww->pid)))// process_new -> deja alloc
 		return err;
 	neww->regs = proc->regs;
 	neww->uid = proc->uid;

@@ -6,8 +6,21 @@ void		free_process(struct process *proc)
 {
 	struct list_head	*l;
 	struct list_head	*n;
+	struct children		*c;
 
 	list_del(&proc->plist);
+	if (proc->father)
+	{
+		list_for_each_entry(c, &proc->father->children, list)
+		{
+			if (c->p == proc)
+			{
+				list_del(c);
+				kfree(c);
+				break ;
+			}
+		}
+	}
 	list_for_each_safe(l, n, &proc->children)
 	{
 		list_del(l);
