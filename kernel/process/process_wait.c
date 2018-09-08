@@ -16,10 +16,12 @@ static int	end_of_child(struct process *child, struct process *father)
 int		child_ended(struct process *proc, int signum)
 {
 	(void)signum;
+	struct children *pc;
 	struct process	*p;
 
-	list_for_each_entry(p, &proc->children, children)
+	list_for_each_entry(pc, &proc->children, list)
 	{
+		p = pc->p;
 		if (proc->waiting_pid == -1 && p->state == ZOMBIE)
 		{
 			proc->waiting_pid = p->pid;
@@ -34,7 +36,8 @@ int		child_ended(struct process *proc, int signum)
 int		process_wait(struct process *proc, pid_t waiting_on_pid, int *wstatus, int option)
 {
 	int err = 0;
-	struct process	*p;
+	struct children *pc;
+	struct process *p;
 
 	if (waiting_on_pid == 0 || waiting_on_pid < -1)
 	{
@@ -49,15 +52,21 @@ int		process_wait(struct process *proc, pid_t waiting_on_pid, int *wstatus, int 
 		return proc->waiting_pid;
 	}
 
-	list_for_each_entry(p, &proc->children, children)
+	list_for_each_entry(pc, &proc->children, list)
 	{
+		p = pc->p;
 		if (waiting_on_pid == -1 && p->state == ZOMBIE)
 			goto start_waiting;
 		if (p->pid == waiting_on_pid)
 			goto start_waiting;
 	}
-	if (waiting_on_pid <= 0)
+
+	if (waiting_on_pid <= 0 && proc->children.next != &(proc->children))
+	{
+		if (option & WNOHANG)
+			return (0);
 		goto wait_signal;
+	}
 	err = -ECHILD;
 	goto end;
 

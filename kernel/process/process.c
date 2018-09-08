@@ -311,7 +311,19 @@ end:
 	return ret;
 }
 
-void sys(void);
+struct process *process_get_with_pid(pid_t pid)
+{
+	struct list_head *l;
+	struct process *p;
+
+	list_for_each(l, &process_list)
+	{
+		p = list_entry(l, struct process, plist);
+		if (p->pid == pid)
+			return p;
+	}
+	return NULL;
+}
 
 struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
 {

@@ -146,6 +146,7 @@ struct process	*process_new();
 int		process_alloc_pid(pid_t *pid);
 struct process	*process_dup(struct process *proc);
 struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size);
+struct process *process_get_with_pid(pid_t pid);
 
 struct process		*process_hlt_creat(void);
 void			process_hlt_user(void);

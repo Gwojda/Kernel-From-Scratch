@@ -50,6 +50,25 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 
 	//mem_tester();
 	process_tester();
+
+	struct process *p, *pk;
+	void user3();
+	process_memory_switch(p = process_ini_kern(user3, (void*)user3 + 0xC0000000, 1 << 12), 0);
+	process_get_with_pid(0);
+	pid_t pid = fork(p);
+	pk = process_get_with_pid(pid);
+	printk("pid = %d ptr = %p\n", pid, pk);
+	int status;
+	printk("wait ret = %d %d\n", process_wait(p, pid, &status, WNOHANG), status);
+	exit(pk, 9);
+	printk("wait ret = %d %d\n", process_wait(p, pid, &status, WNOHANG), status);
+	printk("wait ret = %d %d\n", process_wait(p, pid, &status, WNOHANG), status);
+	printk("wait %d %d\n", process_wait(p, -1, &status, 0), status);
+	printk("wait %d %d\n", process_wait(p, pid, &status, 0), status);
+	printk("wait %d %d\n", process_wait(p, pid, &status, 0), status);
+
+	exit(p, 3);
+
 	asm volatile("sti");
 	while (1)
 		asm("hlt");
