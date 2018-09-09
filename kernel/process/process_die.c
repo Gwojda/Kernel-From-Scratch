@@ -100,14 +100,16 @@ void		process_die_safe(struct process *proc)
 	if (proc->father)
 	{
 		add_signal(SIGCHLD, proc->father, SIG_SOFT);
-//		if (proc->father->signal.sig_handler[SIGCHLD] != NULL)
-//			;
-		// TODO custom sig
-		// free_process
+		if (proc->father->signal.sig_handler[SIGCHLD] != NULL)
+			goto free_proc;
 		proc->state = ZOMBIE;
 	}
 	else
+free_proc:
+	{
 		proc->state = ZOMBIE;
+		free_process(proc);
+	}
 	// problem en cas de multi coeur ici
 	if (proc == current)
 	{
