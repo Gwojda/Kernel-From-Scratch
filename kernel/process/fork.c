@@ -18,6 +18,5 @@ pid_t	fork(struct process *proc)
 	}
 
 	new->father = proc;
-	printk("Fork new pid %d\n", new->pid);
 	return new->pid;
 }

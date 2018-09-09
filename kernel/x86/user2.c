@@ -1,5 +1,7 @@
 #include "syscall.h"
 #include "shell.h"
+#include "process.h"
+#include "errno.h"
 
 void sys(void);
 
@@ -39,6 +41,20 @@ __attribute__ ((section(".ucode"))) void user3(void)
 				;
 		sys();
 	}
+}
+
+__attribute__ ((section(".ucode"))) void testwait(void)
+{
+	int status;
+	pid_t pid;
+start:
+	pid = process_wait(current, -1, &status, WNOHANG);
+	if (pid == -ECHILD)
+		exit(current, 4);
+	if (pid == NULL || pid == -EAGAIN)
+		goto start;
+	printk("status%d %d %d\n", current->pid, status, pid);
+	goto start;
 }
 
 __attribute__ ((section(".ucode"))) void sys(void)

@@ -10,6 +10,7 @@ static int	end_of_child(struct process *child, struct process *father)
 	father->waiting_pid = child->pid;
 	free_process(child);
 	father->state = RUN;
+	printk("wake up");
 	return 0;
 }
 
@@ -81,6 +82,7 @@ start_waiting:
 	else if (!(option & WNOHANG))
 	{
 wait_signal:
+		printk("stoped");
 		proc->state = STOPPED;
 		proc->waiting_pid = waiting_on_pid;
 		err = -EWOULDBLOCK;

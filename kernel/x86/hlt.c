@@ -4,7 +4,7 @@
 struct process	*process_hlt_creat(void)
 {
 	struct process	*proc;
-	char		*stack = kmalloc(128);
+	char		*stack = kmalloc(4096);
 
 	if (stack == NULL)
 		return NULL;
@@ -14,7 +14,7 @@ struct process	*process_hlt_creat(void)
 		return NULL;
 	}
 
-	proc->regs.esp = (u32)(stack + 128);
+	proc->regs.esp = (u32)(stack + 4096);
 	proc->regs.eip = (u32)process_hlt_user;
 	proc->regs.cs = GDT_SEG_KCODE;
 	proc->regs.ss = GDT_SEG_KSTACK;

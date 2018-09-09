@@ -18,10 +18,10 @@ void	process_tester(void)
 		kern_panic("Can not setup process");
 
 //	struct process *p0 = process_ini_kern((u32*)user_shell, (void*)user_shell + 0xC0000000, 1 << 12);
-	struct process *p0 = process_ini_kern(user2, (void*)user2 + 0xC0000000, 1 << 12);
-	process_memory_switch(p0, 0);
-	p0 = process_dup(p0);
-	process_memory_switch(p0, 0);
+	//struct process *p0 = process_ini_kern(user2, (void*)user2 + 0xC0000000, 1 << 12);
+	//process_memory_switch(p0, 0);
+	//p0 = process_dup(p0);
+	//process_memory_switch(p0, 0);
 	//p0 = process_ini_kern(user_noobcrash, (void*)user_noobcrash + 0xC0000000, 1 << 12);
 	//process_memory_switch(p0, 0);
 
@@ -97,6 +97,10 @@ void	process_tester(void)
 	process_memory_switch(p3, 0);*/
 	struct process *w = process_ini_kern(testwait, (void*)testwait + 0xC0000000, 1 << 12);
 	process_memory_switch(w, 0);
-	fork(w);
+	pid_t x = fork(w);
+	process_memory_switch(process_get_with_pid(x), 0);
+	pid_t y = fork(w);
+	process_memory_switch(process_get_with_pid(y), 0);
+	kill(process_get_with_pid(x), 5);
 
 }

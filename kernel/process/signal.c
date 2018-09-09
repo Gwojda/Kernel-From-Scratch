@@ -157,8 +157,8 @@ int	add_signal(int sig, struct process *proc, int type)
 
 	if (sig == 0)
 		return 0;
-	if (((type & SIG_HARD) && (type & SIG_SOFT)) ||
-	!((type & SIG_HARD) && !(type & SIG_SOFT)))
+	if (((type & SIG_HARD) && !(type & SIG_SOFT)) &&
+	(!(type & SIG_HARD) && (type & SIG_SOFT)))
 		return -EINVAL;
 	if (sig < 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
 		return -EINVAL;
