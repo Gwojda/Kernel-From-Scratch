@@ -102,6 +102,13 @@ end:
 	return ret;
 }
 
+size_t mmap_get_number_of_page(size_t size)
+{
+	if (size % 4096)
+		size += 4096;
+	return (size >> 12);
+}
+
 void *mmap_get_block_l(struct list_head *b, void *addr)
 {
 	struct list_head *l;
@@ -140,12 +147,12 @@ void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags, i
 {
 	int err = 0;
 
-	if (size == 0 || (size_t)addr & PAGE_FLAG || size & PAGE_FLAG)
+	if (size == 0 || (size_t)addr & PAGE_FLAG)
 	{
 		err = -EINVAL;
 		goto err;
 	}
-	size >>= 12;
+	size = mmap_get_number_of_page(size);
 	unsigned pflags = PROC_MEM_ADD_HEAP;
 	if (proc == current)
 		pflags |= PROC_MEM_ADD_IMEDIATE;
@@ -164,9 +171,9 @@ void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags, i
 		goto err;
 	}
 
-	void *max_addr = (void*)((~0) << 12);
+	void *max_addr = (void*)(((size_t)~0) << 12);
 	if (!(flags & MAP_KERNEL_SPACE))
-		max_addr = (void*)0xC0000000 - (1 << 12);
+		max_addr = (void*)0xC0000000 - (1 << 12) - (2 << 12);// TODO stack place
 
 	if (flags & MAP_FIXED)
 	{
@@ -245,13 +252,13 @@ int munmap(struct process *proc, void *addr, size_t size, int flags)
 	size_t size_after;
 	struct map_memory *new_map = NULL;
 
-	if (size == 0 || (size_t)addr & PAGE_FLAG || size & PAGE_FLAG || addr + size <= addr)
+	if (size == 0 || (size_t)addr & PAGE_FLAG || addr + size <= addr)
 	{
 		ret = -EINVAL;
 		goto end;
 	}
 
-	void *max_addr = (void*)((~0) << 12);
+	void *max_addr = (void*)(((size_t)~0) << 12);
 	if (!(flags & MAP_KERNEL_SPACE))
 		max_addr = (void*)0xC0000000 - (1 << 12);
 	if (addr + size > max_addr)
@@ -260,7 +267,7 @@ int munmap(struct process *proc, void *addr, size_t size, int flags)
 		goto end;
 	}
 
-	size >>= 12;
+	size = mmap_get_number_of_page(size);
 	struct map_memory *block = mmap_get_block(proc, addr);
 	if (block == NULL)
 	{
