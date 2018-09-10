@@ -51,7 +51,6 @@ int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigne
 	v_addr = (void*)((size_t)v_addr & PAGE_ADDR);
 	size = (size % 4096) ? (size >> 12) + 1: size >> 12;
 	if ((phys = page_get_phys(v_addr)))
-		// TODO check more thing, it can be ok
 		return -ENOMEM;
 	if ((mflags & PAGE_PRESENT) == 0)
 		return -EINVAL;
