@@ -10,7 +10,6 @@ static int	end_of_child(struct process *child, struct process *father)
 	father->waiting_pid = child->pid;
 	free_process(child);
 	father->state = RUN;
-	printk("wake up\n");
 	return 0;
 }
 

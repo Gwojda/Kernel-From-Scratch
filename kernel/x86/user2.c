@@ -51,7 +51,7 @@ start:
 	pid = process_wait(current, -1, &status, WNOHANG);
 	if (pid == -ECHILD)
 		exit(current, 4);
-	if (pid == NULL || pid == -EAGAIN)
+	if (pid == 0 || pid == -EAGAIN)
 		goto start;
 	printk("status%d %d %d\n", current->pid, status, pid);
 	goto start;
@@ -79,7 +79,7 @@ __attribute__ ((section(".ucode"))) void init(void)
 	pid_t pid;
 start:
 	pid = process_wait(current, -1, &status, WNOHANG);
-	if (pid == NULL || pid == -EAGAIN)
+	if (pid == 0 || pid == -EAGAIN)
 		goto start;
 	goto start;
 }

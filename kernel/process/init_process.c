@@ -7,4 +7,5 @@ void	init_process(void)
 	process_memory_switch(w, 0);
 	if ((process_hlt = process_hlt_create()) == NULL)
 		kern_panic("Can not setup process\n");
+	print_initialize_status("Process", TRUE);
 }

@@ -85,14 +85,14 @@ select:
 			cur_proc = NULL;
 	}
 
-	if (cur_proc == prev_proc)
-		cur_proc = NULL;
-
 	if (cur_proc && cur_proc->state != RUN && &cur_proc->signal.sig_queue.list == cur_proc->signal.sig_queue.list.next)
 	{
 		if (cur_proc->state != ZOMBIE)
 			more_one_process = 1;
-		goto select;
+		if (cur_proc == prev_proc)
+			cur_proc = NULL;
+		else
+			goto select;
 	}
 
 	if (more_one_process == 0 && cur_proc == NULL)
