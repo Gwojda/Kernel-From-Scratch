@@ -102,7 +102,7 @@ int page_unmap(void *virt_addr, unsigned flag)
 
 int page_map(void *phy_addr, void *virt_addr, unsigned int flag)
 {
-	int err = 0;;
+	int err = 0;
 
 	if ((uint32_t)virt_addr & PAGE_FLAG)
 		return -EINVAL;
@@ -152,7 +152,7 @@ end:
 	return err;
 error:
 	for (; i > 0; i--)
-		if (page_unmap(virt_addr + (i << 12), PAGE_NOTHING) == 0)
+		if (page_unmap(virt_addr + ((i - 1) << 12), PAGE_NOTHING) == 0)
 			continue;
 	goto end;
 }
