@@ -2,6 +2,8 @@
 
 # define TEST_SIZE 2048
 
+// augmenter taille de la heap si les tests fails a cause de la taille
+
 void	mem_tester(void)
 {
 	char	*ptr[TEST_SIZE];
@@ -52,9 +54,20 @@ void	mem_tester(void)
 			kfree(ptr[i]);
 			++i;
 		}
+		i = 0;
+		while (i < TEST_SIZE)
+		{
+			if (!(ptr[i] = kmalloc(j * 4096)))
+				printk("kmalloc failled\n");
+			*(ptr[i]) = 1;
+			kfree(ptr[i]);
+			++i;
+		}
+
 		printk("test %d passed well\n", j);
 		++j;
 	}
+
 
 	printk("Mem seems to work well !\n");
 }

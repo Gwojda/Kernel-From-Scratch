@@ -214,7 +214,7 @@ int page_unmap_at(void *virt_addr, unsigned flags, size_t nb_page)
 void *page_get_phys(void *virt_addr)
 {
 	struct page_info_data info;
-
+	
 	page_info(virt_addr, &info);
 	if (!info.have_page_entry)
 		return NULL;

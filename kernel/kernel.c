@@ -49,7 +49,7 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	init_idt();
 	init_process();
 
-	//mem_tester();
+//	mem_tester();
 	process_tester();
 
 //	struct process *p = process_ini_kern((u32*)user_shell, (void*)user_shell + 0xC0000000, 1 << 12);

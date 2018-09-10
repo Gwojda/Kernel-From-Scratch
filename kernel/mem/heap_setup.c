@@ -23,6 +23,8 @@ static void	free_virt_block(void *start_virt_addr, size_t size)
 {
 	while (size)
 	{
+		if (mm_virt_heap[(start_virt_addr - HEAP_START) >> 15] & 1 << (((start_virt_addr - HEAP_START) >> 12) % 8))
+			printk("try to free already unallocated block\n");
 		mm_virt_heap[(start_virt_addr - HEAP_START) >> 15] |= 1 << (((start_virt_addr - HEAP_START) >> 12) % 8);
 		start_virt_addr += 4096;
 		--size;
@@ -36,7 +38,7 @@ static void *find_free_virt_addr(size_t size)
 	size_t	j;
 
 	size = (size_t)PAGE_ALIGN(size) >> 12;
-	while (i < HEAP_SIZE / 8)
+	while (i < HEAP_SIZE / (8 * 4096))
 	{
 		j = 0;
 		while (j < 8)
@@ -110,6 +112,7 @@ void *kmalloc(size_t size)
 		goto err;	//no more virt addr available
 	if (!(new_phys_addr = get_phys_block((size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)) >> 12)))
 		goto err1;	//no more aligned phys addr
+	
 	if (page_map_range(new_phys_addr, new_virt_addr, PAGE_WRITE | PAGE_PRESENT, (size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)) >> 12))
 		goto err2;
 	init_new_allocated_block(new_virt_addr, (size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)), 0);
@@ -188,7 +191,7 @@ static void vdefrag(struct heap_list *heap_entry)
 	if (heap_entry->page_size == start->size + sizeof(struct alloc_header) && start->free)
 	{
 		list_del(&heap_entry->list);
-		for (void *tmp_virt_addr = heap_entry ; (size_t)tmp_virt_addr < heap_entry->page_size ; tmp_virt_addr += 4096)
+		for (void *tmp_virt_addr = heap_entry ; (size_t)tmp_virt_addr < PAGE_ALIGN(heap_entry->page_size) ; tmp_virt_addr += 4096)
 			free_phys_block(page_get_phys(tmp_virt_addr), 1);
 		free_virt_block(heap_entry, heap_entry->page_size >> 12);
 	}
@@ -199,7 +202,6 @@ static void kdefrag(struct heap_list *heap_entry)
 	struct alloc_header	*head = (void *)heap_entry + sizeof(struct heap_list);
 	struct alloc_header	*tmp;
 
-	
 	while ((void *)head < (void *)heap_entry + heap_entry->page_size)
 	{
 		if (head->free == 0)
@@ -219,8 +221,8 @@ static void kdefrag(struct heap_list *heap_entry)
 	if (heap_entry->page_size == start->size + sizeof(struct alloc_header) && start->free)
 	{
 		list_del(&heap_entry->list);
-		free_virt_block(heap_entry, heap_entry->page_size);
-		free_phys_block(page_get_phys(heap_entry), heap_entry->page_size >> 12);
+		free_virt_block(heap_entry, (size_t)PAGE_ALIGN(heap_entry->page_size) >> 12);
+		free_phys_block(page_get_phys(heap_entry), (size_t)PAGE_ALIGN(heap_entry->page_size) >> 12);
 	}
 }
 
