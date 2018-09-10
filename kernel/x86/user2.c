@@ -72,3 +72,14 @@ __attribute__ ((section(".ucode"))) void user_noobcrash(void)
 	char *ptr = NULL;
 	*ptr = 42;	// AH
 }
+
+__attribute__ ((section(".ucode"))) void init(void)
+{
+	int status;
+	pid_t pid;
+start:
+	pid = process_wait(current, -1, &status, WNOHANG);
+	if (pid == NULL || pid == -EAGAIN)
+		goto start;
+	goto start;
+}

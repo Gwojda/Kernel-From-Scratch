@@ -47,6 +47,7 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	heap_setup();
 	print_initialize_status("Memory setup", TRUE);
 	init_idt();
+	init_process();
 
 	//mem_tester();
 	process_tester();

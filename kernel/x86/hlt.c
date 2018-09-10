@@ -1,7 +1,7 @@
 #include "process.h"
 #include "GDT.h"
 
-struct process	*process_hlt_creat(void)
+struct process	*process_hlt_create(void)
 {
 	struct process	*proc;
 	char		*stack = kmalloc(4096);

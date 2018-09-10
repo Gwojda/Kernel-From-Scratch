@@ -24,11 +24,11 @@ void		free_process(struct process *proc)
 	list_for_each_safe(l, n, &proc->children)
 	{
 		list_del(l);
-		if (proc->father)
-			list_add(&l, &proc->father);
+		struct process *p;
+		if ((p = process_get_with_pid(1)) != NULL)
+			list_add(&l, &p->children);
 		else
 			kfree(l);
 	}
 	kfree(proc);
-//		child is unattach and so has to be attach to process with pid 1
 }

@@ -72,7 +72,6 @@ void switch_process(struct interupt *data)
 	int more_one_process = 0;
 	struct process *cur_proc = current;
 	struct process *prev_proc;
-	int already = 0; //TODO tres crade, mais ca fonctionne
 
 	prev_proc = cur_proc;
 select:
@@ -84,20 +83,16 @@ select:
 		cur_proc = list_first_entry(&process_list, struct process, plist);
 		if (&cur_proc->plist == &process_list)
 			cur_proc = NULL;
-		already++;
 	}
+
+	if (cur_proc == prev_proc)
+		cur_proc = NULL;
 
 	if (cur_proc && cur_proc->state != RUN && &cur_proc->signal.sig_queue.list == cur_proc->signal.sig_queue.list.next)
 	{
 		if (cur_proc->state != ZOMBIE)
 			more_one_process = 1;
-		if (already >= 2)
-			cur_proc = NULL;
-		else
-		{
-			//prev_proc = cur_proc;
-			goto select;
-		}
+		goto select;
 	}
 
 	if (more_one_process == 0 && cur_proc == NULL)

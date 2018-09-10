@@ -157,10 +157,10 @@ int	add_signal(int sig, struct process *proc, int type)
 
 	if (sig == 0)
 		return 0;
-	if (((type & SIG_HARD) && !(type & SIG_SOFT)) &&
-	(!(type & SIG_HARD) && (type & SIG_SOFT)))
+	if (((type & SIG_HARD) && (type & SIG_SOFT)) ||
+	(!(type & SIG_HARD) && !(type & SIG_SOFT)))
 		return -EINVAL;
-	if (sig < 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
+	if (!proc || sig < 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
 		return -EINVAL;
 	if ((type & SIG_HARD) && SIG_UNAVAILABLE(proc->signal.sig_avalaible, sig))	//signal blocked
 		return 0;
@@ -209,7 +209,7 @@ shandler signal(struct process *proc, int signum, shandler handler/*, int flags*
 	return old;
 }
 
-int kill(struct process *proc, int sig)
+int kill(pid_t pid, int sig)
 {
-	return add_signal(sig, proc, SIG_SOFT);
+	return add_signal(sig, process_get_with_pid(pid), SIG_SOFT);
 }

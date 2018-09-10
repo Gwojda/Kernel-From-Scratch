@@ -148,11 +148,12 @@ struct process	*process_dup(struct process *proc);
 struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size);
 struct process *process_get_with_pid(pid_t pid);
 
-struct process		*process_hlt_creat(void);
+struct process		*process_hlt_create(void);
 void			process_hlt_user(void);
 void switch_stack(void *, void *);
 void proc_switch_iret(struct interupt);
 void reload_process(void *, void *, void *);
 void	process_tester(void);
+void	init_process(void);
 
 #endif
