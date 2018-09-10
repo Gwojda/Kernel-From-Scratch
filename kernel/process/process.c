@@ -173,11 +173,11 @@ void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags, i
 
 	void *max_addr = (void*)(((size_t)~0) << 12);
 	if (!(flags & MAP_KERNEL_SPACE))
-		max_addr = (void*)0xC0000000 - (1 << 12) - (2 << 12);// TODO stack place
+		max_addr = (void*)0xC0000000 - (1 << 12)/* - (2 << 12)*/;// TODO stack place
 
 	if (flags & MAP_FIXED)
 	{
-		if (addr == NULL || addr >= max_addr || addr + (size << 12) >= max_addr || addr >= addr + (size << 12))
+		if (addr == NULL || addr > max_addr || addr + (size << 12) > max_addr + 4096 || addr >= addr + (size << 12))
 		{
 			err = -EINVAL;
 			goto err;
@@ -238,7 +238,7 @@ void *mmap(struct process *proc, void *addr, size_t size, int prot, int flags, i
 			goto err;
 	}
 
-	if ((err = process_memory_add(proc, size, addr, mflags, pflags)))
+	if ((err = process_memory_add(proc, size << 12, addr, mflags, pflags)))
 		goto err;
 	return addr;
 err:
@@ -261,7 +261,7 @@ int munmap(struct process *proc, void *addr, size_t size, int flags)
 	void *max_addr = (void*)(((size_t)~0) << 12);
 	if (!(flags & MAP_KERNEL_SPACE))
 		max_addr = (void*)0xC0000000 - (1 << 12);
-	if (addr + size > max_addr)
+	if (addr + size > max_addr + 4096)
 	{
 		ret = -EINVAL;
 		goto end;
@@ -353,7 +353,7 @@ struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
 	proc->regs.edx = 0;
 	proc->regs.ebx = 0;
 
-	proc->regs.esp = 0xC0000000 - 4096;/// - (1 << 12) / 2;
+	proc->regs.esp = 0xC0000000 - 4096 * 2;/// - (1 << 12) / 2;
 
 	proc->regs.ebp = 0;
 	proc->regs.esi = 0;

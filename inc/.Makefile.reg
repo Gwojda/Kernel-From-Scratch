@@ -5,6 +5,7 @@ inc/backtrace.h \
 inc/idt.h \
 inc/io.h \
 inc/kernel.h \
+inc/key_layout.h \
 inc/lib.h \
 inc/list.h \
 inc/multiboot2.h \
