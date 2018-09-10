@@ -6,6 +6,8 @@ static void	alloc_phys_block(void *start_phys_addr, size_t size)
 {
 	while (size)
 	{
+		if (!(mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] & 1 << (((size_t)start_phys_addr >> 12) % 8)))
+			printk("try to alloc already allocateed block\n");
 		mm_bitmap[ACCESS_BITMAP_BY_ADDR(start_phys_addr)] &= ~(1 << (((size_t)start_phys_addr >> 12) % 8));
 		start_phys_addr += 4096;
 		--size;

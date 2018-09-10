@@ -35,9 +35,10 @@ void	process_tester(void)
 
 //	scheduler test
 
-	for (size_t i = 0; i < 33; ++i)
+	for (size_t i = 0; i < 4098; ++i)
 	{
 		p3 = process_ini_kern(user3, (void*)user3 + 0xC0000000, 1 << 12);
+
 		if (!p3)
 		{
 			printk("i = %d\n", i);
