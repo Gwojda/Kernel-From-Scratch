@@ -158,7 +158,7 @@ int	add_signal(int sig, struct process *proc, int type)
 	if (sig == 0)
 		return 0;
 	if (((type & SIG_HARD) && (type & SIG_SOFT)) ||
-	(!(type & SIG_HARD) && !(type & SIG_SOFT)))
+			(!(type & SIG_HARD) && !(type & SIG_SOFT)))
 		return -EINVAL;
 	if (!proc || sig < 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
 		return -EINVAL;
@@ -192,8 +192,8 @@ shandler signal(struct process *proc, int signum, shandler handler/*, int flags*
 	else if (handler == SIG_IGN)
 		handler = sig_ign;
 	else /*if (!(flags & SIG_KERNEL_SPACE))
-		*/ if ((void*)handler >= KERNEL_POS)
-			return (void*)-EINVAL;
+	*/ if ((void*)handler >= KERNEL_POS)
+		return (void*)-EINVAL;
 
 	if (signum == SIGKILL || signum == SIGSTOP)
 		return (void*)-EINVAL;//TODO
@@ -209,7 +209,26 @@ shandler signal(struct process *proc, int signum, shandler handler/*, int flags*
 	return old;
 }
 
-int kill(pid_t pid, int sig)
+int kill(struct process *proc, pid_t pid, int sig)
 {
-	return add_signal(sig, process_get_with_pid(pid), SIG_SOFT);
+	int err = -ESRCH;
+	struct list_head *l;
+	struct process *p;
+
+	if (pid == 0 || pid < -1)
+		return -EINVAL;
+
+	list_for_each(l, &process_list)
+	{
+		p = list_entry(l, struct process, plist);
+		if (p->state != ZOMBIE && (p->pid == pid || pid == -1))
+		{
+			printk("uid %u\n", proc->uid);
+			if (proc->uid == 0 || proc->uid == p->uid)
+				err = add_signal(sig, p, SIG_SOFT);
+			else if (err == -ESRCH)
+				err = -EPERM;
+		}
+	}
+	return err;
 }

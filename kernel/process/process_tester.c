@@ -35,7 +35,7 @@ void	process_tester(void)
 
 //	scheduler test
 
-	for (size_t i = 0; i < 4098; ++i)
+	/*for (size_t i = 0; i < 4098; ++i)
 	{
 		p3 = process_ini_kern(user3, (void*)user3 + 0xC0000000, 1 << 12);
 
@@ -46,17 +46,16 @@ void	process_tester(void)
 		}
 		else
 			process_memory_switch(p3, 0);
-	}
+	}*/
 
 //	fork test
-/*
+
 	p3 = process_ini_kern(testwait, (void*)testwait + 0xC0000000, 1 << 12);
 	process_memory_switch(p3, 0);
 	pid_t x = fork(p3);
 	process_memory_switch(process_get_with_pid(x), 0);
 	pid_t y = fork(p3);
 	process_memory_switch(process_get_with_pid(y), 0);
-	kill(x, SIGKILL);
-*/
-
+	p3->uid = 100000;
+	printk("kill %d\n", kill(p3, x, SIGKILL));
 }
