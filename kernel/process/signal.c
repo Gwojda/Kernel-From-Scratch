@@ -162,7 +162,7 @@ int	add_signal(int sig, struct process *proc, int type)
 		return -EINVAL;
 	if (!proc || sig < 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
 		return -EINVAL;
-	if ((type & SIG_HARD) && SIG_UNAVAILABLE(proc->signal.sig_avalaible, sig))	//signal blocked
+	if (!(type & SIG_HARD) && SIG_UNAVAILABLE(proc->signal.sig_avalaible, sig))	//signal blocked
 		return 0;
 	if ((new_signal = kmalloc(sizeof(struct sig_queue))) == NULL)
 		return -ENOMEM;
