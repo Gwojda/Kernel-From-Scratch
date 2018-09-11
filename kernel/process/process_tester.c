@@ -1,5 +1,6 @@
 #include "process.h"
 #include "syscall.h"
+#include "stream.h"
 
 void sys_restart(void);
 void user1(void);
@@ -10,6 +11,10 @@ void user_shell(void);
 void user_hlt(void);
 void user_noobcrash(void);
 void testwait(void);
+void user_piperead(void);
+void user_pipewrite(void);
+
+struct stream stream_test;
 
 void	process_tester(void)
 {
@@ -61,4 +66,8 @@ void	process_tester(void)
 	p3->uid = 100000;
 	printk("kill %d\n", kill(p3, x, SIGKILL));
 */
+	struct process *ppipe = process_ini_kern(user_piperead, (void*)user_piperead + 0xC0000000, 1 << 12);
+	process_memory_switch(ppipe, 0);
+	ppipe = process_ini_kern(user_pipewrite, (void*)user_pipewrite + 0xC0000000, 1 << 12);
+	process_memory_switch(ppipe, 0);
 }

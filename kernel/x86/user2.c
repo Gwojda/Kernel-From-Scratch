@@ -2,8 +2,10 @@
 #include "shell.h"
 #include "process.h"
 #include "errno.h"
+#include "stream.h"
 
 void sys(void);
+extern struct stream stream_test;
 
 __attribute__ ((section(".ucode"))) void user2(void)
 {
@@ -71,6 +73,31 @@ __attribute__ ((section(".ucode"))) void user_noobcrash(void)
 {
 	char *ptr = NULL;
 	*ptr = 42;	// AH
+}
+
+__attribute__ ((section(".ucode"))) void user_piperead(void)
+{
+	char c;
+	int ret;
+start:
+	if ((ret = stream_read(&stream_test, &c, 1)) == -1)
+		exit(current, -1);
+	if (ret == 1)
+		printk("%c", c);
+	goto start;
+}
+__attribute__ ((section(".ucode"))) void user_pipewrite(void)
+{
+	char *str = "Hello,\nit's look stream work\n";
+	size_t basse = 0;
+	int ret;
+	while ((ret = stream_write(&stream_test, str + basse, strlen(str) - basse)) != -1)
+	{
+		if (basse >= strlen(str))
+			break;
+		basse += ret;
+	}
+	exit(current, 0);
 }
 
 __attribute__ ((section(".ucode"))) void init(void)
