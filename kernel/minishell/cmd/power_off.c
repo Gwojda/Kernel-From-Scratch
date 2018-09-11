@@ -1,3 +1,4 @@
+#include "shell.h"
 #include "acpi.h"
 #include "lib.h"
 #include "io.h"

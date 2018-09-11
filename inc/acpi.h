@@ -5,7 +5,6 @@
 #include "page.h"
 #include "lib.h"
 
-
 struct RSDPDescriptor;
 struct RSDPDescriptor20;
 struct ACPISDTHeader;
