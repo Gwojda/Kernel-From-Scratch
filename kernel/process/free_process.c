@@ -15,7 +15,7 @@ void		free_process(struct process *proc)
 		{
 			if (c->p == proc)
 			{
-				list_del(c);
+				list_del((struct list_head *)c);
 				kfree(c);
 				break ;
 			}
@@ -26,7 +26,7 @@ void		free_process(struct process *proc)
 		list_del(l);
 		struct process *p;
 		if ((p = process_get_with_pid(1)) != NULL)
-			list_add(&l, &p->children);
+			list_add(l, &p->children);
 		else
 			kfree(l);
 	}

@@ -79,6 +79,7 @@ struct map_memory
 
 struct children
 {
+	//list must be on the first place here. or free_process wont work anymore
 	struct list_head	list;
 	struct process		*p;	//reference on process, you MUSTN'T free it here
 };
@@ -132,10 +133,8 @@ int		process_memory_add(struct process *proc, size_t size, void *v_addr, unsigne
 int		add_signal(int sig, struct process *proc, int type);
 void	send_signal(struct process *proc);
 int		child_ended(struct process *proc, int signum);
-int		process_wait(struct process *proc, pid_t waiting_on_pid, int *wstatus, int option);
 
 void		proc_switch(struct interupt *data, struct process *old, struct process *new);
-int		getuid(struct process *proc);
 
 void	free_process(struct process *proc);
 void	process_die(struct process *proc);

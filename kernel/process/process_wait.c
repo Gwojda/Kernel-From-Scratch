@@ -33,7 +33,7 @@ int		child_ended(struct process *proc, int signum)
 	return -1;
 }
 
-int		process_wait(struct process *proc, pid_t waiting_on_pid, int *wstatus, int option)
+pid_t		process_waitpid(struct process *proc, pid_t waiting_on_pid, int *wstatus, int option)
 {
 	int err = 0;
 	struct children *pc;
@@ -88,4 +88,9 @@ wait_signal:
 	}
 end:
 	return (err);
+}
+
+pid_t	process_wait(struct process *proc, int *status)
+{
+	return (process_waitpid(proc, -1, status, 0));
 }
