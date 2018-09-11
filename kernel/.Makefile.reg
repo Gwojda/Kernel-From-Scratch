@@ -38,6 +38,7 @@ kernel/vga/init_vga.o \
 kernel/vga/print_initialize_status.o \
 kernel/vga/vga_move_cursor.o \
 kernel/vga/vga_entry.o \
+kernel/process/init_process.o \
 kernel/process/process_die.o \
 kernel/process/process_wait.o \
 kernel/process/process_new.o \

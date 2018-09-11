@@ -1,5 +1,6 @@
 HEADERS += \
 inc/GDT.h \
+inc/acpi.h \
 inc/asm.h \
 inc/backtrace.h \
 inc/errno.h \
