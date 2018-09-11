@@ -53,7 +53,7 @@ int itoa_stack_max(char *nbr_buff, int is_unsigned, long int nb, const char *cha
 			itoa_stack_max(nbr_buff + 1, 1, (-nb / len_charset), char_set);
 
 		last_write = itoa_stack_max_len(nbr_buff);
-		nbr_buff[last_write++] = char_set[(-(nb % (unsigned int)len_charset) + len_charset) % len_charset];
+		nbr_buff[last_write++] = char_set[(-(nb % (int)len_charset) + len_charset) % (int)len_charset];
 		nbr_buff[last_write] = '\0';
 	}
 	else
