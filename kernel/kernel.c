@@ -26,6 +26,8 @@ static void	print_kernel_visu(void)
 
 }
 
+void user_shell(void);
+
 void kmain (unsigned long volatile magic, unsigned long addr)
 {
 	void*	esp;
@@ -52,8 +54,8 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 //	mem_tester();
 	process_tester();
 
-//	struct process *p = process_ini_kern((u32*)user_shell, (void*)user_shell + 0xC0000000, 1 << 12);
-//	process_memory_switch(p, 0);
+	struct process *p = process_ini_kern((u32*)user_shell, (void*)user_shell + 0xC0000000, 1 << 12);
+	process_memory_switch(p, 0);
 	asm volatile("sti");
 	while (1)
 		asm("hlt");

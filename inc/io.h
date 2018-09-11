@@ -14,5 +14,6 @@ char	getc(void);
 
 char	key_layout(unsigned int key);
 int		set_layout(char *keymap);
+char		*get_layout(void);
 
 #endif

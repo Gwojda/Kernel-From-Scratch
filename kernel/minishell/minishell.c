@@ -41,7 +41,8 @@ static void	exec_cmd(void)
 		{"reboot",		reboot},
 		{"halt",		halt},
 		{"switchtty",		switchtty_cmd},
-		{"memdebug", 		mem_debug}
+		{"memdebug", 		mem_debug},
+		{"layout", 		layout}
 	};
 	const size_t	correstab_size = sizeof(correstab) / sizeof(t_execmd);
 	size_t			i = 0;

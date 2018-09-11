@@ -35,6 +35,39 @@ static const unsigned char value_table_qwerty[] = {
 	0, 0, 0, 0, 0
 };
 
+static const unsigned char value_table_azerty_shift[] = {
+	0,
+	0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 0, '_', '\b',
+	0, 'A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 0, '*', '\n',
+	0, 'Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', '%', '>',
+	0, 0, 'W', 'X', 'C', 'V', 'B', 'N', '?', '.', '/', '+', 0,
+	'*', 0, ' ', 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0,
+	'7', '8', '9', '-',
+	'4', '5', '6', '+',
+	'1', '2', '3',
+	'0', '.', '6',
+	0, 0, 0, 0, 0,
+};
+
+static const unsigned char value_table_azerty[] = {
+	0,
+	0, '&', 0, '"', '\'', '(', 0, 0, '!', 0, 0, ')', '-', '\b',
+	0, 'a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '^', '$', '\n',
+	0, 'q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 0, '<',
+	0, '`', 'w', 'x', 'c', 'v', 'b', 'n', ',', ';', ':', '=', 0,
+	'*', 0, ' ', 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0,
+	'7', '8', '9', '-',
+	'4', '5', '6', '+',
+	'1', '2', '3',
+	'0', '.', '6',
+	0, 0, 0, 0, 0
+};
+
+
 static unsigned char value_table_shift[] = {
 	0,
 	0, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\b',
@@ -67,18 +100,30 @@ static unsigned char value_table[] = {
 	0, 0, 0, 0, 0
 };
 
+char	*get_layout(void)
+{
+	if (memcmp(value_table_shift, value_table_qwerty_shift, sizeof(value_table_shift)) == 0
+		&& memcmp(value_table, value_table_qwerty, sizeof(value_table)) == 0)
+		return "qwerty";
+	if (memcmp(value_table_shift, value_table_azerty_shift, sizeof(value_table_shift)) == 0
+		&& memcmp(value_table, value_table_azerty, sizeof(value_table)) == 0)
+		return "azerty";
+	return "unknow";
+}
+
 int	set_layout(char *keymap)
 {
 	if (strcmp(keymap, "qwerty") == 0)
 	{
-		memcpy(value_table_shift, value_table_qwerty_shift, sizeof(*value_table_shift));
-		memcpy(value_table, value_table_qwerty, sizeof(*value_table));
+		memcpy(value_table_shift, value_table_qwerty_shift, sizeof(value_table_shift));
+		memcpy(value_table, value_table_qwerty, sizeof(value_table));
 		return 0;
 	}
 	else if (strcmp(keymap, "azerty") == 0)
 	{
-		//memcpy(value_table_shift, value_table_qwerty_shift, sizeof(*value_table_shift));
-		//memcpy(value_table, value_table_qwerty, sizeof(*value_table));
+		memcpy(value_table_shift, value_table_azerty_shift, sizeof(value_table_shift));
+		memcpy(value_table, value_table_azerty, sizeof(value_table));
+		return 0;
 	}
 	return 1;
 }

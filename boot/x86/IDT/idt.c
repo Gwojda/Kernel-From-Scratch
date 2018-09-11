@@ -117,7 +117,6 @@ void irq_keybord(struct interupt data)
 	(void)data;
 	if (inb(0x64) & 1)
 	{
-		set_layout("qwerty");
 		get_key = key_layout(inb(0x60));
 		tty_input_char(current_tty, get_key);
 	}
