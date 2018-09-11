@@ -126,6 +126,11 @@ void	send_signal(struct process *proc)
 	if (proc->signal.sig_queue.list.next == &proc->signal.sig_queue.list)
 		return ;
 	sig_send = list_first_entry(&proc->signal.sig_queue.list, struct sig_queue, list);
+	if (proc->state == ZOMBIE)
+	{
+		list_del(&sig_send->list);
+		return ;
+	}
 	if (sig_send->state == SIG_EXECUTING)
 		return ;
 	if (!proc->signal.sig_handler[sig_send->sig_handled] || sig_send->state & SIG_HARD)
@@ -158,9 +163,11 @@ int	add_signal(int sig, struct process *proc, int type)
 	if (sig == 0)
 		return 0;
 	if (((type & SIG_HARD) && (type & SIG_SOFT)) ||
-			(!(type & SIG_HARD) && !(type & SIG_SOFT)))
+		(!(type & SIG_HARD) && !(type & SIG_SOFT)))
 		return -EINVAL;
-	if (!proc || sig < 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
+	if (!proc || proc->state == ZOMBIE)
+		return -EINVAL;
+	if (sig < 0 || (u32)sig > (sizeof(proc->signal.sig_handler) / sizeof(shandler)))
 		return -EINVAL;
 	if (!(type & SIG_HARD) && SIG_UNAVAILABLE(proc->signal.sig_avalaible, sig))	//signal blocked
 		return 0;

@@ -20,6 +20,8 @@ int	page_fault_handler(struct interupt *data)
 	void *addr;
 
 	(void)data;
+	if (!current || current->state == ZOMBIE)
+		return SIGNAL_INFO_DEFAULT;
 	asm("mov %%cr2, %0" : "=r"(addr));
 	printk("Page fault %p:\n", addr);
 	return SIGNAL_INFO_DEFAULT;
@@ -139,12 +141,12 @@ void irq_general(struct interupt data)
 				if (s->catch(&data) == SIGNAL_INFO_CONTINUE)
 					return ;
 			}
-			if (s->signal >= 0 && data.cs != GDT_SEG_KCODE)
+			if (s->signal >= 0 && data.cs != GDT_SEG_KCODE && current && current->state != ZOMBIE)
 			{
 /*				if (s->signal == 0)
 					// zero if for ignore
 					return;*/
-				if ((err = add_signal(s->signal, current, SIG_HARD)) != 0) // TODO check if signal send if first
+				if ((err = add_signal(s->signal, current, SIG_HARD)) != 0)
 					goto kill_process;
 				switch_process(&data);
 				//proc_switch(&data, current, current);
@@ -160,6 +162,10 @@ void irq_general(struct interupt data)
 	return;
 kill_process:
 	printk("Kernel error terminate process %d error code %d\n", s->signal, err);
+	if (!current || current->state == ZOMBIE)
+	{
+		kern_panic("unexpected irq\n");
+	}
 	process_die(current);
 	switch_process(&data);
 }
