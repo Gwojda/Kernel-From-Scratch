@@ -31,6 +31,7 @@ int page_entry_set(uint32_t *table, unsigned int index, void *ptr, unsigned int 
 	if (index >= 1024)
 		return -EINVAL;
 	table[index] = ((size_t)ptr) | flag;
+	printk("set\n");
 	return 0;
 }
 

@@ -46,6 +46,7 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 	__asm__ volatile ("movl %[r], %%esp" : : [r] "r" (esp));
 	heap_setup();
 	print_initialize_status("Memory setup", TRUE);
+	initAcpi();
 	init_idt();
 	init_process();
 

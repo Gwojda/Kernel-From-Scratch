@@ -2,12 +2,26 @@
 # define ACPI_H
 
 #include "printk.h"
+#include "page.h"
+#include "lib.h"
 
-struct GenericAddressStructure;
+
 struct RSDPDescriptor;
 struct RSDPDescriptor20;
 struct ACPISDTHeader;
 struct FADT;
+
+struct GenericAddressStructure
+{
+  uint8_t AddressSpace;
+  uint8_t BitWidth;
+  uint8_t BitOffset;
+  uint8_t AccessSize;
+  uint64_t Address;
+} __attribute__ ((packed));
+//packed here ?
+
+
 
 struct RSDPDescriptor {
  char Signature[8];
@@ -50,7 +64,7 @@ struct XSDT {
   uint64_t PointerToOtherSDT[0];
 } __attribute__ ((packed));
 //packed here ?
-/*
+
 struct FADT
 {
     struct   ACPISDTHeader h;
@@ -76,7 +90,7 @@ struct FADT
     uint32_t GPE0Block;
     uint32_t GPE1Block; //48
     uint8_t  PM1EventLength;
-    uint8_t  PM1ControlLength;-
+    uint8_t  PM1ControlLength;
     uint8_t  PM2ControlLength;
     uint8_t  PMTimerLength;
     uint8_t  GPE0Length;
@@ -100,7 +114,7 @@ struct FADT
     uint32_t Flags; //76
 
     // 12 byte structure; see below for details
-    GenericAddressStructure ResetReg;
+    struct GenericAddressStructure ResetReg;
 
     uint8_t  ResetValue;
     uint8_t  Reserved3[3]; // 92
@@ -109,26 +123,15 @@ struct FADT
     uint64_t                X_FirmwareControl;
     uint64_t                X_Dsdt;
 
-    GenericAddressStructure X_PM1aEventBlock;
-    GenericAddressStructure X_PM1bEventBlock; // 132
-    GenericAddressStructure X_PM1aControlBlock; // 144
-    GenericAddressStructure X_PM1bControlBlock;
-    GenericAddressStructure X_PM2ControlBlock;
-    GenericAddressStructure X_PMTimerBlock;
-    GenericAddressStructure X_GPE0Block;
-    GenericAddressStructure X_GPE1Block;
+    struct GenericAddressStructure X_PM1aEventBlock;
+    struct GenericAddressStructure X_PM1bEventBlock; // 132
+    struct GenericAddressStructure X_PM1aControlBlock; // 144
+    struct GenericAddressStructure X_PM1bControlBlock;
+    struct GenericAddressStructure X_PM2ControlBlock;
+    struct GenericAddressStructure X_PMTimerBlock;
+    struct GenericAddressStructure X_GPE0Block;
+    struct GenericAddressStructure X_GPE1Block;
 } __attribute__ ((packed));
-//packed here ?*/
-
-struct GenericAddressStructure
-{
-  uint8_t AddressSpace;
-  uint8_t BitWidth;
-  uint8_t BitOffset;
-  uint8_t AccessSize;
-  uint64_t Address;
-} __attribute__ ((packed));
-//packed here ?
 
 int *SMI_CMD;
 char ACPI_ENABLE;
