@@ -29,6 +29,7 @@ kernel/minishell/cmd/mem_debug.o \
 kernel/minishell/cmd/reboot.o \
 kernel/minishell/cmd/switchtty.o \
 kernel/minishell/cmd/layout.o \
+kernel/minishell/cmd/power_off.o \
 kernel/syscall/sys_restart.o \
 kernel/mem/mem_tester.o \
 kernel/mem/heap_setup.o \

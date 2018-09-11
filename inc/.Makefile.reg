@@ -2,6 +2,7 @@ HEADERS += \
 inc/GDT.h \
 inc/asm.h \
 inc/backtrace.h \
+inc/errno.h \
 inc/idt.h \
 inc/io.h \
 inc/kernel.h \
@@ -12,6 +13,7 @@ inc/multiboot2.h \
 inc/page.h \
 inc/panic.h \
 inc/phys_mem_management.h \
+inc/pic.h \
 inc/position.h \
 inc/printk.h \
 inc/process.h \

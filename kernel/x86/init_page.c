@@ -14,6 +14,10 @@ void page_setup_kernel_section(uint32_t *table)
 	mm_bitmap[ACCESS_BITMAP_BY_ADDR(0x00000000)] &= ~(1 << (0x00000000 % 8));
 	page_entry_set(table, TABLE_ENTRY(0x000B8000), (void*)0x000B8000, PAGE_WRITE | PAGE_PRESENT); // vga
 	mm_bitmap[ACCESS_BITMAP_BY_ADDR(0x000B8000)] &= ~(1 << (0x000B8000 % 8));
+	page_entry_set(table, TABLE_ENTRY(0x000E0000), (void*)0x000E0000, PAGE_WRITE | PAGE_PRESENT); // vga
+	mm_bitmap[ACCESS_BITMAP_BY_ADDR(0x0000E000)] &= ~(1 << (0x000E0000 % 8));
+	page_entry_set_range(table, TABLE_ENTRY(0x000E0000), TABLE_ENTRY(0x000100000), PAGE_PRESENT);
+
 	// we'll need to map here idt
 	/*
 	 * here we go, let's map the kernel !
