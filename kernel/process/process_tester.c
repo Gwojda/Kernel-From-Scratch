@@ -1,4 +1,6 @@
 #include "process.h"
+#include "syscall.h"
+
 void sys_restart(void);
 void user1(void);
 void user1_2(void);
@@ -11,7 +13,7 @@ void testwait(void);
 
 void	process_tester(void)
 {
-	struct process *p3;
+//	struct process *p3;
 //	struct process *p1 = process_ini_kern(user1, (void*)user1 + 0xC0000000, 1 << 12);
 //	process_memory_switch(p1, 0);
 
@@ -49,7 +51,7 @@ void	process_tester(void)
 	}*/
 
 //	fork test
-
+/*
 	p3 = process_ini_kern(testwait, (void*)testwait + 0xC0000000, 1 << 12);
 	process_memory_switch(p3, 0);
 	pid_t x = fork(p3);
@@ -58,4 +60,5 @@ void	process_tester(void)
 	process_memory_switch(process_get_with_pid(y), 0);
 	p3->uid = 100000;
 	printk("kill %d\n", kill(p3, x, SIGKILL));
+*/
 }

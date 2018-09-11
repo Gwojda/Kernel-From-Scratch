@@ -21,7 +21,7 @@ include ./boot/$(ARCH)/Makefile
 include ./kernel/Makefile
 include ./lib/Makefile
 
-TOTAL=		$(shell echo $(OBJS) | wc -l)
+TOTAL=		$(shell echo $(OBJS) | tr ' ' '\n' | wc -l)
 CURRENT=	01
 
 all: $(KERNEL)

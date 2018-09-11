@@ -29,7 +29,6 @@ static int	process_copy_mem_block(struct map_memory *new_pm, struct map_memory *
 
 int		copy_process(struct process *proc, struct process *neww)
 {
-	int err;
 	struct map_memory	*new_pm;
 	struct map_memory	*pm;
 	struct list_head	*l;
