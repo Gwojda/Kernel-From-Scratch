@@ -15,6 +15,10 @@ SECTIONS {
 		*(.boottext)
 	}
 
+	.ucode : {
+		*(.ucode)
+	}
+
 	. += _kernel_pos;
 
 	_kernel_start = .;

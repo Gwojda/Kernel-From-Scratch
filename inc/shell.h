@@ -16,6 +16,9 @@ void	switchtty_cmd(void);
 void	reboot(void);
 void	halt(void);
 void	mem_debug(void);
+void	layout(char *cmd);
+void acpiPowerOff(void);
+
 
 extern char cmd[SIZE_MAX_CMD];
 extern size_t	cmd_ind;

@@ -2,14 +2,14 @@
 #include "tty.h"
 #include "lib.h"
 
-void	tty_scrollup(void)
+void	tty_scrollup(struct s_tty *term)
 {
 	size_t	i = 0;
 
-	memmove((void *)tty[current_tty].screen, (const void *)(tty[current_tty].screen + VGA_WIDTH), VGA_WIDTH * (VGA_HEIGHT - 1) * sizeof(*tty[current_tty].screen));
+	memmove((void *)term->screen, (const void *)(term->screen + VGA_WIDTH), VGA_WIDTH * (VGA_HEIGHT - 1) * sizeof(*term->screen));
 	while (i < VGA_WIDTH)
 	{
-		tty[current_tty].screen[VGA_WIDTH * (VGA_HEIGHT - 1) + i] = vga_entry(' ', tty[current_tty].tty_color);
+		term->screen[VGA_WIDTH * (VGA_HEIGHT - 1) + i] = vga_entry(' ', term->tty_color);
 		++i;
 	}
 }

@@ -15,7 +15,8 @@
 
 unsigned char	mm_bitmap[MAX_RAM_PAGE / 8];
 
-void free_phys_block(void *start_phys_addr, size_t pages_nb);
-void *get_phys_block(size_t nb_pages);
+void	free_phys_block(void *start_phys_addr, size_t pages_nb);
+void	*get_phys_block(size_t nb_pages);
+int	phys_bzero(void *phys_addr, size_t nb_pages);
 
 #endif

@@ -25,13 +25,14 @@ section .bss
 ;   stack is properly aligned and failure to align the stack will result in
 ;   undefined behavior.
 
+global stack_top
+global stack_bottom
+
 align 4096
 stack_bottom:
 resb 16384 ; 16 KiB
 align 4096
 stack_top:
-global stack_top
-global stack_bottom
 
 ;   The linker script specifies _start as the entry point to the kernel and the
 ;   bootloader will jump to this position once the kernel has been loaded. It
@@ -40,9 +41,9 @@ global stack_bottom
 global _start
 section .boottext
 _start:
-	; If you call now the real entry point, we have a probleme
-	; the virtual addresse is not the current address of the memory
-	; we need to setup an early boot page management for map the memory like what:
+	; If you call now the real entry point, we have a problem
+	; the virtual address is not the current address of the memory
+	; we need to setup an early boot page management for map the memory like that:
 
 	;	current				goal
 
@@ -52,9 +53,9 @@ _start:
 	; So we map 0x00000000 to 0x00000000
 	;       and 0xC0000000 to 0x00000000
 
-	; we need after what to disable the link zero to hight memory kernel
+	; we need after that to disable the link zero to hight memory kernel
 
-	; We creat empty page
+	; We create empty page
 	mov ecx, 1024
 	mov esp, page_directory
 	sub esp, KERNEL_POS
@@ -93,31 +94,11 @@ section .text
 extern kmain
 _starthightmemory:
 
-;   The bootloader has loaded us into 32-bit protected mode on a x86
-;   machine. Interrupts are disabled. Paging is disabled. The processor
-;   state is as defined in the multiboot standard. The kernel has full
-;   control of the CPU. The kernel can only make use of hardware features
-;   and any code it provides as part of itself. There's no printf
-;   function, unless the kernel provides its own <stdio.h> header and a
-;   printf implementation. There are no security restrictions, no
-;   safeguards, no debugging mechanisms, only what the kernel provides
-;   itself. It has absolute and complete power over the
-;   machine.
-
 ;   To set up a stack, we set the esp register to point to the top of our
 ;   stack (as it grows downwards on x86 systems). This is necessarily done
 ;   in assembly as languages such as C cannot function without a stack.
 
 	mov esp, stack_top
-
-;   This is a good place to initialize crucial processor state before the
-;   high-level kernel is entered. It's best to minimize the early
-;   environment where crucial features are offline. Note that the
-;   processor is not fully initialized yet: Features such as floating
-;   point instructions and instruction set extensions are not initialized
-;   yet. The GDT should be loaded here. Paging should be enabled here.
-;   C++ features such as global constructors and exceptions will require
-;   runtime support to work as well.
 
 ;   Enter the high-level kernel. The ABI requires the stack is 16-byte
 ;   aligned at the time of the call instruction (which afterwards pushes

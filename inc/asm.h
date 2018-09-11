@@ -3,5 +3,6 @@
 
 void	*get_ebp(void);
 void	*get_esp(void);
+void	halt(void);
 
 #endif

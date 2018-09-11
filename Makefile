@@ -1,6 +1,6 @@
 ARCH =		x86
-KERNEL =	KKERNEL
-ISO =		kkernel.iso
+KERNEL =	kernel
+ISO =		kernel.iso
 
 ## Compilers
 CC =		gcc
@@ -13,15 +13,15 @@ INCS =	-I inc/
 
 ## Flags
 CFLAGS =	-std=gnu99 -ffreestanding -Wall -Wextra -m32 $(INCS) \
-		-fno-builtin -fno-stack-protector -nostdlib -nodefaultlibs
+		-fno-builtin -fno-stack-protector -nostdlib -nodefaultlibs -g -fno-pic
 LDFLAG =	-melf_i386 -static --entry=_start -T $(LINKER)
-ASMFLAGS =	-f elf -o 
+ASMFLAGS =	-f elf -o
 
 include ./boot/$(ARCH)/Makefile
 include ./kernel/Makefile
 include ./lib/Makefile
 
-TOTAL=		$(shell echo $(OBJS) | sed 's/ /\n/g' | wc -l)
+TOTAL=		$(shell echo $(OBJS) | tr ' ' '\n' | wc -l)
 CURRENT=	01
 
 all: $(KERNEL)

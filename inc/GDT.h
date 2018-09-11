@@ -10,6 +10,13 @@
 
 # define		PAGESIZE 			4096
 
+# define GDT_SEG_KCODE 0x08
+# define GDT_SEG_KDATA 0x10
+# define GDT_SEG_KSTACK 0x18
+# define GDT_SEG_UCODE 0x23
+# define GDT_SEG_UDATA 0x2B
+# define GDT_SEG_USTACK 0x33
+
 struct tss {
 	u16 previous_task, __previous_task_unused;
 	u32 esp0;
@@ -67,5 +74,7 @@ struct gdtdesc {
 
 
 void init_gdt(void);
+
+extern struct tss 		default_tss;
 
 #endif

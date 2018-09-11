@@ -1,5 +1,3 @@
-# KFS
-
 Hi ! We are 2 students working on kernel from scratch (**KFS**) series of projects at **Ecole 42** !
 
 ## What you need

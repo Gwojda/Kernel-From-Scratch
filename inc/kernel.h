@@ -15,12 +15,13 @@
 # include "io.h"
 # include "shell.h"
 # include "page.h"
+# include "idt.h"
+# include "lib.h"
 # include "virt_mem_management.h"
+# include "phys_mem_management.h"
 
 # if !defined(__i386__)
 #  error "This kernel needs to be compiled with a ix86-elf compiler"
 # endif
-
-size_t	strlen(const char* str);
 
 #endif

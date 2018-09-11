@@ -21,7 +21,7 @@
 size_t vprintk(const char *fmt, va_list *ap);
 size_t printk(const char *fmt, ...);
 
-void vga_putchar(char c);
+void vga_putchar_1(char c);
 
 enum printk_para_family
 {
@@ -47,6 +47,9 @@ struct printk_writer
 	size_t (*write_str)(struct printk_writer *writer, char *str);
 	size_t (*write_char)(struct printk_writer *writer, int c);
 };
+
+size_t wvprintk(struct printk_writer *writer, const char *fmt, va_list *ap);
+size_t wprintk(struct printk_writer *writer, const char *fmt, ...);
 
 int itoa_stack_max(char *nbr_buff, int is_unsigned, long int nb, const char *char_set);
 int printk_para_conv(const char **fmt, struct printk_para *para);
