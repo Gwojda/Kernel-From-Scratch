@@ -89,12 +89,12 @@ unsigned int *acpiGetRSDPtr(void)
 }
 
 // checks for a given header and validates checksum
-int acpiCheckHeader(struct RSDT *ptr, char *sig)
+int acpiCheckHeader(unsigned int *ptr, char *sig)
 {
 	if (memcmp(ptr, sig, 4) == 0)
 	{
-		char *checkPtr = (char *)ptr;
-		int len = ptr->h.Length;
+		char *checkPtr = (char *) ptr;
+		int len = *(ptr + 1);
 		char check = 0;
 		while (0<len--)
 		{
@@ -106,24 +106,6 @@ int acpiCheckHeader(struct RSDT *ptr, char *sig)
 	}
 	return -1;
 }
-
-/*int acpiCheckHeader(unsigned int *ptr, char *sig)
-  {
-  if (memcmp(ptr, sig, 4) == 0)
-  {
-  char *checkPtr = (char *) ptr;
-  int len = *(ptr + 1);
-  char check = 0;
-  while (0<len--)
-  {
-  check += *checkPtr;
-  checkPtr++;
-  }
-  if (check == 0)
-  return 0;
-  }
-  return -1;
-  }*/
 
 
 void *get_ACPIHeader(void *addr)
@@ -164,7 +146,6 @@ int initAcpi(void)
 					// search the \_S5 package in the DSDT
 					char *S5Addr = (char*)dsdt + 36; // skip header
 					int dsdtLength = *((int *)dsdt + 1) - 36;
-					printk("dsdt len = %d\n", dsdtLength);
 					while (0 < dsdtLength--)
 					{
 						if (memcmp(S5Addr, "_S5_", 4) == 0)
@@ -274,7 +255,7 @@ int acpiEnable(void)
 			return -1;
 		}
 	} else {
-		//printk("acpi was already enabled.\n");
+		printk("acpi was already enabled.\n");
 		return 0;
 	}
 }

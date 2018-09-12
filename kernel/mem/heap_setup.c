@@ -193,7 +193,7 @@ static void vdefrag(struct heap_list *heap_entry)
 		list_del(&heap_entry->list);
 		for (void *tmp_virt_addr = heap_entry ; (size_t)tmp_virt_addr < (size_t)PAGE_ALIGN(heap_entry->page_size) ; tmp_virt_addr += 4096)
 			free_phys_block(page_get_phys(tmp_virt_addr), 1);
-		free_virt_block(heap_entry, heap_entry->page_size >> 12);
+		free_virt_block(heap_entry, (size_t)PAGE_ALIGN(heap_entry->page_size) >> 12);
 	}
 }
 

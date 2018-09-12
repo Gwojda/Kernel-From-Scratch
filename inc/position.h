@@ -82,7 +82,7 @@ extern void *_kernel_data_end;
 
 # define KERNEL_DATA_SIZE (size_t)(KERNEL_DATA_END - KERNEL_DATA_START)
 
-# define HEAP_SIZE	(0x10000)
+# define HEAP_SIZE	(0x1000000)
 # define HEAP_START	((void*)(0x400000 + PAGE_ALIGN(KERNEL_END)))
 # define HEAP_END	((void*)(HEAP_START + HEAP_SIZE))
 
