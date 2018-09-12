@@ -32,7 +32,7 @@ $(KERNEL): $(OBJS)
 	@echo "Compilation done for $(KERNEL)"
 
 %.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "[$(shell printf "%02d" $(CURRENT))/$(TOTAL)]\tCompiling (C) $@..."
 	$(eval CURRENT=$(shell echo $$(($(CURRENT)+1))))
 

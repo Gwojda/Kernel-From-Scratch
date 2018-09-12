@@ -4,12 +4,13 @@
 #include "io.h"
 #include "position.h"
 #include "page.h"
+#include "tty.h"
 
 int	copy_with_physical(unsigned char *structt, void *addr, size_t struct_size)
 {
 	size_t delta = (size_t)addr % (1 << 12);
 	size_t to_copy;
-	addr = ((size_t)addr >> 12) << 12;
+	addr = (void *)(((size_t)addr >> 12) << 12);
 	while (struct_size != 0)
 	{
 		if (access_table_with_physical(page_swap2, addr))
@@ -23,6 +24,7 @@ int	copy_with_physical(unsigned char *structt, void *addr, size_t struct_size)
 		structt += to_copy;
 		addr += 1 << 12;
 	}
+	return 0;
 }
 
 // ebda = Extended BIOS Data Area
@@ -68,7 +70,7 @@ unsigned int *acpiGetRSDPtr(void)
 
 	// search below the 1mb mark for RSDP signature
 	// bios not extended research
-	for (addr = (unsigned int*) KERNEL_GET_VIRTUAL(0x000E0000); (int)addr < KERNEL_GET_VIRTUAL(0x00100000); addr += 0x10 / sizeof(addr))
+	for (addr = (unsigned int*) KERNEL_GET_VIRTUAL(0x000E0000); (int)addr < (int)KERNEL_GET_VIRTUAL(0x00100000); addr += 0x10 / sizeof(addr))
 	{
 		rsdp = acpiCheckRSDPtr(addr);
 		if (rsdp != NULL)
@@ -113,14 +115,14 @@ void *get_ACPIHeader(void *addr)
 	struct ACPISDTHeader *h1 = kmalloc(sizeof(struct ACPISDTHeader));
 	if (h1 == NULL)
 		return NULL;
-	copy_with_physical(h1, addr, sizeof(struct ACPISDTHeader));
+	copy_with_physical((unsigned char *)h1, addr, sizeof(struct ACPISDTHeader));
 	struct ACPISDTHeader *h = kmalloc(sizeof(struct ACPISDTHeader) + h1->Length);
 	if (h == NULL)
 	{
 		kfree(h1);
 		return NULL;
 	}
-	copy_with_physical(h, addr, sizeof(struct ACPISDTHeader) + h1->Length);
+	copy_with_physical((unsigned char *)h, addr, sizeof(struct ACPISDTHeader) + h1->Length);
 	kfree(h1);
 	return h;
 }
@@ -135,7 +137,7 @@ int initAcpi(void)
 		size_t entries = (rsbt->h.Length - sizeof(rsbt->h)) / 4;
 		for (size_t i = 0; i < entries; i++)
 		{
-			struct FACP *facp = get_ACPIHeader(rsbt->PointerToOtherSDT[i]);
+			struct FACP *facp = get_ACPIHeader((void *)rsbt->PointerToOtherSDT[i]);
 
 			if (acpiCheckHeader((unsigned int *)facp, "FACP") == 0)
 			{
@@ -214,6 +216,8 @@ int initAcpi(void)
 end:
 	if (!ret)
 		print_initialize_status("ACPI", TRUE);
+	else
+		print_initialize_status("ACPI", FALSE);
 	kfree(rsbt);
 	return ret;
 }

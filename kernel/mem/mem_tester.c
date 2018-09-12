@@ -5,8 +5,8 @@
 void	mem_tester(void)
 {
 	char	*ptr[TEST_SIZE];
-	int i = 0;
-	int j = 1;
+	size_t i = 0;
+	size_t j = 1;
 
 	if (kmalloc(0) != NULL || vmalloc(0) != NULL)
 	{

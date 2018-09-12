@@ -1,4 +1,5 @@
 #include "shell.h"
+#include "printk.h"
 
 void layout(char *cmd)
 {

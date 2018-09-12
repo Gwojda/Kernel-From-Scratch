@@ -1,6 +1,9 @@
 #include "kernel.h"
 #include "process.h"
 
+void user_shell(void);
+int initAcpi(void);
+
 static void	print_kernel_visu(void)
 {
 	tty_setcolor(&tty[0], vga_entry_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
@@ -25,8 +28,6 @@ static void	print_kernel_visu(void)
 	tty_setcolor(&tty[0], vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
 
 }
-
-void user_shell(void);
 
 void kmain (unsigned long volatile magic, unsigned long addr)
 {
