@@ -352,7 +352,7 @@ struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
 	proc->regs.edx = 0;
 	proc->regs.ebx = 0;
 
-	proc->regs.esp = 0xC0000000 - 10;/// - (1 << 12) / 2;
+	proc->regs.esp = 0xC0000000 - 0x10;/// - (1 << 12) / 2;
 
 	proc->regs.ebp = 0;
 	proc->regs.esi = 0;
