@@ -230,7 +230,7 @@ int kill(struct process *proc, pid_t pid, int sig)
 		p = list_entry(l, struct process, plist);
 		if (p->state != ZOMBIE && (p->pid == pid || pid == -1))
 		{
-			printk("uid %u\n", proc->uid);
+//			printk("uid %u\n", proc->uid);
 			if (proc->uid == 0 || proc->uid == p->uid)
 				err = add_signal(sig, p, SIG_SOFT);
 			else if (err == -ESRCH)

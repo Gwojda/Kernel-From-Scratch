@@ -1,8 +1,7 @@
 #include "process.h"
 #include "errno.h"
 
-
-// TODO same as process_dup
+// same as process_dup
 pid_t	fork(struct process *proc)
 {
 	int err = 0;
@@ -13,7 +12,7 @@ pid_t	fork(struct process *proc)
 
 	if ((err = copy_process(proc, new)) < 0)
 	{
-		free_process(new);// TODO kfree ?
+		free_process(new);
 		return err;
 	}
 

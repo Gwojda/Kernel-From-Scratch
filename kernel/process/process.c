@@ -344,7 +344,7 @@ struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
 	if (process_memory_add(proc, size, v_addr, PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, PROC_MEM_ADD_IMEDIATE | PROC_MEM_ADD_CODE))
 		goto err;
 	memcpy((void*)((size_t)v_addr & PAGE_ADDR), (void*)((size_t)function & PAGE_ADDR), size + ((size_t)v_addr & PAGE_FLAG));
-	if (process_memory_add(proc, 2 << 12, (void *)0xC0000000 - (2 << 12), PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, PROC_MEM_ADD_IMEDIATE | PROC_MEM_ADD_STACK))
+	if (process_memory_add(proc, 1 << 12, (void *)0xC0000000 - (1 << 12), PAGE_PRESENT | PAGE_WRITE | PAGE_USER_SUPERVISOR, PROC_MEM_ADD_IMEDIATE | PROC_MEM_ADD_STACK))
 		goto err;
 
 	proc->regs.eax = 0;
@@ -352,7 +352,7 @@ struct process	*process_ini_kern(u32 *v_addr, void* function, size_t size)
 	proc->regs.edx = 0;
 	proc->regs.ebx = 0;
 
-	proc->regs.esp = 0xC0000000 - 4096;/// - (1 << 12) / 2;
+	proc->regs.esp = 0xC0000000 - 10;/// - (1 << 12) / 2;
 
 	proc->regs.ebp = 0;
 	proc->regs.esi = 0;
