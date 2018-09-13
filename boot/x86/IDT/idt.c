@@ -20,10 +20,10 @@ int	page_fault_handler(struct interupt *data)
 	void *addr;
 
 	(void)data;
-	if (!current || current->state == ZOMBIE)
-		return SIGNAL_INFO_DEFAULT;
 	asm("mov %%cr2, %0" : "=r"(addr));
 	printk("Page fault %p:\n", addr);
+	if (!current || current->state == ZOMBIE)
+		return SIGNAL_INFO_DEFAULT;
 	return SIGNAL_INFO_DEFAULT;
 }
 

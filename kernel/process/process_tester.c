@@ -11,6 +11,7 @@ void user_shell(void);
 void user_hlt(void);
 void user_noobcrash(void);
 void testwait(void);
+void testmmap(void);
 void user_piperead(void);
 void user_pipewrite(void);
 
@@ -67,4 +68,9 @@ void	process_tester(void)
 	process_memory_switch(ppipe, 0);
 	ppipe = process_ini_kern((u32*)user_pipewrite, (void*)user_pipewrite + 0xC0000000, 1 << 12);
 	process_memory_switch(ppipe, 0);
+
+	struct process *mmaptester = process_ini_kern((u32*)testmmap, (void*)testmmap + 0xC0000000, 1 << 12);
+	process_memory_switch(mmaptester, 0);
+
+
 }

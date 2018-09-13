@@ -15,6 +15,8 @@ int		process_memory_switch(struct process *proc, int add)
 	struct list_head *l;
 	unsigned flags;
 
+	if (!proc)
+		return -EINVAL;
 	list_for_each(l, &proc->mm_heap)
 	{
 		pm = list_entry(l, struct map_memory, plist);

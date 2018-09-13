@@ -56,8 +56,12 @@ void kmain (unsigned long volatile magic, unsigned long addr)
 //	mem_tester();
 //	process_tester();
 
-	struct process *p = process_ini_kern((u32*)user_shell, (void*)user_shell + 0xC0000000, 1 << 12);
+	struct process *p;
+
+	if (!(p = process_ini_kern((u32*)user_shell, (void*)user_shell + 0xC0000000, 1 << 12)))
+		goto hlt;
 	process_memory_switch(p, 0);
+hlt:
 	asm volatile("sti");
 	while (1)
 		asm("hlt");

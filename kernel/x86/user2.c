@@ -61,6 +61,56 @@ start:
 	goto start;
 }
 
+__attribute__ ((section(".ucode"))) void testmmap(void)
+{
+	while (1)
+	{
+		asm("cli");
+		void *p = mmap(current, NULL, 1 << 12, PROT_READ, MAP_ANON, -1, 0);
+		printk("p = %p\n", p);
+		munmap(current, p, 1 << 12, 0);
+		void *p1 = mmap(current, NULL, 1 << 12, PROT_READ, MAP_ANON, -1, 0);
+		printk("p = %p\n", p1);
+		void *p2 = mmap(current, NULL, 1 << 12, PROT_READ, MAP_ANON, -1, 0);
+		printk("p = %p\n", p2);
+		void *p3 = mmap(current, NULL, 1 << 12, PROT_READ, MAP_ANON, -1, 0);
+		printk("p = %p\n", p3);
+		void *p4 = mmap(current, NULL, 1 << 12, PROT_READ, MAP_ANON, -1, 0);
+		printk("p = %p\n", p4);
+		void *p5 = mmap(current, NULL, 1 << 12, PROT_READ, MAP_ANON, -1, 0);
+		printk("p = %p\n", p5);
+
+		munmap(current, p1, 1 << 12, 0);
+		munmap(current, p2, 1 << 12, 0);
+		munmap(current, p3, 1 << 12, 0);
+		munmap(current, p4, 1 << 12, 0);
+		munmap(current, p5, 1 << 12, 0);
+
+		char *p6 = mmap(current, NULL, 1 << 12, PROT_WRITE, MAP_ANON, -1, 0);
+		for (size_t i = 0; i < 1 << 12; i++)
+			p6[i] = 1;
+
+		char *p7 = mmap(current, NULL, 1 << 12, PROT_WRITE, MAP_ANON | MAP_FIXED, -1, 0);
+		printk("p FAIL = %p\n", p7);
+
+		char *p8 = mmap(current, p6, 1 << 12, PROT_WRITE, MAP_ANON | MAP_FIXED, -1, 0);
+		printk("p FAIL = %p\n", p8);
+
+		char *p9 = mmap(current, (void *)(3 << 12), 1 << 12, PROT_WRITE, MAP_ANON | MAP_FIXED, -1, 0);
+		printk("p = %p\n", p9);
+
+		for (size_t i = 0; i < 1 << 12; i++)
+			p9[i] = 1;
+
+		munmap(current, p6, 1 << 12, 0);
+		munmap(current, p9, 1 << 12, 0);
+
+		asm("sti");
+
+		for (size_t i = 0; i < 0x10000000;i++);
+	}
+}
+
 __attribute__ ((section(".ucode"))) void sys(void)
 {
 	asm("mov $0x00, %eax; int $0x80");

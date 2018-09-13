@@ -17,17 +17,17 @@ static void	init_mm_bitmap(void *start, size_t len)
 	size_t	page = (size_t)start >> 12;
 
 	len = len >> 12;
-	while (page % 8)
+	while (len % 8)
 	{
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR(page)] |= 1 << (page % 8);
-		page += 4096;
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR(page << 12)] |= 1 << (page % 8);
+		page += 1;
 		--len;
 	}
 	while (len)
 	{
-		mm_bitmap[ACCESS_BITMAP_BY_ADDR(page)] = -1;
-		page += 4096 * 8;
-		--len;
+		mm_bitmap[ACCESS_BITMAP_BY_ADDR(page << 12)] = -1;
+		page += 8;
+		len -= 8;
 	}
 }
 

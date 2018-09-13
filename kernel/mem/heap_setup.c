@@ -112,7 +112,6 @@ void *kmalloc(size_t size)
 		goto err;	//no more virt addr available
 	if (!(new_phys_addr = get_phys_block((size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)) >> 12)))
 		goto err1;	//no more aligned phys addr
-	
 	if (page_map_range(new_phys_addr, new_virt_addr, PAGE_WRITE | PAGE_PRESENT, (size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)) >> 12))
 		goto err2;
 	init_new_allocated_block(new_virt_addr, (size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)), 0);
@@ -144,6 +143,7 @@ void *vmalloc(size_t size)
 	}
 	if (!(new_virt_addr = find_free_virt_addr((size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)))))
 		goto err;	//no more virt addr available
+	last_virt_addr_mapped = new_virt_addr;
 	for (void *tmp_virt_addr = new_virt_addr ; tmp_virt_addr < new_virt_addr + (size_t)PAGE_ALIGN(size + sizeof(struct heap_list) + sizeof(struct alloc_header)) ; tmp_virt_addr += 4096)
 	{
 		if (!(new_phys_addr = get_phys_block(1)))
@@ -191,7 +191,7 @@ static void vdefrag(struct heap_list *heap_entry)
 	if (heap_entry->page_size == start->size + sizeof(struct alloc_header) && start->free)
 	{
 		list_del(&heap_entry->list);
-		for (void *tmp_virt_addr = heap_entry ; (size_t)tmp_virt_addr < (size_t)PAGE_ALIGN(heap_entry->page_size) ; tmp_virt_addr += 4096)
+		for (void *tmp_virt_addr = heap_entry ; (size_t)tmp_virt_addr < (size_t)heap_entry + (size_t)PAGE_ALIGN(heap_entry->page_size) ; tmp_virt_addr += 4096)
 			free_phys_block(page_get_phys(tmp_virt_addr), 1);
 		free_virt_block(heap_entry, (size_t)PAGE_ALIGN(heap_entry->page_size) >> 12);
 	}
@@ -230,6 +230,8 @@ static void _free(const void *ptr, void (*defrag)(struct heap_list *))
 {
 	struct heap_list	*heap_entry;
 
+	if (!ptr)
+		return ;
 	list_for_each_entry(heap_entry, &heap_start.list, list)
 	{
 		if ((size_t)ptr > (size_t)heap_entry)
