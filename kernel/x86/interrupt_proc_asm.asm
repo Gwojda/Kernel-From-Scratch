@@ -17,4 +17,5 @@ proc_switch_iret:
 	pop ds
 	popad
 	add esp, 8
+	sti
 	iretd

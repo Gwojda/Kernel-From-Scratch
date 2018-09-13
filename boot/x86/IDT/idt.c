@@ -75,6 +75,7 @@ void switch_process(struct interupt *data)
 	struct process *cur_proc = current;
 	struct process *prev_proc;
 
+	asm("cli");
 	prev_proc = cur_proc;
 select:
 	if (cur_proc == NULL)
