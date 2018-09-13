@@ -66,6 +66,7 @@ void		process_die(struct process *proc)
 {
 	if (proc == current)
 	{
+		asm("cli");
 		reload_process(proc_switch_context, proc, &process_die_safe);
 	}
 	process_die_safe(proc);

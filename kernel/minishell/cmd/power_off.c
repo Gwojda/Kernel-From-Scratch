@@ -131,6 +131,7 @@ int initAcpi(void)
 {
 	struct RSDT *rsbt = get_ACPIHeader(acpiGetRSDPtr());
 	int ret = -1;
+
 	// check if address is correct (if acpi is available on this pc)
 	if (rsbt != NULL && acpiCheckHeader((unsigned int *)rsbt, "RSDT") == 0)
 	{

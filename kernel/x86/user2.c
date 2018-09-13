@@ -50,7 +50,9 @@ __attribute__ ((section(".ucode"))) void testwait(void)
 	int status;
 	pid_t pid;
 start:
+	asm("cli");
 	pid = process_waitpid(current, -1, &status, WNOHANG);
+	asm("sti");
 	if (pid == -ECHILD)
 		exit(current, 4);
 	if (pid == 0 || pid == -EAGAIN)
@@ -105,7 +107,9 @@ __attribute__ ((section(".ucode"))) void init(void)
 	int status;
 	pid_t pid;
 start:
+	asm("cli");
 	pid = process_waitpid(current, -1, &status, WNOHANG);
+	asm("sti");
 	if (pid == 0 || pid == -EAGAIN)
 		goto start;
 	goto start;
